@@ -1,0 +1,40 @@
+{
+    "type": "minecraft:block",
+    "pools": [
+        {
+            "rolls": 1,
+            "name": "cabbage_crop_1",
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "functions": [
+                        {
+                            "function": "minecraft:apply_bonus",
+                            "enchantment": "minecraft:fortune",
+                            "formula": "minecraft:binomial_with_bonus_count",
+                            "parameters": {
+                                "extra": 2,
+                                "probability": 0.5714286
+                            }
+                        }
+                    ],
+                    "name": "conloot:cabbage"
+                }
+            ],
+            "conditions": [
+                {
+                    "condition": "minecraft:block_state_property",
+                    "block": "conloot:cabbage_crop",
+                    "properties": {
+                        "age": "7"
+                    }
+                }
+            ]
+        }
+    ],
+    "functions": [
+        {
+            "function": "minecraft:explosion_decay"
+        }
+    ]
+}

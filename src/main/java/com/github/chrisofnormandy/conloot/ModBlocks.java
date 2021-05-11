@@ -1,5 +1,8 @@
 package com.github.chrisofnormandy.conloot;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.github.chrisofnormandy.conlib.block.ModBlock;
 import com.github.chrisofnormandy.conlib.block.types.OreBase;
 import com.github.chrisofnormandy.conlib.itemgroup.Groups;
@@ -8,21 +11,30 @@ import com.github.chrisofnormandy.conlib.tool.ToolMaterial;
 
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.config.ConfigGroup;
+import com.github.chrisofnormandy.conlib.crop.CropBase;
+import com.github.chrisofnormandy.conlib.crop.SeedBase;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
-import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonArray;
 import com.github.chrisofnormandy.conlib.common.StringUtil;
 
+import net.minecraft.block.Block;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.item.Item;
 import net.minecraft.item.Rarity;
-import net.minecraftforge.fml.loading.FMLConfig;
-import net.minecraftforge.fml.loading.FMLPaths;
 
 public class ModBlocks {
     public static JsonBuilder jsonBuilder = new JsonBuilder();
-    public static JsonArray blockJson = jsonBuilder.createJsonArray();
-    public static JsonArray itemJson = jsonBuilder.createJsonArray();
-    public static JsonArray recipeJson = jsonBuilder.createJsonArray();
-    public static JsonArray groupJson = jsonBuilder.createJsonArray();
+
+    static void registerCropFromConfig(String name, Config config, Groups cropGroup) {
+        Main.LOG.info("Generating new crop:" + name);
+        RenderType transparentRenderType = RenderType.cutoutMipped();
+
+        Block crop = ModRegister.registerCrop(new CropBase(), name + "_crop");
+        RenderTypeLookup.setRenderLayer(crop, transparentRenderType);
+        
+        ModRegister.registerFood(name, 1, 1, cropGroup);
+        ModRegister.registerItem(name + "_seeds", new SeedBase(crop, new Item.Properties().tab(cropGroup)));
+    }
 
     static void registerFromConfig(String name, Config config, Groups itemGroup, Groups toolGroup, Groups blockGroup) {
         Main.LOG.info("Generating new resource:" + name);
@@ -31,10 +43,7 @@ public class ModBlocks {
         ConfigGroup tool = config.getSubgroup("ToolMaterial");
         
         String oreName = ore.getStringValue("ore_name");
-        Integer minXP = ore.getIntegerValue("min_xp");
-        Integer maxXP = ore.getIntegerValue("max_xp");
         Integer harvestLevel = ore.getIntegerValue("harvest_level");
-        Float hardness = ore.getFloatValue("hardness");
 
         Integer level = tool.getIntegerValue("level");
         Integer maxDamage = tool.getIntegerValue("max_damage");
@@ -60,7 +69,7 @@ public class ModBlocks {
             }
         }
 
-        OreBase oreBlock = new OreBase(minXP, maxXP, harvestLevel, hardness);
+        OreBase oreBlock = new OreBase(harvestLevel);
 
         // Here is where a check for "gen_tools, armour, ore..." would be made.
         Main.LOG.info("Registering from config, type: " + name + " -> " + resourceTypeStr);
@@ -71,49 +80,35 @@ public class ModBlocks {
             ToolMaterial material = new ToolMaterial(level, maxDamage, immuneToFire, rarity, noRepair, resourceType);
 
             ModBlock.Ore.registerGem(name, oreName, oreBlock, material, itemGroup, toolGroup, blockGroup);
-        
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")));
-
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")) + " Pickaxe");
-
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")) + " Axe");
-
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")) + " Shovel");
-
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")) + " Hoe");
+            AssetPackBuilder.Blockstate.block(oreName);
+            AssetPackBuilder.Model.Block.block(oreName);
+            AssetPackBuilder.Model.Item.block(oreName);
+            AssetPackBuilder.Lang.addBlock(oreName, StringUtil.wordCaps_repl(oreName));
+            DataPackBuilder.LootTable.block(Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name);
+            DataPackBuilder.Recipe.Smelting.run(name, Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name, 1);
         }
         else if (resourceTypeStr.equals("ingot")) {
             ToolMaterial.type resourceType = ToolMaterial.type.ingot;
             ToolMaterial material = new ToolMaterial(level, maxDamage, immuneToFire, rarity, noRepair, resourceType);
 
             ModBlock.Ore.registerMetal(name, oreName, oreBlock, material, itemGroup, toolGroup, blockGroup);
-        
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")) + " Nugget");
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")) + " Ingot");
-
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")) + " Pickaxe");
-
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")) + " Axe");
-
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")) + " Shovel");
-
-            itemJson.add(StringUtil.wordCaps(name.replace("_", " ")) + " Hoe");
+            AssetPackBuilder.Blockstate.block(oreName);
+            AssetPackBuilder.Model.Block.block(oreName);
+            AssetPackBuilder.Lang.addBlock(oreName, StringUtil.wordCaps_repl(oreName));
         }
         else {
             ModBlock.Ore.register(oreName, oreBlock, blockGroup);
+            AssetPackBuilder.Blockstate.block(oreName);
+            AssetPackBuilder.Model.Block.block(oreName);
+            AssetPackBuilder.Lang.addBlock(oreName, StringUtil.wordCaps_repl(oreName));
         }
-
-        blockJson.addObject().set("name", StringUtil.wordCaps(oreName.replace("_", " "))).set("options", 1);
     }
 
     public static void Init() {
         Groups itemGroup = Groups.createGroup("item_group", ModRegister.registerItem("item_group_icon", new Item.Properties()));
         Groups toolGroup = Groups.createGroup("tool_group", ModRegister.registerItem("tool_group_icon", new Item.Properties()));
         Groups blockGroup = Groups.createGroup("ore_group", ModRegister.registerItem("ore_group_icon", new Item.Properties()));
-
-        groupJson.addObject().set("registryName", "itemGroup.{mod_id}_items").set("name", "CoNLoot | Items");
-        groupJson.addObject().set("registryName", "itemGroup.{mod_id}_tools").set("name", "CoNLoot | Tools");
-        groupJson.addObject().set("registryName", "itemGroup.{mod_id}_ores").set("name", "CoNLoot | Ores");
+        Groups cropGroup = Groups.createGroup("crop_group", ModRegister.registerItem("crop_group_icon", new Item.Properties()));
         
         //NEXT UP:
         /*
@@ -126,6 +121,8 @@ public class ModBlocks {
             Have a notice show to the user on login about the resource pack?
         */
 
+        Pattern p = Pattern.compile("(\\w+)\\[(\\d+)-(\\d+)\\]");
+
         Main.config.gemConfigs.forEach((String name, Config config) -> {
             registerFromConfig(name, config, itemGroup, toolGroup, blockGroup);
         });
@@ -134,8 +131,22 @@ public class ModBlocks {
             registerFromConfig(name, config, itemGroup, toolGroup, blockGroup);
         });
 
-        String configPath = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath()).toString();
-        
-        jsonBuilder.write(configPath + "/blocks", jsonBuilder.stringify(blockJson));
-    }
+        Main.config.plantConfigs.forEach((String name, Config config) -> {
+            Matcher m = p.matcher(name);
+
+            if (m.find()) {
+                int start = Integer.parseInt(m.group(2));
+                int end = Integer.parseInt(m.group(3));
+
+                for (int i = start; i <= end; i++) {
+                    if (i > 0)
+                        registerCropFromConfig(m.group(1) + "_" + i, config, cropGroup);
+                    else
+                        registerCropFromConfig(m.group(1), config, cropGroup);
+                }
+            }
+            else
+                registerCropFromConfig(name, config, cropGroup);
+        });
+            }
 }

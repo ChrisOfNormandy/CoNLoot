@@ -11,6 +11,7 @@ public class Mod_Config {
     HashMap<String, Config> configs = new HashMap<String, Config>();
     HashMap<String, Config> gemConfigs = new HashMap<String, Config>();
     HashMap<String, Config> metalConfigs = new HashMap<String, Config>();
+    HashMap<String, Config> plantConfigs = new HashMap<String, Config>();
     
     /**
      * 
@@ -28,7 +29,6 @@ public class Mod_Config {
         oreGroup.addInteger("min_xp", 0, "The minimum amount of experience to give when mined.");
         oreGroup.addInteger("max_xp", 0, "The maximum amount of experience to give when mined. Should be larger than min.");
         oreGroup.addInteger("harvest_level", 2, "The ore hardness level. Gold: 0; Wood: 0; Stone: 1; Iron: 2; Diamond: 3; Netherite: 4");
-        oreGroup.addFloat("hardness", 3.0f, "The hardness of the ore block. 3 is vanilla ore hardness. Ancient debris is 30.");
         cfg.addSubgroup("Ore", oreGroup);
 
         ConfigGroup toolMaterialGroup = new ConfigGroup();
@@ -41,10 +41,16 @@ public class Mod_Config {
         cfg.addSubgroup("ToolMaterial", toolMaterialGroup);
     }
 
-    void mainConfig(Config config, ConfigGroup gemGroup, ConfigGroup metalGroup) {
+    void buildCropCfg(String name, Config cfg) {
+        cfg.addFlag("generate_wild", true, "Should this crop be generated in the wild?");
+    }
+
+    void mainConfig(Config config, ConfigGroup gemGroup, ConfigGroup metalGroup, ConfigGroup cropGroup) {
         gemGroup.addFlag("allow_gems", true, "Should gems be a thing?");
         gemGroup.addFlag("allow_metals", true, "Should metals be a thing?");
+        gemGroup.addFlag("allow_crops", true, "Should crops be a thing?");
 
+        // Gems
         List<String> gemList = new ArrayList<String>();
         gemList.add("garnet");
         gemList.add("amethyst");
@@ -66,6 +72,7 @@ public class Mod_Config {
         gemList.add("tanzanite");
         gemGroup.addStringList("gem_list", gemList, "A list of default gem types. DO NOT MODIFY THIS LIST.");
 
+        // Alternate Gems
         List<String> alt_gemList = new ArrayList<String>();
         gemGroup.addStringList("alt_gem_list", alt_gemList, "A list of custom gem types.");
 
@@ -73,6 +80,7 @@ public class Mod_Config {
 
         gemGroup.addFlag("allow_gems", true, "Should gems be a thing?");
 
+        // Metals
         List<String> metalList = new ArrayList<String>();
         metalList.add("lead");
         metalList.add("copper");
@@ -84,10 +92,18 @@ public class Mod_Config {
         metalList.add("silver");
         metalGroup.addStringList("metal_list", metalList, "A list of default metal types. DO NOT MODIFY THIS LIST.");
 
+        // Alternate Metals
         List<String> alt_metalList = new ArrayList<String>();
         metalGroup.addStringList("alt_metal_list", alt_metalList, "A list of custom metal types.");
 
         config.addSubgroup("Metals", metalGroup);
+
+        // Crops
+        List<String> cropList = new ArrayList<String>();
+        cropList.add("cabbage");
+        cropGroup.addStringList("crop_list", cropList, "A list of default crops. DO NOT MODIFY THIS LIST.");
+
+        config.addSubgroup("Crops", cropGroup);
 
         config.Build();
         configs.put(Main.MOD_ID, config);
@@ -125,13 +141,24 @@ public class Mod_Config {
         });
     }
 
+    void buildCropConfigs(ConfigGroup cropConfig) {
+        cropConfig.getStringListValue("crop_list").forEach((String crop) -> {
+            Config cfg = new Config("conloot/crops", crop);
+            buildCropCfg(crop, cfg);
+            cfg.Build();
+            plantConfigs.put(crop, cfg);
+        });
+    }
+
     public void Init() {
         Config config = new Config(Main.MOD_ID);
         ConfigGroup gemGroup = new ConfigGroup();
         ConfigGroup metalGroup = new ConfigGroup();
+        ConfigGroup cropGroup = new ConfigGroup();
 
-        mainConfig(config, gemGroup, metalGroup);
+        mainConfig(config, gemGroup, metalGroup, cropGroup);
         buildGemConfigs(gemGroup);
         buildMetalConfigs(metalGroup);
+        buildCropConfigs(cropGroup);
     }
 }

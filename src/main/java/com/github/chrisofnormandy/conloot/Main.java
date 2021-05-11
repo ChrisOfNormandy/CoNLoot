@@ -11,14 +11,10 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLConfig;
-import net.minecraftforge.fml.loading.FMLPaths;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
-import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 import com.github.chrisofnormandy.conlib.registry.ModRegister;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -31,6 +27,8 @@ public class Main
     public static Mod_Config config = new Mod_Config();
 
     public Main() {
+        ModRegister.Init(MOD_ID);
+
         config.Init();
 
         // Register the setup method for modloading
@@ -94,20 +92,6 @@ public class Main
         @SubscribeEvent
         public static void onBlocksRegistry(final RegistryEvent.Register<Block> blockRegistryEvent) {
             // register a new block here
-            ModRegister.Init(MOD_ID);
-            
-            JsonBuilder jsonBuilder = new JsonBuilder();
-            JsonObject cfg = jsonBuilder.createJsonObject();
-            cfg.set("mod_id", MOD_ID);
-            cfg.set("mod_name", MOD_ID);
-            cfg.set("author", "");
-            cfg.set("path", "./resourcepacks");
-            cfg.set("build_path", "./defaultconfigs");
-
-            String configPath = FMLPaths.GAMEDIR.get().resolve(FMLConfig.defaultConfigPath()).toString();
-
-            jsonBuilder.write(configPath + "/config", cfg.toString());
-
             ModBlocks.Init();
             ModItems.Init();
         }

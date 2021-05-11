@@ -1,0 +1,6 @@
+{
+    "parent": "block/crop",
+    "textures": {
+        "crop": "conloot:block/cabbage_stage_1"
+    }
+}
