@@ -36,6 +36,66 @@ public class ModBlocks {
         ModRegister.registerItem(name + "_seeds", new SeedBase(crop, new Item.Properties().tab(cropGroup)));
     }
 
+    static void generateBlock(String name) {
+        AssetPackBuilder.Blockstate.block(name);
+        AssetPackBuilder.Model.Block.block(name);
+        AssetPackBuilder.Model.Item.block(name);
+        AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));
+    }
+
+    static void generateBlock(String name, String base, String template, String[] colors, String mode, Boolean templateShading) {
+        AssetPackBuilder.Blockstate.block(name);
+        AssetPackBuilder.Model.Block.block(name, base, template, colors, mode, templateShading);
+        AssetPackBuilder.Model.Item.block(name);
+        AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));
+    }
+
+    static void generateBlock(String name, String base, String[] colors, String mode, Boolean templateShading) {
+        AssetPackBuilder.Blockstate.block(name);
+        AssetPackBuilder.Model.Block.block(name, base, base, colors, mode, templateShading);
+        AssetPackBuilder.Model.Item.block(name);
+        AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));
+    }
+
+    static void registerBlockFromConfig(String name, Config config, Groups blockGroup) {
+        Main.LOG.info("Generating new block:" + name);
+
+        Integer harvestLevel = config.getIntegerValue("harvest_level");
+        Float strength = config.getDoubleValue("strength").floatValue();
+        String type = config.getStringValue("block_type");
+
+        String[] colors = config.getSubgroup("Colors").getStringListValue("color").toArray(new String[0]);
+        String mode = config.getSubgroup("Colors").getStringValue("blend_mode");
+
+        String template = config.getSubgroup("Assets").getStringValue("template");
+        String base = config.getSubgroup("Assets").getStringValue("base");
+
+        Boolean templateShading = config.getSubgroup("Colors").getFlagValue("template_shading");
+
+        switch (type) {
+            case "stone": {
+                ModBlock.Stone.register(name, harvestLevel, strength, blockGroup);
+                break;
+            }
+            case "wood": {
+                ModBlock.Wood.register(name, harvestLevel, strength, blockGroup);
+                break;
+            }
+            case "bricks": {
+                ModBlock.Bricks.register(name, harvestLevel, strength, blockGroup);
+                break;
+            }
+            default: {
+                ModBlock.Stone.register(name, harvestLevel, strength, blockGroup);
+                break;
+            }
+        }
+
+        generateBlock(name, base, template, colors, mode, templateShading);
+
+        DataPackBuilder.LootTable.block(Main.MOD_ID + ":" + name);
+    }
+
     static void registerFromConfig(String name, Config config, Groups itemGroup, Groups toolGroup, Groups blockGroup) {
         Main.LOG.info("Generating new resource:" + name);
 
@@ -44,6 +104,7 @@ public class ModBlocks {
         
         String oreName = ore.getStringValue("ore_name");
         Integer harvestLevel = ore.getIntegerValue("harvest_level");
+        Float strength = ore.getDoubleValue("strength").floatValue();
 
         Integer level = tool.getIntegerValue("level");
         Integer maxDamage = tool.getIntegerValue("max_damage");
@@ -69,7 +130,7 @@ public class ModBlocks {
             }
         }
 
-        OreBase oreBlock = new OreBase(harvestLevel);
+        OreBase oreBlock = new OreBase(harvestLevel, strength);
 
         // Here is where a check for "gen_tools, armour, ore..." would be made.
         Main.LOG.info("Registering from config, type: " + name + " -> " + resourceTypeStr);
@@ -80,21 +141,72 @@ public class ModBlocks {
             ToolMaterial material = new ToolMaterial(level, maxDamage, immuneToFire, rarity, noRepair, resourceType);
 
             ModBlock.Ore.registerGem(name, oreName, oreBlock, material, itemGroup, toolGroup, blockGroup);
-            AssetPackBuilder.Blockstate.block(oreName);
-            AssetPackBuilder.Model.Block.block(oreName);
-            AssetPackBuilder.Model.Item.block(oreName);
-            AssetPackBuilder.Lang.addBlock(oreName, StringUtil.wordCaps_repl(oreName));
+
             DataPackBuilder.LootTable.block(Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name);
             DataPackBuilder.Recipe.Smelting.run(name, Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name, 1);
+
+            String[] oreColors = config.getSubgroup("Colors").getStringListValue("ore_color").toArray(new String[0]);
+            String[] colors = config.getSubgroup("Colors").getStringListValue("resource_color").toArray(new String[0]);
+
+            Boolean templateShading = config.getSubgroup("Colors").getFlagValue("template_shading");
+
+            String oreMode = config.getSubgroup("Colors").getStringValue("ore_blend_mode");
+            String mode = config.getSubgroup("Colors").getStringValue("resource_blend_mode");
+
+            String[] tools = {"pickaxe", "axe", "shovel", "hoe"};
+
+            if (colors.length >= 1) {
+                generateBlock(oreName, "ore_gem_base", "ore_gem", oreColors, oreMode, templateShading);
+
+                for (String t : tools) {
+                    AssetPackBuilder.Model.Item.item(name + "_" + t, t + "_base", t, colors, mode, templateShading);
+                    AssetPackBuilder.Lang.addItem(name + "_" + t, StringUtil.wordCaps_repl(name + "_" + t));
+                }
+            }
+            else {
+                generateBlock(oreName);
+
+                for (String t : tools) {
+                    AssetPackBuilder.Model.Item.item(name + "_" + t);
+                    AssetPackBuilder.Lang.addItem(name + "_" + t, StringUtil.wordCaps_repl(name + "_" + t));
+                }
+            }
         }
         else if (resourceTypeStr.equals("ingot")) {
             ToolMaterial.type resourceType = ToolMaterial.type.ingot;
             ToolMaterial material = new ToolMaterial(level, maxDamage, immuneToFire, rarity, noRepair, resourceType);
 
             ModBlock.Ore.registerMetal(name, oreName, oreBlock, material, itemGroup, toolGroup, blockGroup);
-            AssetPackBuilder.Blockstate.block(oreName);
-            AssetPackBuilder.Model.Block.block(oreName);
-            AssetPackBuilder.Lang.addBlock(oreName, StringUtil.wordCaps_repl(oreName));
+            
+            DataPackBuilder.LootTable.block(Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name);
+            DataPackBuilder.Recipe.Smelting.run(name, Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name, 1);
+
+            String[] oreColors = config.getSubgroup("Colors").getStringListValue("ore_color").toArray(new String[0]);
+            String[] colors = config.getSubgroup("Colors").getStringListValue("resource_color").toArray(new String[0]);
+
+            Boolean templateShading = config.getSubgroup("Colors").getFlagValue("template_shading");
+
+            String oreMode = config.getSubgroup("Colors").getStringValue("ore_blend_mode");
+            String mode = config.getSubgroup("Colors").getStringValue("resource_blend_mode");
+
+            String[] tools = {"pickaxe", "axe", "shovel", "hoe"};
+
+            if (colors.length >= 1) {
+                generateBlock(oreName, "ore_base", "ore", oreColors, oreMode, templateShading);
+
+                for (String t : tools) {
+                    AssetPackBuilder.Model.Item.item(name + "_" + t, t + "_base", t, colors, mode, templateShading);
+                    AssetPackBuilder.Lang.addItem(name + "_" + t, StringUtil.wordCaps_repl(name + "_" + t));
+                }
+            }
+            else {
+                generateBlock(oreName);
+
+                for (String t : tools) {
+                    AssetPackBuilder.Model.Item.item(name + "_" + t);
+                    AssetPackBuilder.Lang.addItem(name + "_" + t, StringUtil.wordCaps_repl(name + "_" + t));
+                }
+            }
         }
         else {
             ModBlock.Ore.register(oreName, oreBlock, blockGroup);
@@ -148,5 +260,11 @@ public class ModBlocks {
             else
                 registerCropFromConfig(name, config, cropGroup);
         });
-            }
+
+        Main.config.blockConfigs.forEach((String name, Config config) -> {
+            registerBlockFromConfig(name, config, blockGroup);
+        });
+
+        AssetPackBuilder.Lang.write();
+    }
 }

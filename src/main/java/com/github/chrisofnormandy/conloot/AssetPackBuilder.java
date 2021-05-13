@@ -1,11 +1,14 @@
 package com.github.chrisofnormandy.conloot;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonArray;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 import com.github.chrisofnormandy.conlib.common.Files;
+
+import net.minecraftforge.fml.loading.FMLPaths;
 
 public class AssetPackBuilder {
     private static JsonBuilder builder = new JsonBuilder();
@@ -154,6 +157,13 @@ public class AssetPackBuilder {
 
     public static class Model {
         public static class Block {
+            private static void write(String name, JsonObject json) {
+                Main.LOG.info("Creating new model for " + name);
+                Path p = FMLPaths.GAMEDIR.get().resolve(getPath(Main.MOD_ID + "/" +"models/block"));
+                
+                if (!p.resolve(name + ".json").toFile().exists())
+                    builder.write(getPath(Main.MOD_ID + "/" +"models/block"), name, json);
+            }
             /**
              * 
              * @param name Should be formatted as partial registry name, like dirt.
@@ -165,7 +175,26 @@ public class AssetPackBuilder {
                 json.set("parent", "minecraft:block/cube_all");
                 json.addObject("textures").set("all", Main.MOD_ID + ":block/" + name);
 
-                builder.write(getPath(Main.MOD_ID + "/" +"models/block"), name, json);
+                write(name, json);
+
+                return json;
+            }
+
+            /**
+             * 
+             * @param name Should be formatted as partial registry name, like dirt.
+             * @return
+             */
+            public static JsonObject block(String name, String base, String template, String[] colors, String mode, Boolean templateShading) {
+                JsonObject json = builder.createJsonObject();
+
+                json.set("parent", "minecraft:block/cube_all");
+                json.addObject("textures").set("all", Main.MOD_ID + ":block/" + name);
+
+                write(name, json);
+
+                Main.LOG.info("Generating default asset for " + name + " using " + base + " + " + template);
+                AssetBuilder.createImage(getPath(Main.MOD_ID + "/textures/block"), name, template, base, colors, mode, templateShading);
 
                 return json;
             }
@@ -296,6 +325,14 @@ public class AssetPackBuilder {
         }
 
         public static class Item {
+            private static void write(String name, JsonObject json) {
+                Main.LOG.info("Creating new model for " + name);
+                Path p = FMLPaths.GAMEDIR.get().resolve(getPath(Main.MOD_ID + "/" +"models/item"));
+
+                if (!p.resolve(name + ".json").toFile().exists())
+                    builder.write(getPath(Main.MOD_ID + "/" +"models/item"), name, json);
+            }
+
             /**
              * 
              * @param name Should be formatted as partial registry name, like dirt.
@@ -306,7 +343,7 @@ public class AssetPackBuilder {
 
                 json.set("parent", Main.MOD_ID + ":block/" + name);
 
-                builder.write(getPath(Main.MOD_ID + "/" +"models/item"), name, json);
+                write(name, json);
 
                 return json;
             }
@@ -321,7 +358,7 @@ public class AssetPackBuilder {
 
                 json.set("parent", Main.MOD_ID + ":block/" + name + "_wall_inventory");
                 
-                builder.write(getPath(Main.MOD_ID + "/" +"models/item"), name, json);
+                write(name, json);
 
                 return json;
             }
@@ -336,7 +373,7 @@ public class AssetPackBuilder {
 
                 json.set("parent", Main.MOD_ID + ":block/" + name);
 
-                builder.write(getPath(Main.MOD_ID + "/" +"models/item") , name, json);
+                write(name, json);
 
                 return json;
             }
@@ -351,7 +388,42 @@ public class AssetPackBuilder {
 
                 json.set("parent", Main.MOD_ID + ":block/" + name + "_slab");
                 
-                builder.write(getPath(Main.MOD_ID + "/" +"models/item"), name, json);
+                write(name, json);
+
+                return json;
+            }
+
+            /**
+             * 
+             * @param name Should be formatted as partial registry name, like dirt.
+             * @return
+             */
+            public static JsonObject item(String name) {
+                JsonObject json = builder.createJsonObject();
+
+                json.set("parent", "item/generated");
+                json.addObject("textures").set("layer0", Main.MOD_ID + ":item/" + name);
+                
+                write(name, json);
+
+                return json;
+            }
+
+            /**
+             * 
+             * @param name Should be formatted as partial registry name, like dirt.
+             * @return
+             */
+            public static JsonObject item(String name, String base, String template, String[] colors, String mode, Boolean templateShading) {
+                JsonObject json = builder.createJsonObject();
+
+                json.set("parent", "item/generated");
+                json.addObject("textures").set("layer0", Main.MOD_ID + ":item/" + name);
+                
+                write(name, json);
+
+                Main.LOG.info("Generating default asset for " + name + " using " + base + " + " + template);
+                AssetBuilder.createImage(getPath(Main.MOD_ID + "/textures/item"), name, template, base, colors, mode, templateShading);
 
                 return json;
             }
