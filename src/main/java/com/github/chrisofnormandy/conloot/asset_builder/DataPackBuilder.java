@@ -1,4 +1,4 @@
-package com.github.chrisofnormandy.conloot;
+package com.github.chrisofnormandy.conloot.asset_builder;
 
 import java.util.HashMap;
 
@@ -6,6 +6,7 @@ import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonArray;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 import com.github.chrisofnormandy.conlib.common.Files;
+import com.github.chrisofnormandy.conloot.Main;
 
 public class DataPackBuilder {
     private static JsonBuilder builder = new JsonBuilder();
@@ -261,6 +262,40 @@ public class DataPackBuilder {
     }
 
     public static class Tags {
+        static JsonObject slabs = builder.createJsonObject();
+        static JsonObject stairs = builder.createJsonObject();
+        static JsonObject walls = builder.createJsonObject();
 
+        static {
+            slabs.set("replace", false);
+            stairs.set("replace", false);
+            walls.set("replace", false);
+
+            slabs.addArray("values");
+            stairs.addArray("values");
+            walls.addArray("values");
+        }
+
+        public static void addSlab(String name) {
+            slabs.getArray("values").add("\"" + Main.MOD_ID + ":" + name + "\"");
+        }
+
+        public static void addStairs(String name) {
+            stairs.getArray("values").add("\"" + Main.MOD_ID + ":" + name + "\"");
+        }
+
+        public static void addWall(String name) {
+            walls.getArray("values").add("\"" + Main.MOD_ID + ":" + name + "\"");
+        }
+
+        public static void write() {
+            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "slabs", slabs);
+            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "stairs", stairs);
+            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "walls", walls);
+
+            builder.write(getPath("minecraft" + "/" + "tags/items"), "slabs", slabs);
+            builder.write(getPath("minecraft" + "/" + "tags/items"), "stairs", stairs);
+            builder.write(getPath("minecraft" + "/" + "tags/items"), "walls", walls);
+        }
     }
 }

@@ -30,6 +30,7 @@ public class Mod_Config {
 
         ConfigGroup colors = new ConfigGroup();
         List<String> colorList = new ArrayList<String>();
+        colorList.add("0, 0, 0");
 
         colors.addStringList("ore_color", colorList, "RGB value for default generated assets. Used for ore texture.");
         colors.addStringList("resource_color", colorList, "RGB value for default generated assets. Used for item, tool texture.");
@@ -81,9 +82,11 @@ public class Mod_Config {
         cfg.addInteger("harvest_level", 1, "The block hardness level. Gold: 0; Wood: 0; Stone: 1; Iron: 2; Diamond: 3; Netherite: 4");
         cfg.addDouble("strength", 1.5, "The ore hardness level. Stone: 1.5; Obsidian: 50");
         cfg.addString("block_type", "stone", "The base block type. Accepted values: stone, wood, bricks");
+        cfg.addString("block_model", "full", "What model should the block adapt? Options: full, slab, stairs, wall | Other options: suite: register full block, slab, stairs. For stone, wall. For wood, fence and fence gate, door and trapdoor.");
 
         ConfigGroup colors = new ConfigGroup();
         List<String> colorList = new ArrayList<String>();
+        colorList.add("0, 0, 0");
 
         colors.addStringList("color", colorList, "RGB value for default generated assets. Used for overlay texture.");
         colors.addString("blend_mode", "sharp", "How colors are distributed using the overlay template | gradient: a curve blend of colors; sharp: no blending between colors; spotted: uses the first color as a base and applies the rest as spots.");
@@ -91,10 +94,36 @@ public class Mod_Config {
         cfg.addSubgroup("Colors", colors);
 
         ConfigGroup assets = new ConfigGroup();
-        assets.addString("template", "stone_overlay", "The PNG name to use as the asset template. Should be a cutout of the colored / custom portion.");
-        assets.addString("base", "stone_base", "The PNG name to use as the asset base. Should be a full block texture, such as stone, or a texture with the colored / custom portion removed.");
+        assets.addString("template", "noise", "The PNG name to use as the asset template. Should be a cutout of the colored / custom portion.");
+        assets.addString("base", "noise", "The PNG name to use as the asset base. Should be a full block texture, such as stone, or a texture with the colored / custom portion removed.");
         cfg.addSubgroup("Assets", assets);
 
+    }
+
+    void buildSlabCfg(String name, Config cfg) {
+        cfg.addInteger("harvest_level", 1, "The block hardness level. Gold: 0; Wood: 0; Stone: 1; Iron: 2; Diamond: 3; Netherite: 4");
+        cfg.addDouble("strength", 1.5, "The ore hardness level. Stone: 1.5; Obsidian: 50");
+        cfg.addString("block_type", "stone", "The base block type. Accepted values: stone, wood, bricks");
+        cfg.addString("block_model", "full", "What model should the block adapt? Options: full, slab, stairs, wall | Other options: suite: register full block, slab, stairs. For stone, wall. For wood, fence and fence gate, door and trapdoor.");
+
+        ConfigGroup colors = new ConfigGroup();
+        List<String> colorList = new ArrayList<String>();
+        colorList.add("0, 0, 0");
+
+        colors.addStringList("color", colorList, "RGB value for default generated assets. Used for overlay texture.");
+        colors.addString("blend_mode", "sharp", "How colors are distributed using the overlay template | gradient: a curve blend of colors; sharp: no blending between colors; spotted: uses the first color as a base and applies the rest as spots.");
+        colors.addFlag("template_shading", true, "Should the template be registered as a brightness value when applying colors? False will use base layer instead.");
+        cfg.addSubgroup("Colors", colors);
+
+        ConfigGroup assets = new ConfigGroup();
+        List<String> assetList = new ArrayList<String>();
+        assetList.add("noise");
+        assetList.add("noise");
+        assetList.add("noise");
+
+        assets.addStringList("templates", assetList, "The PNG names to use as the asset template. Should be a cutout of the colored / custom portion. Order: bottom, top, side.");
+        assets.addStringList("bases", assetList, "The PNG names to use as the asset base. Should be a full block texture, such as stone, or a texture with the colored / custom portion removed. Order: bottom, top, side.");
+        cfg.addSubgroup("Assets", assets);
     }
 
     void mainConfig(Config config, ConfigGroup gemGroup, ConfigGroup metalGroup, ConfigGroup cropGroup, ConfigGroup blockGroup) {
@@ -134,6 +163,10 @@ public class Mod_Config {
         // Blocks
         List<String> blockList = new ArrayList<String>();
         blockGroup.addStringList("block_list", blockList, "A list of blocks.");
+        blockGroup.addStringList("slab_list", blockList, "A list of slabs.");
+        blockGroup.addStringList("stairs_list", blockList, "A list of stairs.");
+        blockGroup.addStringList("wall_list", blockList, "A list of walls.");
+        blockGroup.addStringList("suite_list", blockList, "A list of content that should generate a block, slab, stair, and depending on type, wall or fence.");
 
         config.addSubgroup("Blocks", blockGroup);
 
@@ -182,12 +215,56 @@ public class Mod_Config {
         });
     }
 
+    void bCfg(String block) {
+        Config cfg = new Config("conloot/blocks", block);
+        buildBlockCfg(block, cfg);
+        cfg.Build();
+        blockConfigs.put(block, cfg);
+    }
+
+    void sbCfg(String block) {
+        Config cfg = new Config("conloot/blocks/slabs", block + "_slab");
+        buildSlabCfg(block + "_slab", cfg);
+        cfg.Build();
+        blockConfigs.put(block + "_slab", cfg);
+    }
+
+    void stCfg(String block) {
+        Config cfg = new Config("conloot/blocks/stairs", block + "_stairs");
+        buildSlabCfg(block + "_stairs", cfg);
+        cfg.Build();
+        blockConfigs.put(block + "_stairs", cfg);
+    }
+
+    void wCfg(String block) {
+        Config cfg = new Config("conloot/blocks/walls", block + "_wall");
+        buildBlockCfg(block + "_wall", cfg);
+        cfg.Build();
+        blockConfigs.put(block + "_wall", cfg);
+    }
+
     void buildBlockConfigs(ConfigGroup blockConfig) {
         blockConfig.getStringListValue("block_list").forEach((String block) -> {
-            Config cfg = new Config("conloot/blocks", block);
-            buildBlockCfg(block, cfg);
-            cfg.Build();
-            blockConfigs.put(block, cfg);
+            bCfg(block);
+        });
+
+        blockConfig.getStringListValue("slab_list").forEach((String block) -> {
+            sbCfg(block);
+        });
+
+        blockConfig.getStringListValue("stairs_list").forEach((String block) -> {
+            stCfg(block);
+        });
+
+        blockConfig.getStringListValue("wall_list").forEach((String block) -> {
+            wCfg(block);
+        });
+
+        blockConfig.getStringListValue("suite_list").forEach((String block) -> {
+            bCfg(block);
+            sbCfg(block);
+            stCfg(block);
+            wCfg(block);
         });
     }
 

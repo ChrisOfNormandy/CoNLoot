@@ -1,4 +1,4 @@
-package com.github.chrisofnormandy.conloot;
+package com.github.chrisofnormandy.conloot.asset_builder;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+
+import com.github.chrisofnormandy.conloot.Main;
 
 import net.minecraftforge.fml.loading.FMLPaths;
 
