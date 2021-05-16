@@ -13,10 +13,56 @@ section of the codebase, the PDF versions downloadable from ~~my site~~, or the 
 
 The following is a basic example of a config file (as of 15-5-21 v1.0) in TOML format:
 ```toml
---config--
+[Blocks]
+
+	[Blocks."String Lists"]
+		#A list of slabs.
+		slab_list = []
+		#A list of walls.
+		wall_list = []
+		#A list of blocks.
+		block_list = []
+		#A list of content that should generate a block, slab, stair, and depending on type, wall or fence.
+		suite_list = []
+		#A list of stairs.
+		stairs_list = []
+
+[Gems]
+
+	[Gems."String Lists"]
+		#A list of gem types.
+		gem_list = []
+		#A list of custom gem types.
+		alt_gem_list = []
+
+	[Gems.Flags]
+		#Should crops be a thing?
+		allow_crops = true
+		#Should generic blocks be a thing?
+		allow_blocks = true
+		#Should metals be a thing?
+		allow_metals = true
+		#Should gems be a thing?
+		allow_gems = true
+
+[Metals]
+
+	[Metals."String Lists"]
+		#A list of custom metal types.
+		alt_metal_list = []
+		#A list of metal types.
+		metal_list = []
+
+[Crops]
+
+	[Crops."String Lists"]
+		#A list of crops.
+		crop_list = []
 ```
 
-Each field is organized by subgroup, where each subgroup is organized by field data type. For instance, a subgroup "Colors" may contain integer properties and string properties. As such, the format of each property name would be `Colors.Integers` or `Colors.Strings`, or something similar.
+***
+
+Each field is organized by subgroup, where each subgroup is organized by field data type. For instance, the subgroup "Gems" contains boolean properties and string list properties. As such, the format of each property name would be `Gems."String Lists"` or `Gems.Flags`, or something similar.
 
 There are multiple different available config property types as defined by CoNLib, the library mod responsible for much of the heavy lifting of this mod project. Documentation can be found ~~here~~. 
 
@@ -29,6 +75,8 @@ There are multiple different available config property types as defined by CoNLi
 
 **String Lists** are lists of strings (duh) formatted as `["a", "b", "c"]`.
 **Integer Lists** are lists of integers formatted as `[1, 2, 3]`.
+
+***
 
 Lists are used for a variety of operations within the mod, such as supplying multiple values to single functions, or providing a list of items to generate content for.
 For example, string lists of colors are used for generating generic textures for content in the game. Supplying a single color will use only the single color when generating the texture. Providing more than one will use multiple. Simple.
