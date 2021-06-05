@@ -29,7 +29,7 @@ public class AssetBuilder {
     }
 
     private static Integer[] getPixel(int tempRgba, int baseRgba, String mode, List<Integer> shades, String[] colors, Boolean templateShading) {
-        Integer[] rgba = new Integer[4];
+        Integer[] rgba = new Integer[]{0, 0, 0, 0};
 
         int r = 0, g = 0, b = 0, a = 0;
         int rT, gT, bT, aT;

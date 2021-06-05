@@ -1,7 +1,6 @@
 package com.github.chrisofnormandy.conloot.content.blocks;
 
 import com.github.chrisofnormandy.conlib.block.ModBlock;
-import com.github.chrisofnormandy.conlib.block.subsets.Subsets;
 import com.github.chrisofnormandy.conlib.common.StringUtil;
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.itemgroup.Groups;
@@ -30,7 +29,7 @@ public class CustomBlock {
         Integer harvestLevel = config.getIntegerValue("harvest_level");
         Float strength = config.getDoubleValue("strength").floatValue();
         String type = config.getStringValue("block_type");
-        String model = config.getStringValue("block_model");
+        // String model = config.getStringValue("block_model");
 
         String[] colors = config.getSubgroup("Colors").getStringListValue("color").toArray(new String[0]);
         String mode = config.getSubgroup("Colors").getStringValue("blend_mode");

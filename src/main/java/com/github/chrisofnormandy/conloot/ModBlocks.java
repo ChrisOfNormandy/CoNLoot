@@ -4,7 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.chrisofnormandy.conlib.itemgroup.Groups;
-import com.github.chrisofnormandy.conlib.registry.ModRegister;
+import com.github.chrisofnormandy.conlib.registry.Items;
+import com.github.chrisofnormandy.conlib.world.data.Biome;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
 import com.github.chrisofnormandy.conloot.asset_builder.DataPackBuilder;
 import com.github.chrisofnormandy.conloot.content.CustomCrop;
@@ -48,11 +49,15 @@ public class ModBlocks {
         CustomResource.registerFromConfig(name, config, itemGroup, toolGroup, blockGroup);
     }
 
+    static Biome createBiomeModifier(String name, Config config) {
+        return CustomResource.registerBiomeFromConfig(name, config);
+    }
+
     public static void Init() {
-        Groups itemGroup = Groups.createGroup("item_group", ModRegister.registerItem("item_group_icon", new Item.Properties()));
-        Groups toolGroup = Groups.createGroup("tool_group", ModRegister.registerItem("tool_group_icon", new Item.Properties()));
-        Groups blockGroup = Groups.createGroup("ore_group", ModRegister.registerItem("ore_group_icon", new Item.Properties()));
-        Groups cropGroup = Groups.createGroup("crop_group", ModRegister.registerItem("crop_group_icon", new Item.Properties()));
+        Groups itemGroup = Groups.createGroup("item_group", Items.register("item_group_icon", new Item.Properties()));
+        Groups toolGroup = Groups.createGroup("tool_group", Items.register("tool_group_icon", new Item.Properties()));
+        Groups blockGroup = Groups.createGroup("ore_group", Items.register("ore_group_icon", new Item.Properties()));
+        Groups cropGroup = Groups.createGroup("crop_group", Items.register("crop_group_icon", new Item.Properties()));
         
         //NEXT UP:
         /*
@@ -66,6 +71,10 @@ public class ModBlocks {
         */
 
         Pattern p = Pattern.compile("(\\w+)\\[(\\d+)-(\\d+)\\]");
+
+        Main.config.biomeConfigs.forEach((String name, Config config) -> {
+            createBiomeModifier(name, config);
+        });
 
         Main.config.gemConfigs.forEach((String name, Config config) -> {
             registerResource(name, config, itemGroup, toolGroup, blockGroup);
@@ -106,5 +115,6 @@ public class ModBlocks {
 
         AssetPackBuilder.Lang.write();
         DataPackBuilder.Tags.write();
+        DataPackBuilder.WorldGen.Biome.write(CustomResource.biomeBuilder);
     }
 }

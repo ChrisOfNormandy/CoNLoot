@@ -7,6 +7,7 @@ import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonArray;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 import com.github.chrisofnormandy.conlib.common.Files;
 import com.github.chrisofnormandy.conloot.Main;
+import com.github.chrisofnormandy.conloot.content.world_gen.BiomeBuilder;
 
 public class DataPackBuilder {
     private static JsonBuilder builder = new JsonBuilder();
@@ -22,6 +23,36 @@ public class DataPackBuilder {
         a.set("description", "Generated data pack from " + Main.MOD_ID + ".");
 
         Files.write("resources/" + Main.MOD_ID + "_datapack", "pack", builder.stringify(mcmeta), ".mcmeta");
+    }
+
+    public static class WorldGen {
+        public static class Biome {
+            public static com.github.chrisofnormandy.conlib.world.data.Biome create() {
+                return new com.github.chrisofnormandy.conlib.world.data.Biome();
+            }
+
+            public static void write(BiomeBuilder builder) {
+                Main.LOG.info("Writing data pack info for WorldGen.Biome:");
+                
+                builder.biomes.forEach((String biomeName, com.github.chrisofnormandy.conlib.world.data.Biome biome) -> {
+                    Main.LOG.info("Writing data pack info for WorldGen.Biome:" + biomeName);
+
+                    biome.getFeatures().forEach((String featureName, JsonObject feature) -> {
+                        Main.LOG.info("Writing data pack info for WorldGen.Biome -> ConfiguredFeature:" + biomeName + ":" + featureName);
+
+                        Files.write(getPath(Main.MOD_ID + "/worldgen/configured_feature"), featureName, feature.toString(), ".json");
+                    });
+
+                    Files.write(getPath("minecraft/worldgen/biome"), biomeName, biome.build().toString(), ".json");
+                });
+            }
+        }
+
+        public static class ConfiguredFeature {
+            public static com.github.chrisofnormandy.conlib.world.data.ConfiguredFeature create() {
+                return new com.github.chrisofnormandy.conlib.world.data.ConfiguredFeature();
+            }
+        }
     }
 
     public static class LootTable {
@@ -277,15 +308,15 @@ public class DataPackBuilder {
         }
 
         public static void addSlab(String name) {
-            slabs.getArray("values").add("\"" + Main.MOD_ID + ":" + name + "\"");
+            slabs.getArray("values").add(Main.MOD_ID + ":" + name);
         }
 
         public static void addStairs(String name) {
-            stairs.getArray("values").add("\"" + Main.MOD_ID + ":" + name + "\"");
+            stairs.getArray("values").add(Main.MOD_ID + ":" + name);
         }
 
         public static void addWall(String name) {
-            walls.getArray("values").add("\"" + Main.MOD_ID + ":" + name + "\"");
+            walls.getArray("values").add(Main.MOD_ID + ":" + name);
         }
 
         public static void write() {

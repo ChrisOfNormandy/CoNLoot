@@ -13,6 +13,7 @@ public class Mod_Config {
     HashMap<String, Config> metalConfigs = new HashMap<String, Config>();
     HashMap<String, Config> plantConfigs = new HashMap<String, Config>();
     HashMap<String, Config> blockConfigs = new HashMap<String, Config>();
+    HashMap<String, Config> biomeConfigs = new HashMap<String, Config>();
     
     /**
      * 
@@ -126,32 +127,99 @@ public class Mod_Config {
         cfg.addSubgroup("Assets", assets);
     }
 
-    void mainConfig(Config config, ConfigGroup gemGroup, ConfigGroup metalGroup, ConfigGroup cropGroup, ConfigGroup blockGroup) {
-        gemGroup.addFlag("allow_gems", true, "Should gems be a thing?");
-        gemGroup.addFlag("allow_metals", true, "Should metals be a thing?");
-        gemGroup.addFlag("allow_crops", true, "Should crops be a thing?");
-        gemGroup.addFlag("allow_blocks", true, "Should generic blocks be a thing?");
+    void buildBiomeCfg(String name, Config cfg) {
+        ConfigGroup effects = new ConfigGroup();
+        ConfigGroup carvers = new ConfigGroup();
+        ConfigGroup features = new ConfigGroup();
+        ConfigGroup starts = new ConfigGroup();
+        ConfigGroup spawners = new ConfigGroup();
+        
+        cfg.addDouble("scale", 0.05, "Scale.");
+        cfg.addString("surface_builder", "minecraft:grass", "Surface builder.");
+        cfg.addFlag("player_spawn_friendly", true, "Can the player spawn in this biome?");
+        cfg.addString("precipitation", "rain", "Rain type.");
+        cfg.addDouble("temperature", 0.8, "Temperature.");
+        cfg.addDouble("downfall", 0.4, "Downfall.");
+        cfg.addString("category", "plains", "Category.");
+        cfg.addDouble("depth", 0.125, "Depth");
+
+        cfg.addSubgroup("Effects", effects);
+        cfg.addSubgroup("Carvers", carvers);
+        cfg.addSubgroup("Features", features);
+        cfg.addSubgroup("Starts", starts);
+        cfg.addSubgroup("Spawners", spawners);
+
+        ConfigGroup mood_sound = new ConfigGroup();
+        mood_sound.addFlag("enable", false, "Enable mood sound.");
+        mood_sound.addString("sound", "minecraft:ambient.cave", "Sound.");
+        mood_sound.addInteger("tick_delay", 6000, "Tick delay.");
+        mood_sound.addInteger("block_search_extent", 8, "Block search extent");
+        mood_sound.addDouble("offset", 2.0, "Offset.");
+        effects.addSubgroup("mood_sound", mood_sound);
+
+        ConfigGroup additions_sound = new ConfigGroup();
+        additions_sound.addFlag("enable", false, "Enable additions sound.");
+        additions_sound.addString("sound", "none", "Ambient sound.");
+        additions_sound.addDouble("tick_chance", 0.0, "Tick chance.");
+        effects.addSubgroup("additions_sound", additions_sound);
+
+        ConfigGroup music = new ConfigGroup();
+        music.addFlag("enable", false, "Enable music.");
+        music.addString("sound", "none", "Sound.");
+        music.addInteger("min_delay", 12000, "Min delay.");
+        music.addInteger("max_delay", 24000, "Max delay.");
+        music.addFlag("replace_current_music", false, "Replace current music.");
+        effects.addSubgroup("music", music);
+
+        ConfigGroup ambient_sound = new ConfigGroup();
+        ambient_sound.addFlag("enable", false, "Enable.");
+        ambient_sound.addString("sound", "none", "Sound.");
+        effects.addSubgroup("ambient_sound", ambient_sound);
+
+        effects.addInteger("sky_color", 7907327, "Sky color.");
+        effects.addInteger("fog_color", 12638463, "Fog color.");
+        effects.addInteger("water_color", 4159204, "Water color.");
+        effects.addInteger("water_fog_color", 329011, "Water fog color.");
+
+        carvers.addStringList("air", new ArrayList<String>(), "Air carvers.");
+        carvers.addStringList("liquid", new ArrayList<String>(), "Liquid carvers.");
+
+        features.addStringList("raw_generation", new ArrayList<String>(), "Raw generation.");
+        features.addStringList("lakes", new ArrayList<String>(), "Lakes.");
+        features.addStringList("local_modifications", new ArrayList<String>(), "Local modifications.");
+        features.addStringList("underground_structures", new ArrayList<String>(), "Underground structures.");
+        features.addStringList("surface_structures", new ArrayList<String>(), "Surface structures.");
+        features.addStringList("strongholds", new ArrayList<String>(), "Strongholds.");
+        features.addStringList("underground_ores", new ArrayList<String>(), "Underground ores.");
+        features.addStringList("underground_decoration", new ArrayList<String>(), "Underground decoration.");
+        features.addStringList("vegetal_decoration", new ArrayList<String>(), "Vegetal decoration.");
+        features.addStringList("top_layer_modification", new ArrayList<String>(), "Top layer modification");
+
+        starts.addStringList("starts", new ArrayList<String>(), "Starts.");
+
+        spawners.addStringList("monster", new ArrayList<String>(), "Monsters.");
+        spawners.addStringList("creature", new ArrayList<String>(), "Creatures.");
+        spawners.addStringList("ambient", new ArrayList<String>(), "Ambient creatures.");
+        spawners.addStringList("water_creature", new ArrayList<String>(), "Water creatures.");
+        spawners.addStringList("water_ambient", new ArrayList<String>(), "Ambient water creatures.");
+        spawners.addStringList("misc", new ArrayList<String>(), "Misc.");
+    }
+
+    void mainConfig(Config config) {
+        ConfigGroup gemGroup = new ConfigGroup();
+        ConfigGroup metalGroup = new ConfigGroup();
+        ConfigGroup cropGroup = new ConfigGroup();
+        ConfigGroup blockGroup = new ConfigGroup();
+        ConfigGroup worldGenGroup = new ConfigGroup();
 
         // Gems
         List<String> gemList = new ArrayList<String>();
         gemGroup.addStringList("gem_list", gemList, "A list of gem types.");
-
-        // Alternate Gems
-        List<String> alt_gemList = new ArrayList<String>();
-        gemGroup.addStringList("alt_gem_list", alt_gemList, "A list of custom gem types.");
-
         config.addSubgroup("Gems", gemGroup);
-
-        gemGroup.addFlag("allow_gems", true, "Should gems be a thing?");
 
         // Metals
         List<String> metalList = new ArrayList<String>();
         metalGroup.addStringList("metal_list", metalList, "A list of metal types.");
-
-        // Alternate Metals
-        List<String> alt_metalList = new ArrayList<String>();
-        metalGroup.addStringList("alt_metal_list", alt_metalList, "A list of custom metal types.");
-
         config.addSubgroup("Metals", metalGroup);
 
         // Crops
@@ -170,8 +238,20 @@ public class Mod_Config {
 
         config.addSubgroup("Blocks", blockGroup);
 
+        // World Gen
+        List<String> biomeList = new ArrayList<String>();
+        worldGenGroup.addStringList("biome_list", biomeList, "A list of biomes to modify.");
+
+        config.addSubgroup("WorldGen", worldGenGroup);
+
         config.Build();
         configs.put(Main.MOD_ID, config);
+
+        buildGemConfigs(gemGroup);
+        buildMetalConfigs(metalGroup);
+        buildCropConfigs(cropGroup);
+        buildBlockConfigs(blockGroup);
+        buildBiomeConfigs(worldGenGroup);
     }
 
     void buildGemConfigs(ConfigGroup gemGroup) {
@@ -181,25 +261,11 @@ public class Mod_Config {
             cfg.Build();
             gemConfigs.put(gem, cfg);
         });
-
-        gemGroup.getStringListValue("alt_gem_list").forEach((String gem) -> {
-            Config cfg = new Config("conloot/alt_gems", gem);
-            buildResourceCfg(gem, cfg, "gem");
-            cfg.Build();
-            gemConfigs.put(gem, cfg);
-        });
     }
 
     void buildMetalConfigs(ConfigGroup metalGroup) {
         metalGroup.getStringListValue("metal_list").forEach((String metal) -> {
             Config cfg = new Config("conloot/metals", metal);
-            buildResourceCfg(metal, cfg, "ingot");
-            cfg.Build();
-            metalConfigs.put(metal, cfg);
-        });
-
-        metalGroup.getStringListValue("alt_metal_list").forEach((String metal) -> {
-            Config cfg = new Config("conloot/alt_metals", metal);
             buildResourceCfg(metal, cfg, "ingot");
             cfg.Build();
             metalConfigs.put(metal, cfg);
@@ -268,19 +334,18 @@ public class Mod_Config {
         });
     }
 
+    void buildBiomeConfigs(ConfigGroup worldGenGroup) {
+        worldGenGroup.getStringListValue("biome_list").forEach((String biome) -> {
+            Config cfg = new Config("conloot/worldgen/biomes", biome);
+            buildBiomeCfg(biome, cfg);
+            cfg.Build();
+            biomeConfigs.put(biome, cfg);
+        });
+    }
+
     public void Init() {
         Config config = new Config(Main.MOD_ID);
 
-        ConfigGroup gemGroup = new ConfigGroup();
-        ConfigGroup metalGroup = new ConfigGroup();
-        ConfigGroup cropGroup = new ConfigGroup();
-        ConfigGroup blockGroup = new ConfigGroup();
-
-        mainConfig(config, gemGroup, metalGroup, cropGroup, blockGroup);
-
-        buildGemConfigs(gemGroup);
-        buildMetalConfigs(metalGroup);
-        buildCropConfigs(cropGroup);
-        buildBlockConfigs(blockGroup);
+        mainConfig(config);
     }
 }

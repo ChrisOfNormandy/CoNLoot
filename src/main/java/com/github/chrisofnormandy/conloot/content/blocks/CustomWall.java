@@ -5,7 +5,7 @@ import com.github.chrisofnormandy.conlib.block.subsets.Subsets;
 import com.github.chrisofnormandy.conlib.common.StringUtil;
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.itemgroup.Groups;
-import com.github.chrisofnormandy.conlib.registry.ModRegister;
+import com.github.chrisofnormandy.conlib.registry.Blocks;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
 import com.github.chrisofnormandy.conloot.asset_builder.DataPackBuilder;
@@ -31,7 +31,7 @@ public class CustomWall {
         Integer harvestLevel = config.getIntegerValue("harvest_level");
         Float strength = config.getDoubleValue("strength").floatValue();
         String type = config.getStringValue("block_type");
-        String model = config.getStringValue("block_model");
+        // String model = config.getStringValue("block_model");
 
         String[] colors = config.getSubgroup("Colors").getStringListValue("color").toArray(new String[0]);
         String mode = config.getSubgroup("Colors").getStringValue("blend_mode");
@@ -43,19 +43,19 @@ public class CustomWall {
 
         switch (type) {
             case "stone": {
-                ModRegister.registerBlock(name, Subsets.create_wall(ModBlock.Stone.create(harvestLevel, strength)), blockGroup);
+                Blocks.register(name, Subsets.create_wall(ModBlock.Stone.create(harvestLevel, strength)), blockGroup);
                 break;
             }
             case "wood": {
-                ModRegister.registerBlock(name, Subsets.create_wall(ModBlock.Wood.create(harvestLevel, strength)), blockGroup);
+                Blocks.register(name, Subsets.create_wall(ModBlock.Wood.create(harvestLevel, strength)), blockGroup);
                 break;
             }
             case "bricks": {
-                ModRegister.registerBlock(name, Subsets.create_wall(ModBlock.Bricks.create(harvestLevel, strength)), blockGroup);
+                Blocks.register(name, Subsets.create_wall(ModBlock.Bricks.create(harvestLevel, strength)), blockGroup);
                 break;
             }
             default: {
-                ModRegister.registerBlock(name, Subsets.create_wall(ModBlock.Stone.create(harvestLevel, strength)), blockGroup);
+                Blocks.register(name, Subsets.create_wall(ModBlock.Stone.create(harvestLevel, strength)), blockGroup);
                 break;
             }
         }
