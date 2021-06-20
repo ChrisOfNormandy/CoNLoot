@@ -296,15 +296,24 @@ public class DataPackBuilder {
         static JsonObject slabs = builder.createJsonObject();
         static JsonObject stairs = builder.createJsonObject();
         static JsonObject walls = builder.createJsonObject();
+        static JsonObject fences = builder.createJsonObject();
+        static JsonObject fenceGates = builder.createJsonObject();
+        static JsonObject doors = builder.createJsonObject();
 
         static {
             slabs.set("replace", false);
             stairs.set("replace", false);
             walls.set("replace", false);
+            fences.set("replace", false);
+            fenceGates.set("replace", false);
+            doors.set("replace", false);
 
             slabs.addArray("values");
             stairs.addArray("values");
             walls.addArray("values");
+            fences.addArray("values");
+            fenceGates.addArray("values");
+            doors.addArray("values");
         }
 
         public static void addSlab(String name) {
@@ -319,14 +328,32 @@ public class DataPackBuilder {
             walls.getArray("values").add(Main.MOD_ID + ":" + name);
         }
 
+        public static void addFence(String name) {
+            fences.getArray("values").add(Main.MOD_ID + ":" + name);
+        }
+
+        public static void addFenceGate(String name) {
+            fenceGates.getArray("values").add(Main.MOD_ID + ":" + name);
+        }
+
+        public static void addDoor(String name) {
+            doors.getArray("values").add(Main.MOD_ID + ":" + name);
+        }
+
         public static void write() {
             builder.write(getPath("minecraft" + "/" + "tags/blocks"), "slabs", slabs);
             builder.write(getPath("minecraft" + "/" + "tags/blocks"), "stairs", stairs);
             builder.write(getPath("minecraft" + "/" + "tags/blocks"), "walls", walls);
+            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "fences", fences);
+            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "fence_gates", fenceGates);
+            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "doors", doors);
 
             builder.write(getPath("minecraft" + "/" + "tags/items"), "slabs", slabs);
             builder.write(getPath("minecraft" + "/" + "tags/items"), "stairs", stairs);
             builder.write(getPath("minecraft" + "/" + "tags/items"), "walls", walls);
+            builder.write(getPath("minecraft" + "/" + "tags/items"), "fences", fences);
+            builder.write(getPath("minecraft" + "/" + "tags/items"), "fence_gates", fenceGates);
+            builder.write(getPath("minecraft" + "/" + "tags/items"), "doors", doors);
         }
     }
 }

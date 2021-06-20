@@ -227,10 +227,11 @@ public class CustomResource {
             String[] tools = {"pickaxe", "axe", "shovel", "hoe"};
 
             if (colors.length >= 1) {
-                CustomBlock.generateBlock(oreName, "ore_gem_base", "ore_gem", oreColors, oreMode, templateShading);
+                CustomBlock.generateBlock(oreName, new String[]{"ore_gem_base"}, new String[]{"ore_gem"}, oreColors, oreMode, templateShading);
 
                 for (String t : tools) {
-                    AssetPackBuilder.Model.Item.item(name + "_" + t, t + "_base", t, colors, mode, templateShading);
+                    AssetPackBuilder.Item.getItemModel(name + "_" + t);
+                    AssetPackBuilder.Item.createTexture(name + "_" + t, new String[]{t + "_base"}, new String[]{t}, colors, mode, templateShading);
                     AssetPackBuilder.Lang.addItem(name + "_" + t, StringUtil.wordCaps_repl(name + "_" + t));
                 }
             }
@@ -238,7 +239,7 @@ public class CustomResource {
                 CustomBlock.generateBlock(oreName);
 
                 for (String t : tools) {
-                    AssetPackBuilder.Model.Item.item(name + "_" + t);
+                    AssetPackBuilder.Item.getItemModel(name + "_" + t);
                     AssetPackBuilder.Lang.addItem(name + "_" + t, StringUtil.wordCaps_repl(name + "_" + t));
                 }
             }
@@ -265,10 +266,12 @@ public class CustomResource {
             String[] tools = {"pickaxe", "axe", "shovel", "hoe"};
 
             if (colors.length >= 1) {
-                CustomBlock.generateBlock(oreName, "ore_base", "ore", oreColors, oreMode, templateShading);
+                CustomBlock.generateBlock(oreName, new String[]{"ore_base"}, new String[]{"ore"}, oreColors, oreMode, templateShading);
 
                 for (String t : tools) {
-                    AssetPackBuilder.Model.Item.item(name + "_" + t, t + "_base", t, colors, mode, templateShading);
+                    AssetPackBuilder.Item.getItemModel(name + "_" + t);
+                    AssetPackBuilder.Item.createTexture(name + "_" + t, new String[] { t + "_base" }, new String[] { t },
+                            colors, mode, templateShading);
                     AssetPackBuilder.Lang.addItem(name + "_" + t, StringUtil.wordCaps_repl(name + "_" + t));
                 }
             }
@@ -276,7 +279,7 @@ public class CustomResource {
                 CustomBlock.generateBlock(oreName);
 
                 for (String t : tools) {
-                    AssetPackBuilder.Model.Item.item(name + "_" + t);
+                    AssetPackBuilder.Item.getItemModel(name + "_" + t);
                     AssetPackBuilder.Lang.addItem(name + "_" + t, StringUtil.wordCaps_repl(name + "_" + t));
                 }
             }
@@ -286,8 +289,8 @@ public class CustomResource {
         else {
             Block oreBlock_reg = ModBlock.Ore.register(oreName, oreBlock, blockGroup);
 
-            AssetPackBuilder.Blockstate.block(oreName);
-            AssetPackBuilder.Model.Block.block(oreName);
+            AssetPackBuilder.Block.getBlockstate(oreName);
+            AssetPackBuilder.Block.getBlockModel(oreName);
             AssetPackBuilder.Lang.addBlock(oreName, StringUtil.wordCaps_repl(oreName));
 
             biomeBuilder.biomes.get("beach").addOreFeature(oreName, oreBlock_reg, 8);

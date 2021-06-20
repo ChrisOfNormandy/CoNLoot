@@ -7,10 +7,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
+import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonArray;
+import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
+import com.github.chrisofnormandy.conlib.common.Files;
 import com.github.chrisofnormandy.conloot.Main;
 
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -259,7 +264,7 @@ public class AssetBuilder {
         return rgba;
     }
 
-    public static void createImage(String path, String name, String templateName, String baseName, String[] colors, String mode, Boolean templateShading) {
+    public static void createImage(String path, String name, String[] templatesIn, String[] basesIn, String[] colorsIn, String mode, Boolean templateShading) {
         String filename = name + ".png";
         Path p = FMLPaths.GAMEDIR.get().resolve(path);
 
@@ -268,29 +273,46 @@ public class AssetBuilder {
 
         File absOutFile = p.resolve(filename).toFile();
 
-        BufferedImage template;
-        BufferedImage base;
+        BufferedImage[] templates = new BufferedImage[templatesIn.length];
+        BufferedImage[] bases = basesIn.length > 0 ? new BufferedImage[basesIn.length] : new BufferedImage[1];
 
-        try {
-            template = getImage(templateName);
-        }
-        catch (IOException err) {
-            Main.LOG.error("Failed to get template asset for " + templateName);
-            Main.LOG.error(err);
-            return;
-        }
-
-        try {
-            base = getImage(baseName);
-        }
-        catch (IOException err) {
-            Main.LOG.error("Failed to get base asset for " + baseName);
-            Main.LOG.error(err);
-            base = new BufferedImage(template.getWidth(), template.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        for (int i = 0; i < templatesIn.length; i++) {
+            try {
+                templates[i] = getImage(templatesIn[i]);
+            } catch (IOException err) {
+                Main.LOG.error("Failed to get template asset for " + templatesIn[i]);
+                Main.LOG.error(err);
+                return;
+            }
         }
 
-        int width = template.getWidth();
-        int height = template.getHeight();
+        if (basesIn.length == 0)
+            bases[0] = new BufferedImage(templates[0].getWidth(), templates[0].getHeight(),
+                    BufferedImage.TYPE_INT_ARGB);
+        else {
+            for (int i = 0; i < basesIn.length; i++) {
+                if (basesIn[i].equals("none"))
+                    bases[i] = new BufferedImage(templates[0].getWidth(), templates[0].getHeight(),
+                            BufferedImage.TYPE_INT_ARGB);
+                else {
+                    try {
+                        bases[i] = getImage(basesIn[i]);
+                    } catch (IOException err) {
+                        Main.LOG.error("Failed to get base asset for " + basesIn[i]);
+                        Main.LOG.error(err);
+                        if (i > 1)
+                            bases[i] = bases[0];
+                        else
+                            bases[i] = new BufferedImage(templates[0].getWidth(), templates[0].getHeight(),
+                                    BufferedImage.TYPE_INT_ARGB);
+                    }
+                }
+            }
+        }
+
+        Integer width = templates[0].getWidth();
+        Integer frameHeight = templates[0].getHeight();
+        Integer height = frameHeight * templatesIn.length;
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
@@ -300,50 +322,59 @@ public class AssetBuilder {
 
         g2d.setComposite(AlphaComposite.Src);
 
-        int min = -1;
-        int max = -1;
-        List<Integer> shades = new ArrayList<Integer>();
+        int min, max;
+        List<Integer> shades;
 
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                int rgba = template.getRGB(x, y);
-                
-                if (!shades.contains(rgba))
-                    shades.add(rgba);
+        for (int i = 0; i < templates.length; i++) {
+            min = -1;
+            max = -1;
+            shades = new ArrayList<Integer>();
 
-                if (rgba < min || min == -1)
-                    min = rgba;
-                if (rgba > max || max == -1)
-                    max = rgba;
+            int rgba;
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < frameHeight; y++) {
+                    rgba = templates[i].getRGB(x, y);
+
+                    if (!shades.contains(rgba))
+                        shades.add(rgba);
+
+                    if (rgba < min || min == -1)
+                        min = rgba;
+                    if (rgba > max || max == -1)
+                        max = rgba;
+                }
+            }
+
+            Collections.sort(shades); // Low -> High
+
+            Main.LOG.info("Creating asset map using " + shades.size() + " shades and " + colorsIn.length + " colors.");
+
+            String[] colorArr = colorsIn.length > shades.size() ? new String[shades.size()] : new String[colorsIn.length];
+
+            if (colorsIn.length > shades.size()) {
+                Main.LOG.info("Colors > Shades. Reducing available colors to match shades.");
+
+                for (int c = 0; c < shades.size(); c++)
+                    colorArr[c] = colorsIn[c];
+            } else
+                colorArr = colorsIn;
+
+            int tempRgba, baseRgba;
+            Integer[] pixel;
+            
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < frameHeight; y++) {
+                    tempRgba = templates[i].getRGB(x, y);
+                    baseRgba = bases.length == templates.length ? bases[i].getRGB(x, y) : bases[0].getRGB(x, y);
+
+                    pixel = getPixel(tempRgba, baseRgba, mode, shades, colorArr, templateShading);
+
+                    g2d.setColor(new Color(pixel[0], pixel[1], pixel[2], pixel[3]));
+                    g2d.fillRect(x, y + frameHeight * i, 1, 1);
+                }
             }
         }
-
-        Collections.sort(shades); // Low -> High
-
-        Main.LOG.info("Creating asset map using " + shades.size() + " shades and " + colors.length + " colors.");
-
-        String[] colorArr = colors.length > shades.size() ? new String[shades.size()] : new String[colors.length];
-
-        if (colors.length > shades.size()) {
-            Main.LOG.info("Colors > Shades. Reducing available colors to match shades.");
-            for (int i = 0; i < shades.size(); i++)
-                colorArr[i] = colors[i];
-        }
-        else
-            colorArr = colors;
-
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                int tempRgba = template.getRGB(x, y);
-                int baseRgba = base.getRGB(x, y);
-
-                Integer[] rgba = getPixel(tempRgba, baseRgba, mode, shades, colorArr, templateShading);
-
-                g2d.setColor(new Color(rgba[0], rgba[1], rgba[2], rgba[3]));
-                g2d.fillRect(x, y, 1, 1);
-            }
-        }
-
+        
         g2d.dispose();
 
         try {
@@ -353,5 +384,30 @@ public class AssetBuilder {
             Main.LOG.error("Failed to generate new asset for " + name);
             Main.LOG.error(err);
         }
+    }
+
+    public static void createAnimationController(String path, String name, Integer frameCount, Integer frameTime, String[] frameSettings) {
+        JsonBuilder builder = new JsonBuilder();
+        JsonObject json = builder.createJsonObject();
+
+        JsonArray frames = json.addObject("animation").set("frametime", 2).addArray("frames");
+        HashMap<Integer, JsonObject> settings = new HashMap<Integer, JsonObject>();
+
+        for (String s : frameSettings) {
+            String[] v = s.split(":");
+            settings.put(Integer.parseInt(v[0]), builder.createJsonObject().set("index", v[0]).set("time", v.length > 1 ? v[1] : frameTime));
+        }
+
+        int count = 0;
+        while (count < frameCount) {
+            if (settings.containsKey(count))
+                frames.add(settings.get(count));
+            else
+                frames.add(count);
+
+            count++;
+        }
+
+        Files.write(path, name, builder.stringify(json), ".png.mcmeta");
     }
 }

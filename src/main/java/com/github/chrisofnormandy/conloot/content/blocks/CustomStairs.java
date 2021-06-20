@@ -1,67 +1,44 @@
 package com.github.chrisofnormandy.conloot.content.blocks;
 
-import com.github.chrisofnormandy.conlib.block.ModBlock;
-import com.github.chrisofnormandy.conlib.block.subsets.Subsets;
 import com.github.chrisofnormandy.conlib.common.StringUtil;
-import com.github.chrisofnormandy.conlib.config.Config;
-import com.github.chrisofnormandy.conlib.itemgroup.Groups;
-import com.github.chrisofnormandy.conlib.registry.Blocks;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
-import com.github.chrisofnormandy.conloot.asset_builder.DataPackBuilder;
 
 public class CustomStairs {
     public static void generateBlock(String name) {
-        AssetPackBuilder.Blockstate.stairs(name);
-        AssetPackBuilder.Model.Block.stairs(name);
-        AssetPackBuilder.Model.Item.stairs(name);
+        Main.LOG.info("Generating Stairs without textures.");
+        AssetPackBuilder.Stairs.getBlockstate(name);
+        AssetPackBuilder.Stairs.getBlockModels(name);
+        AssetPackBuilder.Stairs.getItemModel(name);
         AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));
     }
 
-    public static void generateBlock(String name, String[] base, String[] template, String[] colors, String mode, Boolean templateShading) {
-        AssetPackBuilder.Blockstate.stairs(name);
-        AssetPackBuilder.Model.Block.stairs(name, base, template, colors, mode, templateShading);
-        AssetPackBuilder.Model.Item.stairs(name);
+    public static void generateBlock(String name, String[] textures) {
+        Main.LOG.info("Generating Stairs with " + textures.length + " textures.");
+        AssetPackBuilder.Stairs.getBlockstate(name);
+        AssetPackBuilder.Stairs.getBlockModels(name, textures);
+        AssetPackBuilder.Stairs.getItemModel(name);
         AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));
     }
 
-    public static void registerBlockFromConfig(String name, Config config, Groups blockGroup) {
-        Main.LOG.info("Generating new stairs:" + name);
+    public static void generateBlock(String name, String bases[], String[] templates, String[] colors, String mode,
+            Boolean templateShading) {
+        Main.LOG.info("Generating Stairs and creating new textures.");
+        AssetPackBuilder.Stairs.getBlockstate(name);
+        AssetPackBuilder.Stairs.getBlockModels(name);
+        AssetPackBuilder.Stairs.getItemModel(name);
+        AssetPackBuilder.Stairs.createTexture(name, bases, templates, colors, mode, templateShading);
+        AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));
+    }
 
-        Integer harvestLevel = config.getIntegerValue("harvest_level");
-        Float strength = config.getDoubleValue("strength").floatValue();
-        String type = config.getStringValue("block_type");
-        // String model = config.getStringValue("block_model");
-
-        String[] colors = config.getSubgroup("Colors").getStringListValue("color").toArray(new String[0]);
-        String mode = config.getSubgroup("Colors").getStringValue("blend_mode");
-
-        String[] template = config.getSubgroup("Assets").getStringListValue("templates").toArray(new String[0]);
-        String[] base = config.getSubgroup("Assets").getStringListValue("bases").toArray(new String[0]);
-
-        Boolean templateShading = config.getSubgroup("Colors").getFlagValue("template_shading");
-
-        switch (type) {
-            case "stone": {
-                Blocks.register(name, Subsets.create_stairs(ModBlock.Stone.create(harvestLevel, strength)), blockGroup);
-                break;
-            }
-            case "wood": {
-                Blocks.register(name, Subsets.create_stairs(ModBlock.Wood.create(harvestLevel, strength)), blockGroup);
-                break;
-            }
-            case "bricks": {
-                Blocks.register(name, Subsets.create_stairs(ModBlock.Bricks.create(harvestLevel, strength)), blockGroup);
-                break;
-            }
-            default: {
-                Blocks.register(name, Subsets.create_stairs(ModBlock.Stone.create(harvestLevel, strength)), blockGroup);
-                break;
-            }
-        }
-
-        generateBlock(name, base, template, colors, mode, templateShading);
-
-        DataPackBuilder.LootTable.block(Main.MOD_ID + ":" + name);
+    public static void generateBlock(String name, String bases[], String[] templates, String[] colors, String mode,
+            Boolean templateShading, Integer frameCount, Integer frameTime, String[] frameSettings) {
+        Main.LOG.info("Generating Stairs and creating new animated textures.");
+        AssetPackBuilder.Stairs.getBlockstate(name);
+        AssetPackBuilder.Stairs.getBlockModels(name);
+        AssetPackBuilder.Stairs.getItemModel(name);
+        AssetPackBuilder.Stairs.createTexture(name, bases, templates, colors, mode, templateShading);
+        AssetPackBuilder.Textures.animationController(name, frameCount, frameTime, frameSettings);
+        AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));
     }
 }
