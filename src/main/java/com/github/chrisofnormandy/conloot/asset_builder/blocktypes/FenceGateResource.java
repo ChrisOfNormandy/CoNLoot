@@ -11,8 +11,8 @@ public class FenceGateResource {
      * 
      * @param name
      * @param variants
-     * @param half
-     * @param shape
+     * @param in_wall
+     * @param open
      */
     private static void blockstateVariants(String name, JsonObject variants, Boolean in_wall, Boolean open) {
         String[] directions = new String[]{"south", "west", "north", "east"};

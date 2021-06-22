@@ -10,6 +10,7 @@ import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.FenceGateReso
 import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.FenceResource;
 import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.SlabResource;
 import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.StairsResource;
+import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.TrapdoorResource;
 import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.WallResource;
 
 public class AssetPackBuilder {
@@ -544,16 +545,16 @@ public class AssetPackBuilder {
         public static JsonObject[] getBlockModels(String name, String[] textures) {
             Main.LOG.debug("Door textures: " + String.join(", ", textures));
 
-            JsonObject top = DoorResource.blockModel_top(name, new String[]{textures[0], textures[1]}, builder);
+            JsonObject top = DoorResource.blockModel_top(name, textures, builder);
 
-            JsonObject top_hinge = DoorResource.blockModel_top_hinge(name, new String[] { textures[0], textures[1] },
+            JsonObject top_hinge = DoorResource.blockModel_top_hinge(name, textures,
                     builder);
 
-            JsonObject bottom = DoorResource.blockModel_bottom(name, new String[] { textures[0], textures[1] },
+            JsonObject bottom = DoorResource.blockModel_bottom(name, textures,
                     builder);
 
             JsonObject bottom_hinge = DoorResource.blockModel_bottom_hinge(name,
-                    new String[] { textures[0], textures[1] }, builder);
+                    textures, builder);
 
             String path = getPath(Main.MOD_ID + "/models/block");
             write(name + "_top", path, top);
@@ -603,6 +604,103 @@ public class AssetPackBuilder {
                 Boolean templateShading) {
             DoorResource.texture(name + "_bottom", getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors, mode,
                     templateShading);
+        }
+
+        /**
+         * 
+         * @param name
+         * @param bases
+         * @param templates
+         * @param colors
+         * @param mode
+         * @param templateShading
+         */
+        public static void createTexture_item(String name, String[] bases, String[] templates, String[] colors,
+                String mode, Boolean templateShading) {
+            DoorResource.itemTexture(name, getPath(Main.MOD_ID + "/textures/item"), bases, templates, colors,
+                    mode, templateShading);
+        }
+    }
+
+    public static class Trapdoor {
+        /**
+         * 
+         * @param name Should be formatted as partial registry name, like dirt.
+         * @return
+         */
+        public static JsonObject getBlockstate(String name) {
+            JsonObject blockstate = TrapdoorResource.blockstate(name, builder);
+            builder.write(getPath(Main.MOD_ID + "/blockstates"), name, blockstate);
+            return blockstate;
+        }
+
+        /**
+         * 
+         * @param name
+         * @return
+         */
+        public static JsonObject[] getBlockModels(String name) {
+            JsonObject top = TrapdoorResource.blockModel_top(name, builder);
+            JsonObject open = TrapdoorResource.blockModel_open(name, builder);
+            JsonObject bottom = TrapdoorResource.blockModel_bottom(name, builder);
+
+            String path = getPath(Main.MOD_ID + "/models/block");
+            write(name + "_top", path, top);
+            write(name + "_open", path, open);
+            write(name + "_bottom", path, bottom);
+
+            return new JsonObject[] { top, open, bottom };
+        }
+
+        /**
+         * 
+         * @param name
+         * @param textures
+         * @return
+         */
+        public static JsonObject[] getBlockModels(String name, String[] textures) {
+            Main.LOG.debug("Door textures: " + String.join(", ", textures));
+
+            JsonObject top = TrapdoorResource.blockModel_top(name, textures[0], builder);
+
+            JsonObject open = TrapdoorResource.blockModel_open(name, textures[0],
+                    builder);
+
+            JsonObject bottom = TrapdoorResource.blockModel_bottom(name, textures[0],
+                    builder);
+
+            String path = getPath(Main.MOD_ID + "/models/block");
+            write(name + "_top", path, top);
+            write(name + "_open", path, open);
+            write(name + "_bottom", path, bottom);
+
+            return new JsonObject[] { top, open, bottom };
+        }
+
+        /**
+         * 
+         * @param name
+         * @return
+         */
+        public static JsonObject getItemModel(String name) {
+            JsonObject model = TrapdoorResource.itemModel(name, builder);
+            write(name, getPath(Main.MOD_ID + "/models/item"), model);
+            return model;
+        }
+
+        /**
+         * 
+         * @param name
+         * @param bases
+         * @param templates
+         * @param colors
+         * @param mode
+         * @param templateShading
+         */
+        public static void createTexture(String name, String[] bases, String[] templates, String[] colors,
+                String mode, Boolean templateShading) {
+            TrapdoorResource.texture(name, getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors,
+                    mode, templateShading);
         }
     }
 

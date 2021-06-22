@@ -16,38 +16,32 @@ public class ModBlocks {
         CustomCrop.registerFromConfig(name, config, cropGroup);
     }
 
-    private static void registerBlock(String name, Config config, Groups blockGroup) {
-        CreationBase.registerBlockFromConfig(name, config, blockGroup);
-    }
-
     private static void registerSlab(String name, Config config, Groups blockGroup) {
-        CreationBase.registerBlockFromConfig(name, config, blockGroup);
         DataPackBuilder.Tags.addSlab(name);
     }
 
     private static void registerStairs(String name, Config config, Groups blockGroup) {
-        CreationBase.registerBlockFromConfig(name, config, blockGroup);
         DataPackBuilder.Tags.addStairs(name);
     }
 
     private static void registerWall(String name, Config config, Groups blockGroup) {
-        CreationBase.registerBlockFromConfig(name, config, blockGroup);
         DataPackBuilder.Tags.addWall(name);
     }
 
     private static void registerFence(String name, Config config, Groups blockGroup) {
-        CreationBase.registerBlockFromConfig(name, config, blockGroup);
         DataPackBuilder.Tags.addFence(name);
     }
 
     private static void registerFenceGate(String name, Config config, Groups blockGroup) {
-        CreationBase.registerBlockFromConfig(name, config, blockGroup);
         DataPackBuilder.Tags.addFenceGate(name);
     }
 
     private static void registerDoor(String name, Config config, Groups blockGroup) {
-        CreationBase.registerBlockFromConfig(name, config, blockGroup);
         DataPackBuilder.Tags.addDoor(name);
+    }
+
+    private static void registerTrapdoor(String name, Config config, Groups blockGroup) {
+        DataPackBuilder.Tags.addTrapdoor(name);
     }
 
     private static void registerResource(String name, Config config, Groups itemGroup, Groups toolGroup, Groups blockGroup) {
@@ -63,7 +57,8 @@ public class ModBlocks {
     }
 
     private static void blockSetup(String name, Config config, Groups blockGroup) {
-        // Replace this with regex later.
+        CreationBase.registerBlockFromConfig(name, config, blockGroup);
+
         if (name.contains("_slab"))
             registerSlab(name, config, blockGroup);
         else if (name.contains("_stairs"))
@@ -76,8 +71,8 @@ public class ModBlocks {
             registerFenceGate(name, config, blockGroup);
         else if (name.contains("_door"))
             registerDoor(name, config, blockGroup);
-        else
-            registerBlock(name, config, blockGroup);
+        else if (name.contains("_trapdoor"))
+            registerTrapdoor(name, config, blockGroup);
     }
 
     public static void Init() {

@@ -301,6 +301,29 @@ public class CreationBase {
                 ModBlock.Generic.createDoor(name, new Block(properties), blockGroup);
                 break;
             }
+            case "trapdoor": {
+                Main.LOG.info("Registering new door from config.");
+
+                List<String> parents = config.getSubgroup("Assets").getStringListValue("parents");
+
+                if (templates.length == 0 && parents.size() == 0)
+                    CustomTrapdoor.generateBlock(name);
+                else {
+                    if (templates.length > 1)
+                        CustomTrapdoor.generateBlock(name, bases, templates, colors, mode, templateShading,
+                                templates.length, config.getSubgroup("Animation").getIntegerValue("frametime"),
+                                config.getSubgroup("Animation").getStringListValue("frames").toArray(new String[0]));
+                    else {
+                        if (parents.size() > 0)
+                            CustomTrapdoor.generateBlock(name, parents.toArray(new String[0]));
+                        else
+                            CustomTrapdoor.generateBlock(name, bases, templates, colors, mode, templateShading);
+                    }
+                }
+
+                ModBlock.Generic.createTrapdoor(name, new Block(properties), blockGroup);
+                break;
+            }
         }
 
         DataPackBuilder.LootTable.block(Main.MOD_ID + ":" + name);

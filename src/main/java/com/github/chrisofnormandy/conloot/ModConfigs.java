@@ -64,6 +64,7 @@ public class ModConfigs {
         blockGroup.addStringList("fence_list", blockList, "A list of fences.");
         blockGroup.addStringList("fence_gate_list", blockList, "A list of fence gates.");
         blockGroup.addStringList("door_list", blockList, "A list of doors.");
+        blockGroup.addStringList("trapdoor_list", blockList, "A list of trapdoors.");
 
         blockGroup.addStringList("suite_list", blockList,
                 "A list of content that should generate a block, slab, stair, and depending on type, wall or fence.");
@@ -197,6 +198,14 @@ public class ModConfigs {
                     blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "door", clr);
             } else
                 blockConfig(block, "door");
+        });
+
+        blockConfig.getStringListValue("trapdoor_list").forEach((String block) -> {
+            if (Patterns.dye.matcher(block).find()) {
+                for (String clr : Patterns.colors)
+                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "trapdoor", clr);
+            } else
+                blockConfig(block, "trapdoor");
         });
 
         blockConfig.getStringListValue("suite_list").forEach((String block) -> {

@@ -252,7 +252,11 @@ public class DoorResource {
      * @return
      */
     public static JsonObject itemModel(String name, JsonBuilder builder) {
-        return builder.createJsonObject().set("parent", Main.MOD_ID + ":block/" + name);
+        JsonObject item = builder.createJsonObject();
+        item.set("parent", "minecraft:item/generated");
+        item.addObject("textures").set("layer0", Main.MOD_ID + ":item/" + name);
+
+        return item;
     }
 
     /**
@@ -266,6 +270,23 @@ public class DoorResource {
      * @param templateShading
      */
     public static void texture(String name, String path, String bases[], String templates[], String[] colors,
+            String mode, Boolean templateShading) {
+        Main.LOG.info("Generating default asset for " + name + " using " + bases.length + " + " + templates.length);
+
+        AssetBuilder.createImage(path, name, templates, bases, colors, mode, templateShading);
+    }
+
+    /**
+     * 
+     * @param name
+     * @param path
+     * @param bases
+     * @param templates
+     * @param colors
+     * @param mode
+     * @param templateShading
+     */
+    public static void itemTexture(String name, String path, String bases[], String templates[], String[] colors,
             String mode, Boolean templateShading) {
         Main.LOG.info("Generating default asset for " + name + " using " + bases.length + " + " + templates.length);
 

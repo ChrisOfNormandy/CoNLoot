@@ -29,6 +29,7 @@ public class CustomDoor {
         AssetPackBuilder.Door.getItemModel(name);
         AssetPackBuilder.Door.createTexture_top(name, bases, templates, colors, mode, templateShading);
         AssetPackBuilder.Door.createTexture_bottom(name, bases, templates, colors, mode, templateShading);
+        AssetPackBuilder.Door.createTexture_item(name, bases, templates, colors, mode, templateShading);
         AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));
     }
 
@@ -40,6 +41,7 @@ public class CustomDoor {
         AssetPackBuilder.Door.getItemModel(name);
         AssetPackBuilder.Door.createTexture_top(name, bases, templates, colors, mode, templateShading);
         AssetPackBuilder.Door.createTexture_bottom(name, bases, templates, colors, mode, templateShading);
+        AssetPackBuilder.Door.createTexture_item(name, bases, templates, colors, mode, templateShading);
         AssetPackBuilder.Textures.animationController(name, frameCount, frameTime, frameSettings);
         AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));
     }
