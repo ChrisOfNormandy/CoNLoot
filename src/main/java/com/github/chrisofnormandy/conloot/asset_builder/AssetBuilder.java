@@ -22,7 +22,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 
 public class AssetBuilder {
     private static BufferedImage getImage(String name) throws IOException {
-        return ImageIO.read(FMLPaths.GAMEDIR.get().resolve("defaultconfigs/templates/" + name + ".png").toFile());
+        return ImageIO.read(FMLPaths.GAMEDIR.get().resolve("defaultconfigs/textures/" + name + ".png").toFile());
     }
 
     private static int getIndex(int colors, int shades, int shade) {
@@ -264,7 +264,7 @@ public class AssetBuilder {
         return rgba;
     }
 
-    public static void createImage(String path, String name, String[] templatesIn, String[] basesIn, String[] colorsIn, String mode, Boolean templateShading) {
+    public static String createImage(String path, String name, String[] textureList, String[] overlayList, String[] colorList, String mode, Boolean templateShading) {
         String filename = name + ".png";
         Path p = FMLPaths.GAMEDIR.get().resolve(path);
 
@@ -273,46 +273,48 @@ public class AssetBuilder {
 
         File absOutFile = p.resolve(filename).toFile();
 
-        BufferedImage[] templates = new BufferedImage[templatesIn.length];
-        BufferedImage[] bases = basesIn.length > 0 ? new BufferedImage[basesIn.length] : new BufferedImage[1];
+        BufferedImage[] textures = new BufferedImage[textureList.length];
+        BufferedImage[] overlays = overlayList.length > 0 ? new BufferedImage[overlayList.length] : new BufferedImage[1];
 
-        for (int i = 0; i < templatesIn.length; i++) {
+        Main.LOG.debug("Creating new texture for " + name + " using " + textureList.length + " base textures and " + overlayList.length + " overlays.");
+
+        for (int i = 0; i < textureList.length; i++) {
             try {
-                templates[i] = getImage(templatesIn[i]);
+                textures[i] = getImage(textureList[i]);
             } catch (IOException err) {
-                Main.LOG.error("Failed to get template asset for " + templatesIn[i]);
+                Main.LOG.error("Failed to get template asset for " + textureList[i]);
                 Main.LOG.error(err);
-                return;
+                return null;
             }
         }
 
-        if (basesIn.length == 0)
-            bases[0] = new BufferedImage(templates[0].getWidth(), templates[0].getHeight(),
+        if (overlayList.length == 0)
+            overlays[0] = new BufferedImage(textures[0].getWidth(), textures[0].getHeight(),
                     BufferedImage.TYPE_INT_ARGB);
         else {
-            for (int i = 0; i < basesIn.length; i++) {
-                if (basesIn[i].equals("none"))
-                    bases[i] = new BufferedImage(templates[0].getWidth(), templates[0].getHeight(),
+            for (int i = 0; i < overlayList.length; i++) {
+                if (overlayList[i].equals("none"))
+                    overlays[i] = new BufferedImage(textures[0].getWidth(), textures[0].getHeight(),
                             BufferedImage.TYPE_INT_ARGB);
                 else {
                     try {
-                        bases[i] = getImage(basesIn[i]);
+                        overlays[i] = getImage(overlayList[i]);
                     } catch (IOException err) {
-                        Main.LOG.error("Failed to get base asset for " + basesIn[i]);
+                        Main.LOG.error("Failed to get base asset for " + overlayList[i]);
                         Main.LOG.error(err);
                         if (i > 1)
-                            bases[i] = bases[0];
+                            overlays[i] = overlays[0];
                         else
-                            bases[i] = new BufferedImage(templates[0].getWidth(), templates[0].getHeight(),
+                            overlays[i] = new BufferedImage(textures[0].getWidth(), textures[0].getHeight(),
                                     BufferedImage.TYPE_INT_ARGB);
                     }
                 }
             }
         }
 
-        Integer width = templates[0].getWidth();
-        Integer frameHeight = templates[0].getHeight();
-        Integer height = frameHeight * templatesIn.length;
+        Integer width = textures[0].getWidth();
+        Integer frameHeight = textures[0].getHeight();
+        Integer height = frameHeight * textureList.length;
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
@@ -325,7 +327,7 @@ public class AssetBuilder {
         int min, max;
         List<Integer> shades;
 
-        for (int i = 0; i < templates.length; i++) {
+        for (int i = 0; i < textures.length; i++) {
             min = -1;
             max = -1;
             shades = new ArrayList<Integer>();
@@ -333,7 +335,7 @@ public class AssetBuilder {
             int rgba;
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < frameHeight; y++) {
-                    rgba = templates[i].getRGB(x, y);
+                    rgba = textures[i].getRGB(x, y);
 
                     if (!shades.contains(rgba))
                         shades.add(rgba);
@@ -347,25 +349,25 @@ public class AssetBuilder {
 
             Collections.sort(shades); // Low -> High
 
-            Main.LOG.info("Creating asset map using " + shades.size() + " shades and " + colorsIn.length + " colors.");
+            Main.LOG.info("Creating asset map using " + shades.size() + " shades and " + colorList.length + " colors.");
 
-            String[] colorArr = colorsIn.length > shades.size() ? new String[shades.size()] : new String[colorsIn.length];
+            String[] colorArr = colorList.length > shades.size() ? new String[shades.size()] : new String[colorList.length];
 
-            if (colorsIn.length > shades.size()) {
+            if (colorList.length > shades.size()) {
                 Main.LOG.info("Colors > Shades. Reducing available colors to match shades.");
 
                 for (int c = 0; c < shades.size(); c++)
-                    colorArr[c] = colorsIn[c];
+                    colorArr[c] = colorList[c];
             } else
-                colorArr = colorsIn;
+                colorArr = colorList;
 
             int tempRgba, baseRgba;
             Integer[] pixel;
             
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < frameHeight; y++) {
-                    tempRgba = templates[i].getRGB(x, y);
-                    baseRgba = bases.length == templates.length ? bases[i].getRGB(x, y) : bases[0].getRGB(x, y);
+                    tempRgba = textures[i].getRGB(x, y);
+                    baseRgba = overlays.length == textures.length ? overlays[i].getRGB(x, y) : overlays[0].getRGB(x, y);
 
                     pixel = getPixel(tempRgba, baseRgba, mode, shades, colorArr, templateShading);
 
@@ -384,9 +386,11 @@ public class AssetBuilder {
             Main.LOG.error("Failed to generate new asset for " + name);
             Main.LOG.error(err);
         }
+
+        return Main.MOD_ID + ":block/" + name;
     }
 
-    public static void createAnimationController(String path, String name, Integer frameCount, Integer frameTime, String[] frameSettings) {
+    public static String createAnimationController(String path, String name, Integer frameCount, Integer frameTime, String[] frameSettings) {
         JsonBuilder builder = new JsonBuilder();
         JsonObject json = builder.createJsonObject();
 
@@ -409,5 +413,7 @@ public class AssetBuilder {
         }
 
         Files.write(path, name, builder.stringify(json), ".png.mcmeta");
+
+        return Main.MOD_ID + ":block/" + name;
     }
 }

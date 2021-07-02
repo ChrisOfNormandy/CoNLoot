@@ -1,5 +1,7 @@
 package com.github.chrisofnormandy.conloot.asset_builder.blocktypes;
 
+import java.util.HashMap;
+
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonArray;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
@@ -61,6 +63,23 @@ public class WallResource {
      * @param builder
      * @return
      */
+    public static HashMap<String, JsonObject> blockModel(String name, JsonBuilder builder) {
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name + "_side", blockModel_side(name, builder));
+                put(name + "_post", blockModel_post(name, builder));
+                put(name + "_side_tall", blockModel_sideTall(name, builder));
+                put(name + "_inventory", blockModel_inventory(name, builder));
+            }
+        };
+    }
+
+    /**
+     * 
+     * @param name
+     * @param builder
+     * @return
+     */
     public static JsonObject blockModel_side(String name, JsonBuilder builder) {
         JsonObject side = builder.createJsonObject();
         side.set("parent", "minecraft:block/template_wall_side");
@@ -109,6 +128,28 @@ public class WallResource {
         inv.addObject("textures").set("wall", Main.MOD_ID + ":block/" + name);
 
         return inv;
+    }
+
+    /**
+     * 
+     * @param name
+     * @param textures
+     * @param builder
+     * @return
+     */
+    public static HashMap<String, JsonObject> blockModel(String name, String[] textures, JsonBuilder builder) {
+        String texture = textures.length == 0
+            ? "minecraft:block/debug"
+            : textures[0];
+
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name + "_side", blockModel_side(name, texture, builder));
+                put(name + "_post", blockModel_post(name, texture, builder));
+                put(name + "_side_tall", blockModel_sideTall(name, texture, builder));
+                put(name + "_inventory", blockModel_inventory(name, texture, builder));
+            }
+        };
     }
 
     /**

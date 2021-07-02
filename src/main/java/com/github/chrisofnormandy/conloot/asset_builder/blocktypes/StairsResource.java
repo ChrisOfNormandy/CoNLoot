@@ -1,5 +1,7 @@
 package com.github.chrisofnormandy.conloot.asset_builder.blocktypes;
 
+import java.util.HashMap;
+
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 import com.github.chrisofnormandy.conloot.Main;
@@ -118,7 +120,23 @@ public class StairsResource {
      * @param builder
      * @return
      */
-    public static JsonObject blockModel(String name, JsonBuilder builder) {
+    public static HashMap<String, JsonObject> blockModel(String name, JsonBuilder builder) {
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name, blockModel_(name, builder));
+                put(name + "_inner", blockModel_inner(name, builder));
+                put(name + "_outer", blockModel_outer(name, builder));
+            }
+        };
+    }
+
+    /**
+     * 
+     * @param name
+     * @param builder
+     * @return
+     */
+    public static JsonObject blockModel_(String name, JsonBuilder builder) {
         JsonObject def = builder.createJsonObject();
         def.set("parent", "minecraft:block/stairs");
         JsonObject a = def.addObject("textures");
@@ -170,7 +188,34 @@ public class StairsResource {
      * @param builder
      * @return
      */
-    public static JsonObject blockModel(String name, String[] textures, JsonBuilder builder) {
+    public static HashMap<String, JsonObject> blockModel(String name, String[] textures, JsonBuilder builder) {
+        String[] texture;
+
+        if (textures.length < 3) {
+            if (textures.length == 0)
+                texture = new String[] { "minecraft:block/debug", "minecraft:block/debug", "minecraft:block/debug" };
+            else
+                texture = new String[] { textures[0], textures[0], textures[0] };
+        } else
+            texture = textures;
+
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name, blockModel_(name, texture, builder));
+                put(name + "_inner", blockModel_inner(name, texture, builder));
+                put(name + "_outer", blockModel_outer(name, texture, builder));
+            }
+        };
+    }
+
+    /**
+     * 
+     * @param name
+     * @param textures
+     * @param builder
+     * @return
+     */
+    public static JsonObject blockModel_(String name, String[] textures, JsonBuilder builder) {
         JsonObject def = builder.createJsonObject();
         def.set("parent", "minecraft:block/stairs");
         JsonObject a = def.addObject("textures");

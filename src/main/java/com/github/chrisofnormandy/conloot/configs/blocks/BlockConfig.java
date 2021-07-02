@@ -17,17 +17,17 @@ public class BlockConfig {
                                 "The block hardness level. Gold: 0; Wood: 0; Stone: 1; Iron: 2; Diamond: 3; Netherite: 4");
                 cfg.addString("harvest_tool", "pickaxe", "String representing a ToolType value.");
 
-                cfg.addDouble("friction", 1.0, "Block friction, like ice. Should be between 0 and 1.");
-                cfg.addDouble("speed_factor", 1.0, "Block speed factor, like soul sand.");
-                cfg.addDouble("jump_factor", 1.0, "Block jump factor, like slime blocks.");
+                cfg.addDouble("friction", -1.0, "Block friction, like ice. Should be between 0 and 1.");
+                cfg.addDouble("speed_factor", -1.0, "Block speed factor, like soul sand.");
+                cfg.addDouble("jump_factor", -1.0, "Block jump factor, like slime blocks.");
 
-                cfg.addString("sound", "none", "String representing a SoundType value.");
+                cfg.addString("sound", "stone", "String representing a SoundType value.");
 
-                cfg.addInteger("light_level", 0,
+                cfg.addInteger("light_level", -1,
                                 "Integer value for light level. Converts to ToIntFunction<BlockState>.");
 
-                cfg.addDouble("destroy_time", 1.0, "Block break time. Setting to 0 means insta-break.");
-                cfg.addDouble("explosion_resistance", 1.0, "Block explosion resistance.");
+                cfg.addDouble("destroy_time", -1.0, "Block break time. Setting to 0 means insta-break.");
+                cfg.addDouble("explosion_resistance", -1.0, "Block explosion resistance.");
 
                 cfg.addFlag("random_ticks", false, "Does the block tick randomly, like plant growth or decay?");
 
@@ -53,15 +53,28 @@ public class BlockConfig {
                 cfg.addFlag("require_correct_tool", true,
                                 "When broken, does this block require the correct tool to be used to drop an item?");
 
-                cfg.addString("material", "none", "String representing a Material value.");
+                cfg.addString("material", "stone", "String representing a Material value.");
 
-                cfg.addString("material_color", "none",
+                cfg.addString("material_color", "",
                                 "String representing a MaterialColor value. Converts to Function<BlockState, MaterialColor>.");
 
                 cfg.addString("block_model", blockType,
-                                "What model should the block adapt? Options: block, slab, stairs, wall, fence, fence_gate");
+                                "What general model should the block adapt? Examples: block, slab, wall.");
+
+                cfg.addString("block_model_subtype", "",
+                                "What model should the block adapt in its blockstate definition and block model(s)?");
 
                 // Asset generation settings
+
+                switch (blockType) {
+                        case "slab": {
+                                ConfigGroup settings = new ConfigGroup();
+                                
+                                settings.addString("double_stack_textures", name, "Texture names for double stacked slabs. Formatted with mod ID will use existing assets and will not combine.");
+
+                                cfg.addSubgroup("Settings", settings);
+                        }
+                }
 
                 // Colors
                 ConfigGroup colors = new ConfigGroup();
@@ -78,25 +91,17 @@ public class BlockConfig {
 
                 // Templates
                 ConfigGroup assets = new ConfigGroup();
-                List<String> templates = new ArrayList<String>();
-                List<String> bases = new ArrayList<String>();
-                List<String> parents = new ArrayList<String>();
-
-                templates.add("none");
-
-                assets.addStringList("template", templates,
-                                "The PNG name(s) to use as the asset template(s). Should be a cutout of the colored / custom portion.");
-                assets.addStringList("base", bases,
-                                "The PNG name(s) to use as the asset base(s). Should be a full block texture, such as stone, or a texture with the colored / custom portion removed.");
-                assets.addStringList("parents", parents,
-                                "The block texture to use as a parent texture. Can only be custom (at the moment).");
+                assets.addStringList("textures", new ArrayList<String>(),
+                                "Texture names. Formatted with mod ID will use existing assets and will not combine.");
+                assets.addStringList("overlays", new ArrayList<String>(),
+                                "Texture names. If the base texture is not a referenced asset, will combine to make single asset texture.");
                 cfg.addSubgroup("Assets", assets);
 
                 // Animation
                 ConfigGroup animation = new ConfigGroup();
-                List<String> frames = new ArrayList<String>();
-                animation.addStringList("frames", frames, "Manual frame determinations. Use the format '0:30' for 'index: 0, time: 30'. Not providing a time will use default. Leaving empty will use order of templates.");
-                animation.addInteger("frametime", 1, "Ticks per animation frame. 20 = 1 second.");
+                animation.addStringList("frames", new ArrayList<String>(),
+                                "Manual frame determinations. Use the format '0:30' for 'index: 0, time: 30'. Not providing a time will use default. Leaving empty will use order of templates.");
+                animation.addInteger("frametime", 0, "Ticks per animation frame. 20 = 1 second. 0 to disable.");
                 cfg.addSubgroup("Animation", animation);
         }
 }

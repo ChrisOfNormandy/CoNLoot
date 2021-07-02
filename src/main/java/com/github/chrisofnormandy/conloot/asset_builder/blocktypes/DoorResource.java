@@ -3,6 +3,9 @@ package com.github.chrisofnormandy.conloot.asset_builder.blocktypes;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.Patterns;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetBuilder;
+
+import java.util.HashMap;
+
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 
@@ -91,6 +94,23 @@ public class DoorResource {
      * @param builder
      * @return
      */
+    public static HashMap<String, JsonObject> blockModel(String name, JsonBuilder builder) {
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name + "_top", blockModel_top(name, builder));
+                put(name + "_top_hinge", blockModel_top_hinge(name, builder));
+                put(name + "_bottom", blockModel_bottom(name, builder));
+                put(name + "_bottom_hinge", blockModel_bottom_hinge(name, builder));
+            }
+        };
+    }
+
+    /**
+     * 
+     * @param name
+     * @param builder
+     * @return
+     */
     public static JsonObject blockModel_top(String name, JsonBuilder builder) {
         JsonObject def = builder.createJsonObject();
         def.set("parent", "minecraft:block/door_top");
@@ -143,6 +163,34 @@ public class DoorResource {
                 Main.MOD_ID + ":block/" + name + "_bottom");
 
         return def;
+    }
+
+    /**
+     * 
+     * @param name
+     * @param textures
+     * @param builder
+     * @return
+     */
+    public static HashMap<String, JsonObject> blockModel(String name, String[] textures, JsonBuilder builder) {
+        String[] texture;
+
+        if (textures.length < 2) {
+            if (textures.length == 0)
+                texture = new String[] { "minecraft:block/debug", "minecraft:block/debug" };
+            else
+                texture = new String[] { textures[0], textures[0] };
+        } else
+            texture = textures;
+
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name + "_top", blockModel_top(name, texture, builder));
+                put(name + "_top_hinge", blockModel_top_hinge(name, texture, builder));
+                put(name + "_bottom", blockModel_bottom(name, texture, builder));
+                put(name + "_bottom_hinge", blockModel_bottom_hinge(name, texture, builder));
+            }
+        };
     }
 
     /**

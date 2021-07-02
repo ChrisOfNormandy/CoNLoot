@@ -13,235 +13,304 @@ import com.github.chrisofnormandy.conloot.configs.worldgen.BiomeConfig;
 
 public class ModConfigs {
     public final HashMap<String, Config> configs = new HashMap<String, Config>();
-
-    // Blocks
-    public final HashMap<String, Config> gemConfigs = new HashMap<String, Config>();
-    public final HashMap<String, Config> metalConfigs = new HashMap<String, Config>();
-    public final HashMap<String, Config> plantConfigs = new HashMap<String, Config>();
-    public final HashMap<String, Config> cropConfigs = new HashMap<String, Config>();
-    public final HashMap<String, Config> blockConfigs = new HashMap<String, Config>();
-
-    // Items
-    public final HashMap<String, Config> plainItemConfigs = new HashMap<String, Config>();
-    public final HashMap<String, Config> pickaxeConfigs = new HashMap<String, Config>();
-    public final HashMap<String, Config> axeConfigs = new HashMap<String, Config>();
-    public final HashMap<String, Config> shovelConfigs = new HashMap<String, Config>();
-    public final HashMap<String, Config> hoeConfigs = new HashMap<String, Config>();
-
-    // World Gen
-    public final HashMap<String, Config> biomeConfigs = new HashMap<String, Config>();
+    public final HashMap<String, HashMap<String, Config>> blockContent = new HashMap<String, HashMap<String, Config>>();
+    public final HashMap<String, HashMap<String, Config>> itemContent = new HashMap<String, HashMap<String, Config>>();
+    public final HashMap<String, HashMap<String, Config>> worldGenContent = new HashMap<String, HashMap<String, Config>>();
 
     // Config Builders
     private void mainConfig(Config config) {
-        ConfigGroup gemGroup = new ConfigGroup();
-        ConfigGroup metalGroup = new ConfigGroup();
-        ConfigGroup cropGroup = new ConfigGroup();
-        ConfigGroup blockGroup = new ConfigGroup();
-        ConfigGroup worldGenGroup = new ConfigGroup();
-
-        // Gems
-        List<String> gemList = new ArrayList<String>();
-        gemGroup.addStringList("gem_list", gemList, "A list of gem types.");
-        config.addSubgroup("Gems", gemGroup);
-
-        // Metals
-        List<String> metalList = new ArrayList<String>();
-        metalGroup.addStringList("metal_list", metalList, "A list of metal types.");
-        config.addSubgroup("Metals", metalGroup);
-
-        // Crops
-        List<String> cropList = new ArrayList<String>();
-        cropGroup.addStringList("crop_list", cropList, "A list of crops.");
-
-        config.addSubgroup("Crops", cropGroup);
-
         // Blocks
-        List<String> blockList = new ArrayList<String>();
-        blockGroup.addStringList("block_list", blockList, "A list of blocks.");
-        blockGroup.addStringList("slab_list", blockList, "A list of slabs.");
-        blockGroup.addStringList("stairs_list", blockList, "A list of stairs.");
-        blockGroup.addStringList("wall_list", blockList, "A list of walls.");
-        blockGroup.addStringList("fence_list", blockList, "A list of fences.");
-        blockGroup.addStringList("fence_gate_list", blockList, "A list of fence gates.");
-        blockGroup.addStringList("door_list", blockList, "A list of doors.");
-        blockGroup.addStringList("trapdoor_list", blockList, "A list of trapdoors.");
+        ConfigGroup blocks = new ConfigGroup();
 
-        blockGroup.addStringList("suite_list", blockList,
-                "A list of content that should generate a block, slab, stair, and depending on type, wall or fence.");
+        ConfigGroup generic = new ConfigGroup();
 
-        config.addSubgroup("Blocks", blockGroup);
+        generic.addStringList("block_list", new ArrayList<String>(), "A list of blocks.");
+        generic.addStringList("slab_list", new ArrayList<String>(), "A list of slabs.");
+        generic.addStringList("stairs_list", new ArrayList<String>(), "A list of stairs.");
+        generic.addStringList("wall_list", new ArrayList<String>(), "A list of walls.");
+        generic.addStringList("fence_list", new ArrayList<String>(), "A list of fences.");
+        blocks.addSubgroup("Generic", generic);
+
+        ConfigGroup redstone = new ConfigGroup();
+
+        redstone.addStringList("fence_gate_list", new ArrayList<String>(), "A list of fence gates.");
+        redstone.addStringList("door_list", new ArrayList<String>(), "A list of doors.");
+        redstone.addStringList("trapdoor_list", new ArrayList<String>(), "A list of trapdoors.");
+        blocks.addSubgroup("Redstone", redstone);
+
+        ConfigGroup interactive = new ConfigGroup();
+
+        interactive.addStringList("barrel_list", new ArrayList<String>(), "A list of barrels.");
+        interactive.addStringList("shulker_list", new ArrayList<String>(), "A list of shulker.");
+        blocks.addSubgroup("Interactive", interactive);
+
+        ConfigGroup suite = new ConfigGroup();
+
+        suite.addStringList("stone_suite_list", new ArrayList<String>(),
+                "A list of content that generates a block, slab, stair and wall.");
+        suite.addStringList("wood_suite_list", new ArrayList<String>(),
+                "A list of content that generates a block, slab, stair, fence, fence gate, door and trapdoor.");
+        blocks.addSubgroup("Suite", suite);
+
+        config.addSubgroup("Blocks", blocks);
+
+        // Items
+        ConfigGroup items = new ConfigGroup();
+
+        ConfigGroup tool = new ConfigGroup();
+
+        tool.addStringList("pickaxe_list", new ArrayList<String>(), "A list of pickaxes.");
+        tool.addStringList("axe_list", new ArrayList<String>(), "A list of pickaxes.");
+        tool.addStringList("shovel_list", new ArrayList<String>(), "A list of pickaxes.");
+        tool.addStringList("hoe_list", new ArrayList<String>(), "A list of pickaxes.");
+        items.addSubgroup("Tool", tool);
+
+        config.addSubgroup("Items", items);
 
         // World Gen
-        List<String> biomeList = new ArrayList<String>();
-        worldGenGroup.addStringList("biome_list", biomeList, "A list of biomes to modify.");
+        ConfigGroup worldGen = new ConfigGroup();
 
-        config.addSubgroup("WorldGen", worldGenGroup);
+        ConfigGroup biomes = new ConfigGroup();
+
+        biomes.addStringList("biome_list", new ArrayList<String>(), "A list of biomes to modify.");
+        worldGen.addSubgroup("Biomes", biomes);
+
+        config.addSubgroup("WorldGen", worldGen);
+
+        // Resources
+        ConfigGroup resources = new ConfigGroup();
+
+        ConfigGroup ores = new ConfigGroup();
+
+        ores.addStringList("gem_list", new ArrayList<String>(), "A list of gem types.");
+        ores.addStringList("metal_list", new ArrayList<String>(), "A list of metal types.");
+        resources.addSubgroup("Ores", ores);
+
+        ConfigGroup plants = new ConfigGroup();
+
+        plants.addStringList("crop_list", new ArrayList<String>(), "A list of crops.");
+        resources.addSubgroup("Plants", plants);
+
+        config.addSubgroup("Resources", resources);
 
         config.Build();
+
         configs.put(Main.MOD_ID, config);
 
-        buildGemConfigs(gemGroup);
-        buildMetalConfigs(metalGroup);
+        Main.LOG.debug("Building block configs...");
+        buildBlockConfigs(blocks);
 
-        buildCropConfigs(cropGroup);
+        Main.LOG.debug("Building resource configs...");
+        buildResourceConfigs(resources);
 
-        buildBlockConfigs(blockGroup);
-
-        buildBiomeConfigs(worldGenGroup);
+        Main.LOG.debug("Building worldGen configs...");
+        buildWorldGenConfigs(worldGen);
     }
 
-    void buildCropConfigs(ConfigGroup cropConfig) {
-        cropConfig.getStringListValue("crop_list").forEach((String crop) -> {
+    private void buildCropConfigs(List<String> list) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        list.forEach((String crop) -> {
             Config cfg = new Config("conloot/crops", crop);
             CropConfig.create(crop, cfg);
             cfg.Build();
-            plantConfigs.put(crop, cfg);
+            map.put(crop, cfg);
         });
+
+        blockContent.put("resource.plant.crop", map);
     }
 
-    private void buildGemConfigs(ConfigGroup gemGroup) {
-        gemGroup.getStringListValue("gem_list").forEach((String gem) -> {
+    private void buildGemConfigs(List<String> list) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        list.forEach((String gem) -> {
             try {
                 Config cfg = new Config("conloot/gems", gem);
                 OreConfig.create(gem, cfg, "gem");
                 cfg.Build();
-                gemConfigs.put(gem, cfg);
+                map.put(gem, cfg);
             } catch (Exception err) {
                 Main.LOG.error("Failed to create config for gem resource: " + gem);
-                Main.LOG.error(err.getStackTrace());
+                err.printStackTrace();
             }
         });
+
+        blockContent.put("resource.ore.gem", map);
     }
 
-    private void buildMetalConfigs(ConfigGroup metalGroup) {
-        metalGroup.getStringListValue("metal_list").forEach((String metal) -> {
+    private void buildMetalConfigs(List<String> list) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        list.forEach((String metal) -> {
             try {
                 Config cfg = new Config("conloot/metals", metal);
                 OreConfig.create(metal, cfg, "ingot");
                 cfg.Build();
-                metalConfigs.put(metal, cfg);
+                map.put(metal, cfg);
             } catch (Exception err) {
                 Main.LOG.error("Failed to create config for metal resource: " + metal);
-                Main.LOG.error(err.getStackTrace());
+                err.printStackTrace();
             }
         });
+
+        blockContent.put("resource.ore.metal", map);
     }
 
-    private void blockConfig(String name, String model, String color) {
+    private Config blockConfig(String name, String model, String color) {
         try {
             Config cfg = new Config("conloot/blocks/" + model, name);
             BlockConfig.create(name, cfg, model, color);
             cfg.Build();
-            blockConfigs.put(name, cfg);
+            return cfg;
         } catch (Exception err) {
             Main.LOG.error("Failed to create config for block: " + name);
-            Main.LOG.error(err.getStackTrace());
+            err.printStackTrace();
         }
+
+        return null;
     }
 
-    private void blockConfig(String name, String model) {
-        blockConfig(name, model, "black");
+    private Config blockConfig(String name, String model) {
+        return blockConfig(name, model, "black");
     }
 
-    private void buildBlockConfigs(ConfigGroup blockConfig) {
-        blockConfig.getStringListValue("block_list").forEach((String block) -> {
+    private HashMap<String, Config> getBlockMap(List<String> list, HashMap<String, Config> map) {
+        list.forEach((String block) -> {
             if (Patterns.dye.matcher(block).find()) {
                 for (String clr : Patterns.colors)
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "block", clr);
+                    map.put(block, blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "block", clr));
             } else
-                blockConfig(block, "block");
+                map.put(block, blockConfig(block, "block"));
         });
 
-        blockConfig.getStringListValue("slab_list").forEach((String block) -> {
-            if (Patterns.dye.matcher(block).find()) {
-                for (String clr : Patterns.colors)
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "slab", clr);
-            } else
-                blockConfig(block, "slab");
+        return map;
+    }
+
+    private void buildGenericBlockConfigs(ConfigGroup config) {
+        blockContent.put("block.generic.block",
+                getBlockMap(config.getStringListValue("block_list"), new HashMap<String, Config>()));
+
+        blockContent.put("block.generic.slab",
+                getBlockMap(config.getStringListValue("slab_list"), new HashMap<String, Config>()));
+
+        blockContent.put("block.generic.stairs",
+                getBlockMap(config.getStringListValue("stairs_list"), new HashMap<String, Config>()));
+
+        blockContent.put("block.generic.wall",
+                getBlockMap(config.getStringListValue("wall_list"), new HashMap<String, Config>()));
+
+        blockContent.put("block.generic.fence",
+                getBlockMap(config.getStringListValue("fence_list"), new HashMap<String, Config>()));
+    }
+
+    private void buildInteractiveBlockConfigs(ConfigGroup config) {
+        blockContent.put("block.interactive.storage.barrel",
+                getBlockMap(config.getStringListValue("barrel_list"), new HashMap<String, Config>()));
+
+        blockContent.put("block.interactive.storage.shulker",
+                getBlockMap(config.getStringListValue("shulker_list"), new HashMap<String, Config>()));
+    }
+
+    private void buildRedstoneBlockConfigs(ConfigGroup config) {
+        blockContent.put("block.redstone.fence_gate",
+                getBlockMap(config.getStringListValue("fence_gate_list"), new HashMap<String, Config>()));
+
+        blockContent.put("block.redstone.door",
+                getBlockMap(config.getStringListValue("door_list"), new HashMap<String, Config>()));
+
+        blockContent.put("block.redstone.trapdoor",
+                getBlockMap(config.getStringListValue("trapdoor_list"), new HashMap<String, Config>()));
+    }
+
+    private void buildSuiteBlockConfigs(ConfigGroup config) {
+        config.getStringListValue("wood_suite_list").forEach((String name) -> {
+            blockContent.get("block.generic.block").put(name + "_log", blockConfig(name + "_log", "block"));
+            blockContent.get("block.generic.block").put("stripped_" + name + "_log", blockConfig(
+                    "stripped_" + name + "_log", "block"));
+            blockContent.get("block.generic.block").put(name + "_wood", blockConfig(name + "_wood", "block"));
+            blockContent.get("block.generic.block").put("stripped_" + name + "_wood", blockConfig(
+                    "stripped_" + name + "_wood", "block"));
+
+            blockContent.get("block.generic.block").put(name + "_planks", blockConfig(name + "_planks", "block"));
+
+            blockContent.get("block.generic.slab").put(name + "_slab", blockConfig(name + "_slab", "slab"));
+            blockContent.get("block.generic.stairs").put(name + "_stairs", blockConfig(name + "_stairs", "stairs"));
+            blockContent.get("block.generic.fence").put(name + "_fence", blockConfig(name + "_fence", "fence"));
+
+            blockContent.get("block.redstone.fence_gate").put(name + "_fence_gate", blockConfig(
+                    name + "_fence_gate", "fence_gate"));
+            blockContent.get("block.redstone.door").put(name + "_door", blockConfig(name + "_door", "door"));
+            blockContent.get("block.redstone.trapdoor").put(name + "_trapdoor", blockConfig(name + "_trapdoor", "trapdoor"));
         });
 
-        blockConfig.getStringListValue("stairs_list").forEach((String block) -> {
-            if (Patterns.dye.matcher(block).find()) {
-                for (String clr : Patterns.colors)
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "stairs", clr);
-            } else
-                blockConfig(block, "stairs");
-        });
+        config.getStringListValue("stone_suite_list").forEach((String name) -> {
+            blockContent.get("block.generic.block").put(name, blockConfig(name, "block"));
 
-        blockConfig.getStringListValue("wall_list").forEach((String block) -> {
-            if (Patterns.dye.matcher(block).find()) {
-                for (String clr : Patterns.colors)
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "wall", clr);
-            } else
-                blockConfig(block, "wall");
-        });
-
-        blockConfig.getStringListValue("fence_list").forEach((String block) -> {
-            if (Patterns.dye.matcher(block).find()) {
-                for (String clr : Patterns.colors)
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "fence", clr);
-            } else
-                blockConfig(block, "fence");
-        });
-
-        blockConfig.getStringListValue("fence_gate_list").forEach((String block) -> {
-            if (Patterns.dye.matcher(block).find()) {
-                for (String clr : Patterns.colors)
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "fence_gate", clr);
-            } else
-                blockConfig(block, "fence_gate");
-        });
-
-        blockConfig.getStringListValue("door_list").forEach((String block) -> {
-            if (Patterns.dye.matcher(block).find()) {
-                for (String clr : Patterns.colors)
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "door", clr);
-            } else
-                blockConfig(block, "door");
-        });
-
-        blockConfig.getStringListValue("trapdoor_list").forEach((String block) -> {
-            if (Patterns.dye.matcher(block).find()) {
-                for (String clr : Patterns.colors)
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "trapdoor", clr);
-            } else
-                blockConfig(block, "trapdoor");
-        });
-
-        blockConfig.getStringListValue("suite_list").forEach((String block) -> {
-            if (Patterns.dye.matcher(block).find()) {
-                for (String clr : Patterns.colors) {
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "block", clr);
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "slab", clr);
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "stairs", clr);
-                    blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "wall", clr);
-                }
-            } else {
-                blockConfig(block, "block");
-                blockConfig(block, "slab");
-                blockConfig(block, "stairs");
-                blockConfig(block, "wall");
-            }
+            blockContent.get("block.generic.slab").put(name + "_slab", blockConfig(name + "_slab", "slab"));
+            blockContent.get("block.generic.stairs").put(name + "_stairs", blockConfig(name + "_stairs", "stairs"));
+            blockContent.get("block.generic.wall").put(name + "_wall", blockConfig(name + "_wall", "wall"));
         });
     }
 
-    private void buildBiomeConfigs(ConfigGroup worldGenGroup) {
-        worldGenGroup.getStringListValue("biome_list").forEach((String biome) -> {
+    private void buildBlockConfigs(ConfigGroup config) {
+        buildGenericBlockConfigs(config.getSubgroup("Generic"));
+        buildRedstoneBlockConfigs(config.getSubgroup("Redstone"));
+        buildInteractiveBlockConfigs(config.getSubgroup("Interactive"));
+        buildSuiteBlockConfigs(config.getSubgroup("Suite"));
+
+        Main.LOG.debug("Finished block config builds with: " + blockContent.get("block.generic.block").size());
+
+        Main.LOG.debug("Finished slab config builds with: " + blockContent.get("block.generic.slab").size());
+
+        Main.LOG.debug("Finished stairs config builds with: " + blockContent.get("block.generic.stairs").size());
+
+        Main.LOG.debug("Finished wall config builds with: " + blockContent.get("block.generic.wall").size());
+
+        Main.LOG.debug("Finished fence config builds with: " + blockContent.get("block.generic.fence").size());
+
+        Main.LOG.debug(
+                "Finished fence gate config builds with: " + blockContent.get("block.redstone.fence_gate").size());
+
+        Main.LOG.debug("Finished door config builds with: " + blockContent.get("block.redstone.door").size());
+
+        Main.LOG.debug("Finished trapdoor config builds with: " + blockContent.get("block.redstone.trapdoor").size());
+
+        Main.LOG.debug(
+                "Finished barrel config builds with: " + blockContent.get("block.interactive.storage.barrel").size());
+
+        Main.LOG.debug(
+                "Finished shulker config builds with: " + blockContent.get("block.interactive.storage.shulker").size());
+    }
+
+    private void buildResourceConfigs(ConfigGroup group) {
+        buildMetalConfigs(group.getSubgroup("Ores").getStringListValue("metal_list"));
+        buildGemConfigs(group.getSubgroup("Ores").getStringListValue("gem_list"));
+        buildCropConfigs(group.getSubgroup("Plants").getStringListValue("crop_list"));
+    }
+
+    private void buildBiomeConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("biome_list").forEach((String biome) -> {
             try {
                 Config cfg = new Config("conloot/worldgen/biomes", biome);
                 BiomeConfig.create(biome, cfg);
                 cfg.Build();
-                biomeConfigs.put(biome, cfg);
+                map.put(biome, cfg);
             } catch (Exception err) {
                 Main.LOG.error("Failed to create config for biome: " + biome);
-                Main.LOG.error(err.getStackTrace());
+                err.printStackTrace();
             }
         });
+
+        worldGenContent.put("worldgen.biome", map);
+    }
+
+    public void buildWorldGenConfigs(ConfigGroup config) {
+        buildBiomeConfigs(config.getSubgroup("Biomes"));
     }
 
     public void Init() {
-        Config config = new Config(Main.MOD_ID);
-
-        mainConfig(config);
+        mainConfig(new Config(Main.MOD_ID));
     }
 }

@@ -3,6 +3,9 @@ package com.github.chrisofnormandy.conloot.asset_builder.blocktypes;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.Patterns;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetBuilder;
+
+import java.util.HashMap;
+
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonArray;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
@@ -15,11 +18,10 @@ public class FenceResource {
      * @return
      */
     public static JsonObject blockstate(String name, JsonBuilder builder) {
-        JsonObject json =builder.createJsonObject();
+        JsonObject json = builder.createJsonObject();
         JsonArray multipart = json.addArray("multipart");
 
-        multipart.addObject().addObject("apply").set("model",
-                Main.MOD_ID + ":block/" + name + "_post");
+        multipart.addObject().addObject("apply").set("model", Main.MOD_ID + ":block/" + name + "_post");
 
         JsonObject objN = multipart.addObject();
         JsonObject objE = multipart.addObject();
@@ -39,6 +41,22 @@ public class FenceResource {
                 270);
 
         return json;
+    }
+
+    /**
+     * 
+     * @param name
+     * @param builder
+     * @return
+     */
+    public static HashMap<String, JsonObject> blockModel(String name, JsonBuilder builder) {
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name + "_side", blockModel_side(name, builder));
+                put(name + "_post", blockModel_post(name, builder));
+                put(name + "_inventory", blockModel_inventory(name, builder));
+            }
+        };
     }
 
     /**
@@ -81,6 +99,24 @@ public class FenceResource {
         inv.addObject("textures").set("texture", Main.MOD_ID + ":block/" + name);
 
         return inv;
+    }
+
+    /**
+     * 
+     * @param name
+     * @param builder
+     * @return
+     */
+    public static HashMap<String, JsonObject> blockModel(String name, String[] textures, JsonBuilder builder) {
+        String texture = textures.length == 0 ? "minecraft:block/debug" : textures[0];
+
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name + "_side", blockModel_side(name, texture, builder));
+                put(name + "_post", blockModel_post(name, texture, builder));
+                put(name + "_inventory", blockModel_inventory(name, texture, builder));
+            }
+        };
     }
 
     /**

@@ -3,6 +3,9 @@ package com.github.chrisofnormandy.conloot.asset_builder.blocktypes;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.Patterns;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetBuilder;
+
+import java.util.HashMap;
+
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 
@@ -20,8 +23,8 @@ public class TrapdoorResource {
         for (int i = 0; i < directions.length; i++) {
             String facing = directions[i];
 
-            JsonObject var = variants.addObject(
-                    "facing=" + facing + ",half=" + (half ? "top" : "bottom") + ",open=" + open);
+            JsonObject var = variants
+                    .addObject("facing=" + facing + ",half=" + (half ? "top" : "bottom") + ",open=" + open);
 
             switch (i) {
                 case 0: {
@@ -82,6 +85,22 @@ public class TrapdoorResource {
      * @param builder
      * @return
      */
+    public static HashMap<String, JsonObject> blockModel(String name, JsonBuilder builder) {
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name + "_bottom", blockModel_bottom(name, builder));
+                put(name + "_open", blockModel_open(name, builder));
+                put(name + "_top", blockModel_top(name, builder));
+            }
+        };
+    }
+
+    /**
+     * 
+     * @param name
+     * @param builder
+     * @return
+     */
     public static JsonObject blockModel_bottom(String name, JsonBuilder builder) {
         JsonObject def = builder.createJsonObject();
         def.set("parent", "minecraft:block/template_orientable_trapdoor_bottom");
@@ -116,6 +135,25 @@ public class TrapdoorResource {
         def.addObject("textures").set("texture", Main.MOD_ID + ":block/" + name);
 
         return def;
+    }
+
+    /**
+     * 
+     * @param name
+     * @param textures
+     * @param builder
+     * @return
+     */
+    public static HashMap<String, JsonObject> blockModel(String name, String[] textures, JsonBuilder builder) {
+        String texture = textures.length == 0 ? "minecraft:block/debug" : textures[0];
+
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name + "_bottom", blockModel_bottom(name, texture, builder));
+                put(name + "_open", blockModel_open(name, texture, builder));
+                put(name + "_top", blockModel_top(name, texture, builder));
+            }
+        };
     }
 
     /**

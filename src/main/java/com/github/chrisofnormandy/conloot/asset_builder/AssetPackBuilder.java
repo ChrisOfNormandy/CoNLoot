@@ -1,9 +1,16 @@
 package com.github.chrisofnormandy.conloot.asset_builder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 import com.github.chrisofnormandy.conlib.common.Files;
+import com.github.chrisofnormandy.conlib.common.StringUtil;
 import com.github.chrisofnormandy.conloot.Main;
+import com.github.chrisofnormandy.conloot.Patterns;
 import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.BlockResource;
 import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.DoorResource;
 import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.FenceGateResource;
@@ -14,777 +21,366 @@ import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.TrapdoorResou
 import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.WallResource;
 
 public class AssetPackBuilder {
-    private static JsonBuilder builder = new JsonBuilder();
-
-    /**
-     * 
-     * @param path
-     * @return
-     */
-    public static String getPath(String path) {
-        return "resourcepacks/" + Main.MOD_ID + "_resources/assets/" + path;
-    }
-
-    /**
-     * 
-     * @param name
-     * @param path
-     * @param json
-     */
-    private static void write(String name, String path, JsonObject json) {
-        Main.LOG.info("Creating new model for " + name + " at: " + path);
-        Main.LOG.debug(builder.stringify(json));
-        builder.write(path, name, json);
-    }
-
-    static {
-        JsonObject mcmeta = builder.createJsonObject();
-        JsonObject a = mcmeta.addObject("pack");
-        a.set("pack_format", 6);
-        a.set("description", "Generated resource pack from " + Main.MOD_ID + ".");
-
-        Files.write("resourcepacks/" + Main.MOD_ID + "_resources/", "pack", builder.stringify(mcmeta), ".mcmeta");
-    }
-
-    public static class Block {
-        /**
-         * 
-         * @param name Should be formatted as partial registry name, like dirt.
-         * @return
-         */
-        public static JsonObject getBlockstate(String name) {
-            JsonObject blockstate = BlockResource.blockstate(name, builder);
-            builder.write(getPath(Main.MOD_ID + "/blockstates"), name, blockstate);
-            return blockstate;
-        }
+        private static JsonBuilder builder = new JsonBuilder();
+        private static List<String> assetList = new ArrayList<String>();
 
         /**
          * 
-         * @param name
-         * @return
-         */
-        public static JsonObject getBlockModel(String name) {
-            JsonObject model = BlockResource.blockModel(name, builder);
-            write(name, getPath(Main.MOD_ID + "/models/block"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
-         * @param textures
-         * @return
-         */
-        public static JsonObject getBlockModel(String name, String[] textures) {
-            Main.LOG.debug("Block textures: " + String.join(", ", textures));
-
-            JsonObject model = BlockResource.blockModel(name, textures[0], builder);
-            write(name, getPath(Main.MOD_ID + "/models/block"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject getItemModel(String name) {
-            JsonObject model = BlockResource.itemModel(name, builder);
-            write(name, getPath(Main.MOD_ID + "/models/item"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
-         */
-        public static void createTexture(String name, String[] bases, String[] templates, String[] colors, String mode,
-                Boolean templateShading) {
-            BlockResource.texture(name, getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors, mode,
-                    templateShading);
-        }
-    }
-
-    public static class Slab {
-        /**
-         * 
-         * @param name Should be formatted as partial registry name, like dirt.
-         * @return
-         */
-        public static JsonObject getBlockstate(String name) {
-            JsonObject blockstate = SlabResource.blockstate(name, builder);
-            builder.write(getPath(Main.MOD_ID + "/blockstates"), name, blockstate);
-            return blockstate;
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name) {
-            JsonObject model = SlabResource.blockModel(name, builder);
-            JsonObject model_top = SlabResource.blockModel(name, builder);
-
-            write(name, getPath(Main.MOD_ID + "/models/block"), model);
-            write(name + "_top", getPath(Main.MOD_ID + "/models/block"), model_top);
-
-            return new JsonObject[] { model, model_top };
-        }
-
-        /**
-         * 
-         * @param name
-         * @param textures
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name, String[] textures) {
-            Main.LOG.debug("Slab textures: " + String.join(", ", textures));
-
-            JsonObject model = SlabResource.blockModel(name, textures, builder);
-            JsonObject model_top = SlabResource.blockModel(name, textures, builder);
-
-            write(name, getPath(Main.MOD_ID + "/models/block"), model);
-            write(name + "_top", getPath(Main.MOD_ID + "/models/block"), model_top);
-
-            return new JsonObject[] { model, model_top };
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject getItemModel(String name) {
-            JsonObject model = SlabResource.itemModel(name, builder);
-            write(name, getPath(Main.MOD_ID + "/models/item"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
-         */
-        public static void createTexture(String name, String[] bases, String[] templates, String[] colors, String mode,
-                Boolean templateShading) {
-            SlabResource.texture(name, getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors, mode,
-                    templateShading);
-        }
-    }
-
-    public static class Stairs {
-        /**
-         * 
-         * @param name Should be formatted as partial registry name, like dirt.
-         * @return
-         */
-        public static JsonObject getBlockstate(String name) {
-            JsonObject blockstate = StairsResource.blockstate(name, builder);
-            builder.write(getPath(Main.MOD_ID + "/blockstates"), name, blockstate);
-            return blockstate;
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name) {
-            JsonObject model = StairsResource.blockModel(name, builder);
-            JsonObject model_inner = StairsResource.blockModel_inner(name, builder);
-            JsonObject model_outer = StairsResource.blockModel_outer(name, builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name, path, model);
-            write(name + "_inner", path, model_inner);
-            write(name + "_outer", path, model_outer);
-
-            return new JsonObject[] { model, model_inner, model_outer };
-        }
-
-        public static JsonObject[] getBlockModels(String name, String[] textures) {
-            Main.LOG.debug("Stair textures: " + String.join(", ", textures));
-
-            JsonObject model = StairsResource.blockModel(name, textures, builder);
-            JsonObject model_inner = StairsResource.blockModel_inner(name, textures, builder);
-            JsonObject model_outer = StairsResource.blockModel_outer(name, textures, builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name, path, model);
-            write(name + "_inner", path, model_inner);
-            write(name + "_outer", path, model_outer);
-
-            return new JsonObject[] { model, model_inner, model_outer };
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject getItemModel(String name) {
-            JsonObject model = StairsResource.itemModel(name, builder);
-            write(name, getPath(Main.MOD_ID + "/models/item"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
-         */
-        public static void createTexture(String name, String[] bases, String[] templates, String[] colors, String mode,
-                Boolean templateShading) {
-            StairsResource.texture(name, getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors, mode,
-                    templateShading);
-        }
-    }
-
-    public static class Wall {
-        /**
-         * 
-         * @param name Should be formatted as partial registry name, like dirt.
-         * @return
-         */
-        public static JsonObject getBlockstate(String name) {
-            JsonObject blockstate = WallResource.blockstate(name, builder);
-            builder.write(getPath(Main.MOD_ID + "/blockstates"), name, blockstate);
-            return blockstate;
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name) {
-            JsonObject model_side = WallResource.blockModel_side(name, builder);
-            JsonObject model_sideTall = WallResource.blockModel_sideTall(name, builder);
-            JsonObject model_post = WallResource.blockModel_post(name, builder);
-            JsonObject model_inventory = WallResource.blockModel_inventory(name, builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name + "_side", path, model_side);
-            write(name + "_side_tall", path, model_sideTall);
-            write(name + "_post", path, model_post);
-            write(name + "_inventory", path, model_inventory);
-
-            return new JsonObject[] { model_side, model_sideTall, model_post, model_inventory };
-        }
-
-        /**
-         * 
-         * @param name
-         * @param textures
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name, String[] textures) {
-            Main.LOG.debug("Wall textures: " + String.join(", ", textures));
-
-            JsonObject model_side = WallResource.blockModel_side(name, textures[0], builder);
-            JsonObject model_sideTall = WallResource.blockModel_sideTall(name,
-                    (textures.length >= 4 ? textures[1] : textures[0]), builder);
-            JsonObject model_post = WallResource.blockModel_post(name,
-                    (textures.length >= 4 ? textures[2] : textures[0]), builder);
-            JsonObject model_inventory = WallResource.blockModel_inventory(name,
-                    (textures.length >= 4 ? textures[3] : textures[0]), builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name + "_side", path, model_side);
-            write(name + "_side_tall", path, model_sideTall);
-            write(name + "_post", path, model_post);
-            write(name + "_inventory", path, model_inventory);
-
-            return new JsonObject[] { model_side, model_sideTall, model_post, model_inventory };
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject getItemModel(String name) {
-            JsonObject model = WallResource.itemModel(name, builder);
-            write(name, getPath(Main.MOD_ID + "/models/item"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
-         */
-        public static void createTexture(String name, String[] bases, String[] templates, String[] colors, String mode,
-                Boolean templateShading) {
-            WallResource.texture(name, getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors, mode,
-                    templateShading);
-        }
-    }
-
-    public static class Fence {
-        /**
-         * 
-         * @param name Should be formatted as partial registry name, like dirt.
-         * @return
-         */
-        public static JsonObject getBlockstate(String name) {
-            JsonObject blockstate = FenceResource.blockstate(name, builder);
-            builder.write(getPath(Main.MOD_ID + "/blockstates"), name, blockstate);
-            return blockstate;
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name) {
-            JsonObject model_side = FenceResource.blockModel_side(name, builder);
-            JsonObject model_post = FenceResource.blockModel_post(name, builder);
-            JsonObject model_inventory = FenceResource.blockModel_inventory(name, builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name + "_side", path, model_side);
-            write(name + "_post", path, model_post);
-            write(name + "_inventory", path, model_inventory);
-
-            return new JsonObject[] { model_side, model_post, model_inventory };
-        }
-
-        /**
-         * 
-         * @param name
-         * @param textures
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name, String[] textures) {
-            Main.LOG.debug("Fence textures: " + String.join(", ", textures));
-
-            JsonObject model_side = FenceResource.blockModel_side(name, textures[0], builder);
-            JsonObject model_post = FenceResource.blockModel_post(name,
-                    (textures.length >= 3 ? textures[1] : textures[0]), builder);
-            JsonObject model_inventory = FenceResource.blockModel_inventory(name,
-                    (textures.length >= 3 ? textures[2] : textures[0]), builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name + "_side", path, model_side);
-            write(name + "_post", path, model_post);
-            write(name + "_inventory", path, model_inventory);
-
-            return new JsonObject[] { model_side, model_post, model_inventory };
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject getItemModel(String name) {
-            JsonObject model = FenceResource.itemModel(name, builder);
-            write(name, getPath(Main.MOD_ID + "/models/item"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
-         */
-        public static void createTexture(String name, String[] bases, String[] templates, String[] colors, String mode,
-                Boolean templateShading) {
-            FenceResource.texture(name, getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors, mode,
-                    templateShading);
-        }
-    }
-
-    public static class FenceGate {
-        /**
-         * 
-         * @param name Should be formatted as partial registry name, like dirt.
-         * @return
-         */
-        public static JsonObject getBlockstate(String name) {
-            JsonObject blockstate = FenceGateResource.blockstate(name, builder);
-            builder.write(getPath(Main.MOD_ID + "/blockstates"), name, blockstate);
-            return blockstate;
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name) {
-            JsonObject model = FenceGateResource.blockModel(name, builder);
-            JsonObject model_open = FenceGateResource.blockModel_open(name, builder);
-            JsonObject model_wall = FenceGateResource.blockModel_wall(name, builder);
-            JsonObject model_wallOpen = FenceGateResource.blockModel_wallOpen(name, builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name + "", path, model);
-            write(name + "_open", path, model_open);
-            write(name + "_wall", path, model_wall);
-            write(name + "_wall_open", path, model_wallOpen);
-
-            return new JsonObject[] { model, model_open, model_wall, model_wallOpen };
-        }
-
-        /**
-         * 
-         * @param name
-         * @param textures
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name, String[] textures) {
-            Main.LOG.debug("FenceGate textures: " + String.join(", ", textures));
-
-            JsonObject model = FenceGateResource.blockModel(name, textures[0], builder);
-            JsonObject model_open = FenceGateResource.blockModel_open(name,
-                    (textures.length >= 3 ? textures[1] : textures[0]), builder);
-            JsonObject model_wall = FenceGateResource.blockModel_wall(name,
-                    (textures.length >= 3 ? textures[2] : textures[0]), builder);
-            JsonObject model_wallOpen = FenceGateResource.blockModel_wallOpen(name,
-                    (textures.length >= 3 ? textures[3] : textures[0]), builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name + "", path, model);
-            write(name + "_open", path, model_open);
-            write(name + "_wall", path, model_wall);
-            write(name + "_wall_open", path, model_wallOpen);
-
-            return new JsonObject[] { model, model_open, model_wall, model_wallOpen };
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject getItemModel(String name) {
-            JsonObject model = FenceGateResource.itemModel(name, builder);
-            write(name, getPath(Main.MOD_ID + "/models/item"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
-         */
-        public static void createTexture(String name, String[] bases, String[] templates, String[] colors, String mode,
-                Boolean templateShading) {
-            FenceGateResource.texture(name, getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors, mode,
-                    templateShading);
-        }
-    }
-
-    public static class Door {
-        /**
-         * 
-         * @param name Should be formatted as partial registry name, like dirt.
-         * @return
-         */
-        public static JsonObject getBlockstate(String name) {
-            JsonObject blockstate = DoorResource.blockstate(name, builder);
-            builder.write(getPath(Main.MOD_ID + "/blockstates"), name, blockstate);
-            return blockstate;
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name) {
-            JsonObject top = DoorResource.blockModel_top(name, builder);
-            JsonObject top_hinge = DoorResource.blockModel_top_hinge(name, builder);
-            JsonObject bottom = DoorResource.blockModel_bottom(name, builder);
-            JsonObject bottom_hinge = DoorResource.blockModel_bottom_hinge(name, builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name + "_top", path, top);
-            write(name + "_top_hinge", path, top_hinge);
-            write(name + "_bottom", path, bottom);
-            write(name + "_bottom_hinge", path, bottom_hinge);
-
-            return new JsonObject[] { top, top_hinge, bottom, bottom_hinge };
-        }
-
-        /**
-         * 
-         * @param name
-         * @param textures
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name, String[] textures) {
-            Main.LOG.debug("Door textures: " + String.join(", ", textures));
-
-            JsonObject top = DoorResource.blockModel_top(name, textures, builder);
-
-            JsonObject top_hinge = DoorResource.blockModel_top_hinge(name, textures,
-                    builder);
-
-            JsonObject bottom = DoorResource.blockModel_bottom(name, textures,
-                    builder);
-
-            JsonObject bottom_hinge = DoorResource.blockModel_bottom_hinge(name,
-                    textures, builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name + "_top", path, top);
-            write(name + "_top_hinge", path, top_hinge);
-            write(name + "_bottom", path, bottom);
-            write(name + "_bottom_hinge", path, bottom_hinge);
-
-            return new JsonObject[] { top, top_hinge, bottom, bottom_hinge };
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject getItemModel(String name) {
-            JsonObject model = DoorResource.itemModel(name, builder);
-            write(name, getPath(Main.MOD_ID + "/models/item"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
-         */
-        public static void createTexture_top(String name, String[] bases, String[] templates, String[] colors, String mode,
-                Boolean templateShading) {
-            DoorResource.texture(name + "_top", getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors, mode,
-                    templateShading);
-        }
-
-        /**
-         * 
-         * @param name
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
-         */
-        public static void createTexture_bottom(String name, String[] bases, String[] templates, String[] colors, String mode,
-                Boolean templateShading) {
-            DoorResource.texture(name + "_bottom", getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors, mode,
-                    templateShading);
-        }
-
-        /**
-         * 
-         * @param name
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
-         */
-        public static void createTexture_item(String name, String[] bases, String[] templates, String[] colors,
-                String mode, Boolean templateShading) {
-            DoorResource.itemTexture(name, getPath(Main.MOD_ID + "/textures/item"), bases, templates, colors,
-                    mode, templateShading);
-        }
-    }
-
-    public static class Trapdoor {
-        /**
-         * 
-         * @param name Should be formatted as partial registry name, like dirt.
-         * @return
-         */
-        public static JsonObject getBlockstate(String name) {
-            JsonObject blockstate = TrapdoorResource.blockstate(name, builder);
-            builder.write(getPath(Main.MOD_ID + "/blockstates"), name, blockstate);
-            return blockstate;
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name) {
-            JsonObject top = TrapdoorResource.blockModel_top(name, builder);
-            JsonObject open = TrapdoorResource.blockModel_open(name, builder);
-            JsonObject bottom = TrapdoorResource.blockModel_bottom(name, builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name + "_top", path, top);
-            write(name + "_open", path, open);
-            write(name + "_bottom", path, bottom);
-
-            return new JsonObject[] { top, open, bottom };
-        }
-
-        /**
-         * 
-         * @param name
-         * @param textures
-         * @return
-         */
-        public static JsonObject[] getBlockModels(String name, String[] textures) {
-            Main.LOG.debug("Door textures: " + String.join(", ", textures));
-
-            JsonObject top = TrapdoorResource.blockModel_top(name, textures[0], builder);
-
-            JsonObject open = TrapdoorResource.blockModel_open(name, textures[0],
-                    builder);
-
-            JsonObject bottom = TrapdoorResource.blockModel_bottom(name, textures[0],
-                    builder);
-
-            String path = getPath(Main.MOD_ID + "/models/block");
-            write(name + "_top", path, top);
-            write(name + "_open", path, open);
-            write(name + "_bottom", path, bottom);
-
-            return new JsonObject[] { top, open, bottom };
-        }
-
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject getItemModel(String name) {
-            JsonObject model = TrapdoorResource.itemModel(name, builder);
-            write(name, getPath(Main.MOD_ID + "/models/item"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
-         */
-        public static void createTexture(String name, String[] bases, String[] templates, String[] colors,
-                String mode, Boolean templateShading) {
-            TrapdoorResource.texture(name, getPath(Main.MOD_ID + "/textures/block"), bases, templates, colors,
-                    mode, templateShading);
-        }
-    }
-
-    public static class Item {
-        /**
-         * 
-         * @param name
-         * @return
-         */
-        public static JsonObject getItemModel(String name) {
-            JsonObject model = BlockResource.itemModel(name, builder);
-            write(name, getPath(Main.MOD_ID + "/models/item"), model);
-            return model;
-        }
-
-        /**
-         * 
-         * @param name
          * @param path
-         * @param bases
-         * @param templates
-         * @param colors
-         * @param mode
-         * @param templateShading
+         * @return
          */
-        public static void createTexture(String name, String bases[], String templates[], String[] colors, String mode,
-                Boolean templateShading) {
-            Main.LOG.info("Generating default asset for " + name + " using " + bases.length + " + " + templates.length);
-
-            AssetBuilder.createImage(getPath(Main.MOD_ID + "/textures/item"), name, templates, bases, colors, mode,
-                    templateShading);
-        }
-    }
-
-    public static class Lang {
-        public static JsonObject file = builder.createJsonObject();
-
-        /**
-         * 
-         * @param registryName Should be formatted as partial registry name, like
-         *                     my_block.
-         * @param name         Should be the translated text, like My Block.
-         */
-        public static void addBlock(String registryName, String name) {
-            file.set("block." + Main.MOD_ID + "." + registryName, name);
+        public static String getPath(String path) {
+                return "resourcepacks/" + Main.MOD_ID + "_resources/assets/" + path;
         }
 
-        /**
-         * 
-         * @param registryName Should be formatted as partial registry name, like
-         *                     my_item.
-         * @param name         Should be the translated text, like My Item.
-         */
-        public static void addItem(String registryName, String name) {
-            file.set("item." + Main.MOD_ID + "." + registryName, name);
+        public static String getModPath(String path) {
+                return "resourcepacks/" + Main.MOD_ID + "_resources/assets/" + Main.MOD_ID + "/" + path;
         }
 
-        /**
-         * 
-         * @param registryName Should be formatted as partial registry name, like
-         *                     my_group.
-         * @param name         Should be the translated text, like My Group.
-         */
-        public static void addGroup(String registryName, String name) {
-            file.set("itemGroup." + registryName, name);
+        static {
+                JsonObject mcmeta = builder.createJsonObject();
+                JsonObject a = mcmeta.addObject("pack");
+                a.set("pack_format", 6);
+                a.set("description", "Generated resource pack from " + Main.MOD_ID + ".");
+
+                Files.write("resourcepacks/" + Main.MOD_ID + "_resources/", "pack", builder.stringify(mcmeta),
+                                ".mcmeta");
         }
 
-        public static void write() {
-            builder.write(getPath(Main.MOD_ID + "/lang"), "en_us", file);
-        }
-    }
+        private static String[] getAssets(String name, String[] textures, String[] overlays, String[] colors,
+                        String mode, Boolean templateShading) {
+                String[] assets = new String[textures.length];
 
-    public static class Textures {
-        /**
-         * 
-         * @param name          Should be formatted as partial registry name, like dirt.
-         * @param frameCount    How many frames per animation cycle
-         * @param frameTime     How many ticks per frame
-         * @param frameSettings Additional frame settings. Optional.
-         */
-        public static void animationController(String name, Integer frameCount, Integer frameTime,
-                String[] frameSettings) {
-            AssetBuilder.createAnimationController(getPath(Main.MOD_ID + "/textures/block"), name, frameCount,
-                    frameTime, frameSettings);
+                String path = getModPath("textures/block");
+
+                Pattern replPattern = Pattern.compile("\\w+>[\\w%]+");
+
+                for (int i = 0; i < textures.length; i++) {
+                        String[] overlayList;
+
+                        if (overlays.length == textures.length)
+                                overlayList = new String[] { overlays[i] };
+                        else if (overlays.length >= 1)
+                                overlayList = new String[] { overlays[0] };
+                        else
+                                overlayList = new String[0];
+
+
+
+                        if (replPattern.matcher(textures[i]).find()) {
+                                String[] s = textures[i].split(">");
+                                String assetName = s[1].replace("%", name);
+
+                                if (!assetList.contains(assetName)) {
+                                        assets[i] = AssetBuilder.createImage(path, assetName,
+                                                        new String[] { s[0] }, overlayList, colors, mode, templateShading);
+
+                                        assetList.add(assets[i]);
+                                }
+                                else
+                                        assets[i] = Main.MOD_ID + ":block/" + assetName;
+                        } else {
+                                if (Patterns.modID.matcher(textures[i]).find())
+                                        assets[i] = textures[i];
+                                else {
+                                        if (!assetList.contains(name)) {
+                                                assets[i] = AssetBuilder.createImage(path, name, new String[] { textures[i] },
+                                                                overlayList, colors, mode, templateShading);
+                                                assetList.add(assets[i]);
+                                        }
+                                        else
+                                                assets[i] = Main.MOD_ID + ":block/" + name;
+                                }
+                        }
+                }
+
+                return assets;
         }
-    }
+
+        private static void write(String name, JsonObject blockstate, HashMap<String, JsonObject> blockModels,
+                        JsonObject itemModel) {
+                builder.write(getModPath("blockstates"), name, blockstate);
+
+                blockModels.forEach((String modelName, JsonObject model) -> builder.write(getModPath("models/block"),
+                                modelName, model));
+
+                builder.write(getModPath("models/item"), name, itemModel);
+
+                Lang.addBlock(Main.MOD_ID + ":" + name, StringUtil.wordCaps(name));
+        }
+
+        public static void createBlock(String name, String textures[], String[] overlays, String[] colors, String mode,
+                        Boolean templateShading, Integer frameTime, String[] frameSettings, String subType) {
+
+                Main.LOG.debug("AssetPackBuilder.createBlock --> " + name + " | Animation: " + (frameTime > 0) + " | Textures: " + String.join("; ", textures));
+
+                JsonObject blockstate;
+                HashMap<String, JsonObject> blockModels = new HashMap<String, JsonObject>();
+
+                switch (subType) {
+                        case "column": {
+                                blockstate = BlockResource.blockstate(name, subType, builder);
+
+                                if (frameTime > 0) {
+                                        blockModels.put(name, BlockResource.blockModel(name, "cube_column",
+                                                        new String[] { AssetBuilder.createImage(
+                                                                        getModPath("textures/block"), name, textures,
+                                                                        overlays, colors, mode, templateShading) },
+                                                        builder));
+                                        blockModels.put(name + "_horizontal", BlockResource.blockModel(name,
+                                                        "cube_column_horizontal",
+                                                        new String[] { AssetBuilder.createImage(
+                                                                        getModPath("textures/block"), name, textures,
+                                                                        overlays, colors, mode, templateShading) },
+                                                        builder));
+                                } else {
+                                        blockModels.put(name,
+                                                        BlockResource.blockModel(name, "cube_column",
+                                                                        getAssets(name, textures, overlays, colors,
+                                                                                        mode, templateShading),
+                                                                        builder));
+                                        blockModels.put(name + "_horizontal",
+                                                        BlockResource.blockModel(name, "cube_column_horizontal",
+                                                                        getAssets(name, textures, overlays, colors,
+                                                                                        mode, templateShading),
+                                                                        builder));
+                                }
+
+                                break;
+                        }
+                        case "bottom_top": {
+
+                        }
+                        case "bottom_top_rotate": {
+
+                        }
+                        case "bottom_top_rotate_2_states": {
+
+                        }
+                        default: {
+                                blockstate = BlockResource.blockstate(name, builder);
+
+                                if (frameTime > 0) {
+                                        blockModels.put(name, BlockResource.blockModel(name,
+                                                        new String[] { AssetBuilder.createImage(
+                                                                        getModPath("textures/block"), name, textures,
+                                                                        overlays, colors, mode, templateShading) },
+                                                        builder));
+                                } else {
+                                        blockModels.put(name,
+                                                        BlockResource.blockModel(name,
+                                                                        getAssets(name, textures, overlays, colors,
+                                                                                        mode, templateShading),
+                                                                        builder));
+                                }
+
+                                break;
+                        }
+                }
+
+                write(name, blockstate, blockModels, BlockResource.itemModel(name, builder));
+
+                if (frameTime > 0)
+                        Textures.animationController(name, textures.length, frameTime, frameSettings);
+        }
+
+        public static void createSlabBlock(String name, String doubleName, String textures[], String[] overlays, String[] colors,
+                        String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
+
+                Main.LOG.debug("AssetPackBuilder.createBlock --> " + name + " | Animation: " + (frameTime > 0));
+
+                JsonObject blockstate = SlabResource.blockstate(name, doubleName, builder);
+                HashMap<String, JsonObject> blockModels;
+
+                if (frameTime > 0) {
+                        blockModels = SlabResource.blockModel(
+                                        name, new String[] { AssetBuilder.createImage(getModPath("textures/block"),
+                                                        name, textures, overlays, colors, mode, templateShading) },
+                                        builder);
+                } else {
+                        blockModels = SlabResource.blockModel(name,
+                                        getAssets(name, textures, overlays, colors, mode, templateShading), builder);
+                }
+
+                write(name, blockstate, blockModels, SlabResource.itemModel(name, builder));
+
+                if (frameTime > 0)
+                        Textures.animationController(name, textures.length, frameTime, frameSettings);
+        }
+
+        public static void createStairBlock(String name, String textures[], String[] overlays, String[] colors,
+                        String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
+
+                Main.LOG.debug("AssetPackBuilder.createBlock --> " + name + " | Animation: " + (frameTime > 0));
+
+                write(name, StairsResource.blockstate(name, builder), (frameTime > 0 ? StairsResource.blockModel(name,
+                                new String[] { AssetBuilder.createImage(getModPath("textures/block"), name, textures,
+                                                overlays, colors, mode, templateShading) },
+                                builder)
+                                : StairsResource.blockModel(name,
+                                                getAssets(name, textures, overlays, colors, mode, templateShading),
+                                                builder)),
+                                StairsResource.itemModel(name, builder));
+
+                if (frameTime > 0)
+                        Textures.animationController(name, textures.length, frameTime, frameSettings);
+        }
+
+        public static void createWallBlock(String name, String textures[], String[] overlays, String[] colors,
+                        String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
+
+                Main.LOG.debug("AssetPackBuilder.createBlock --> " + name + " | Animation: " + (frameTime > 0));
+
+                write(name, WallResource.blockstate(name, builder), (frameTime > 0 ? WallResource.blockModel(name,
+                                new String[] { AssetBuilder.createImage(getModPath("textures/block"), name, textures,
+                                                overlays, colors, mode, templateShading) },
+                                builder)
+                                : WallResource.blockModel(name,
+                                                getAssets(name, textures, overlays, colors, mode, templateShading),
+                                                builder)),
+                                WallResource.itemModel(name, builder));
+
+                if (frameTime > 0)
+                        Textures.animationController(name, textures.length, frameTime, frameSettings);
+        }
+
+        public static void createFenceBlock(String name, String textures[], String[] overlays, String[] colors,
+                        String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
+
+                Main.LOG.debug("AssetPackBuilder.createBlock --> " + name + " | Animation: " + (frameTime > 0));
+
+                write(name, FenceResource.blockstate(name, builder), (frameTime > 0 ? FenceResource.blockModel(name,
+                                new String[] { AssetBuilder.createImage(getModPath("textures/block"), name, textures,
+                                                overlays, colors, mode, templateShading) },
+                                builder)
+                                : FenceResource.blockModel(name,
+                                                getAssets(name, textures, overlays, colors, mode, templateShading),
+                                                builder)),
+                                FenceResource.itemModel(name, builder));
+
+                if (frameTime > 0)
+                        Textures.animationController(name, textures.length, frameTime, frameSettings);
+        }
+
+        public static void createFenceGateBlock(String name, String textures[], String[] overlays, String[] colors,
+                        String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
+
+                Main.LOG.debug("AssetPackBuilder.createBlock --> " + name + " | Animation: " + (frameTime > 0));
+
+                write(name, FenceGateResource.blockstate(name, builder), (frameTime > 0
+                                ? FenceGateResource.blockModel(name,
+                                                new String[] { AssetBuilder.createImage(getModPath("textures/block"),
+                                                                name, textures, overlays, colors, mode,
+                                                                templateShading) },
+                                                builder)
+                                : FenceGateResource.blockModel(name,
+                                                getAssets(name, textures, overlays, colors, mode, templateShading),
+                                                builder)),
+                                FenceGateResource.itemModel(name, builder));
+
+                if (frameTime > 0)
+                        Textures.animationController(name, textures.length, frameTime, frameSettings);
+        }
+
+        public static void createDoorBlock(String name, String textures[], String[] overlays, String[] colors,
+                        String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
+
+                Main.LOG.debug("AssetPackBuilder.createBlock --> " + name + " | Animation: " + (frameTime > 0));
+
+                write(name, DoorResource.blockstate(name, builder), (frameTime > 0 ? DoorResource.blockModel(name,
+                                new String[] { AssetBuilder.createImage(getModPath("textures/block"), name, textures,
+                                                overlays, colors, mode, templateShading) },
+                                builder)
+                                : DoorResource.blockModel(name,
+                                                getAssets(name, textures, overlays, colors, mode, templateShading),
+                                                builder)),
+                                DoorResource.itemModel(name, builder));
+
+                if (frameTime > 0)
+                        Textures.animationController(name, textures.length, frameTime, frameSettings);
+        }
+
+        public static void createTrapdoorBlock(String name, String textures[], String[] overlays, String[] colors,
+                        String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
+
+                Main.LOG.debug("AssetPackBuilder.createBlock --> " + name + " | Animation: " + (frameTime > 0));
+
+                write(name, TrapdoorResource.blockstate(name, builder), (frameTime > 0
+                                ? TrapdoorResource.blockModel(name,
+                                                new String[] { AssetBuilder.createImage(getModPath("textures/block"),
+                                                                name, textures, overlays, colors, mode,
+                                                                templateShading) },
+                                                builder)
+                                : TrapdoorResource.blockModel(name,
+                                                getAssets(name, textures, overlays, colors, mode, templateShading),
+                                                builder)),
+                                TrapdoorResource.itemModel(name, builder));
+
+                if (frameTime > 0)
+                        Textures.animationController(name, textures.length, frameTime, frameSettings);
+        }
+
+        public static void createItem(String name) {
+                builder.write(getModPath("models/item"), name,
+                                builder.createJsonObject().set("parent", Main.MOD_ID + ":item/" + name));
+
+                Lang.addItem(Main.MOD_ID + ":" + name, StringUtil.wordCaps(name));
+        }
+
+        public static void createGroup(String name) {
+                Lang.addGroup(Main.MOD_ID + ":" + name, StringUtil.wordCaps(name));
+        }
+
+        public static class Lang {
+                public static JsonObject file = builder.createJsonObject();
+
+                /**
+                 * 
+                 * @param registryName Should be formatted as partial registry name, like
+                 *                     my_block.
+                 * @param name         Should be the translated text, like My Block.
+                 */
+                public static void addBlock(String registryName, String name) {
+                        file.set("block." + Main.MOD_ID + "." + registryName, name);
+                }
+
+                /**
+                 * 
+                 * @param registryName Should be formatted as partial registry name, like
+                 *                     my_item.
+                 * @param name         Should be the translated text, like My Item.
+                 */
+                public static void addItem(String registryName, String name) {
+                        file.set("item." + Main.MOD_ID + "." + registryName, name);
+                }
+
+                /**
+                 * 
+                 * @param registryName Should be formatted as partial registry name, like
+                 *                     my_group.
+                 * @param name         Should be the translated text, like My Group.
+                 */
+                public static void addGroup(String registryName, String name) {
+                        file.set("itemGroup." + registryName, name);
+                }
+
+                public static void write() {
+                        builder.write(getModPath("/lang"), "en_us", file);
+                }
+        }
+
+        public static class Textures {
+                /**
+                 * 
+                 * @param name          Should be formatted as partial registry name, like dirt.
+                 * @param frameCount    How many frames per animation cycle
+                 * @param frameTime     How many ticks per frame
+                 * @param frameSettings Additional frame settings. Optional.
+                 */
+                public static void animationController(String name, Integer frameCount, Integer frameTime,
+                                String[] frameSettings) {
+                        AssetBuilder.createAnimationController(getModPath("/textures/block"), name, frameCount,
+                                        frameTime, frameSettings);
+                }
+        }
 }

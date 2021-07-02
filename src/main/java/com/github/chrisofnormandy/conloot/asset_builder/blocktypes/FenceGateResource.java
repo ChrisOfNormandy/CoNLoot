@@ -3,6 +3,9 @@ package com.github.chrisofnormandy.conloot.asset_builder.blocktypes;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.Patterns;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetBuilder;
+
+import java.util.HashMap;
+
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 
@@ -15,13 +18,14 @@ public class FenceGateResource {
      * @param open
      */
     private static void blockstateVariants(String name, JsonObject variants, Boolean in_wall, Boolean open) {
-        String[] directions = new String[]{"south", "west", "north", "east"};
+        String[] directions = new String[] { "south", "west", "north", "east" };
 
         for (int i = 0; i < directions.length; i++) {
             String facing = directions[i];
 
-            JsonObject var = variants.addObject("facing=" + facing + ",in_wall=" + in_wall + ",open=" + open).set("uvlock", true);
-            
+            JsonObject var = variants.addObject("facing=" + facing + ",in_wall=" + in_wall + ",open=" + open)
+                    .set("uvlock", true);
+
             if (i > 0)
                 var.set("y", 90 * i);
 
@@ -54,7 +58,24 @@ public class FenceGateResource {
      * @param builder
      * @return
      */
-    public static JsonObject blockModel(String name, JsonBuilder builder) {
+    public static HashMap<String, JsonObject> blockModel(String name, JsonBuilder builder) {
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name, blockModel_(name, builder));
+                put(name + "_open", blockModel_open(name, builder));
+                put(name + "_wall", blockModel_wall(name, builder));
+                put(name + "wall_open", blockModel_wallOpen(name, builder));
+            }
+        };
+    }
+
+    /**
+     * 
+     * @param name
+     * @param builder
+     * @return
+     */
+    public static JsonObject blockModel_(String name, JsonBuilder builder) {
         JsonObject def = builder.createJsonObject();
         def.set("parent", "minecraft:block/template_fence_gate");
         def.addObject("textures").set("texture", Main.MOD_ID + ":block/" + name);
@@ -107,11 +128,33 @@ public class FenceGateResource {
     /**
      * 
      * @param name
+     * @param builder
+     * @return
+     */
+    public static HashMap<String, JsonObject> blockModel(String name, String[] textures, JsonBuilder builder) {
+    
+        String texture = textures.length == 0
+            ? "minecraft:block/debug"
+            : textures[0];
+
+        return new HashMap<String, JsonObject>() {
+            {
+                put(name, blockModel_(name, texture, builder));
+                put(name + "_open", blockModel_open(name, texture, builder));
+                put(name + "_wall", blockModel_wall(name, texture, builder));
+                put(name + "wall_open", blockModel_wallOpen(name, texture, builder));
+            }
+        };
+    }
+
+    /**
+     * 
+     * @param name
      * @param texture
      * @param builder
      * @return
      */
-    public static JsonObject blockModel(String name, String texture, JsonBuilder builder) {
+    public static JsonObject blockModel_(String name, String texture, JsonBuilder builder) {
         JsonObject def = builder.createJsonObject();
         def.set("parent", "minecraft:block/template_fence_gate");
         JsonObject tex = def.addObject("textures");
