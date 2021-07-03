@@ -8,6 +8,7 @@ import com.github.chrisofnormandy.conlib.registry.Items;
 import com.github.chrisofnormandy.conlib.registry.Tools;
 import com.github.chrisofnormandy.conlib.tool.ToolMaterial;
 import com.github.chrisofnormandy.conlib.tool.ToolMaterial.type;
+import com.github.chrisofnormandy.conloot.content.ui.CustomItemGroup;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -59,29 +60,31 @@ public class ModItems {
                 case "tool": {
                     switch (keyPath[1]) {
                         case "pickaxe": {
-                            map.forEach((String name, Config config) -> pickaxeSetup(name, config, ModGroups.cache.get("tools")));
+                            map.forEach((String name, Config config) -> pickaxeSetup(name, config,
+                                    CustomItemGroup.cache.get("tools")));
                             break;
                         }
                         case "axe": {
-                            map.forEach(
-                                    (String name, Config config) -> axeSetup(name, config, ModGroups.cache.get("tools")));
+                            map.forEach((String name, Config config) -> axeSetup(name, config,
+                                    CustomItemGroup.cache.get("tools")));
                             break;
                         }
                         case "shovel": {
-                            map.forEach(
-                                    (String name, Config config) -> shovelSetup(name, config, ModGroups.cache.get("tools")));
+                            map.forEach((String name, Config config) -> shovelSetup(name, config,
+                                    CustomItemGroup.cache.get("tools")));
                             break;
                         }
                         case "hoe": {
-                            map.forEach(
-                                    (String name, Config config) -> hoeSetup(name, config, ModGroups.cache.get("tools")));
+                            map.forEach((String name, Config config) -> hoeSetup(name, config,
+                                    CustomItemGroup.cache.get("tools")));
                             break;
                         }
                     }
                     break;
                 }
                 default: {
-                    map.forEach((String name, Config config) -> plainItemSetup(name, config, ModGroups.cache.get("items")));
+                    map.forEach((String name, Config config) -> plainItemSetup(name, config,
+                            CustomItemGroup.cache.get("items")));
                     break;
                 }
             }

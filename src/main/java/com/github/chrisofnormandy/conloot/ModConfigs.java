@@ -9,103 +9,19 @@ import com.github.chrisofnormandy.conlib.config.ConfigGroup;
 import com.github.chrisofnormandy.conloot.configs.blocks.BlockConfig;
 import com.github.chrisofnormandy.conloot.configs.blocks.CropConfig;
 import com.github.chrisofnormandy.conloot.configs.blocks.OreConfig;
+import com.github.chrisofnormandy.conloot.configs.ui.ItemGroupConfig;
 import com.github.chrisofnormandy.conloot.configs.worldgen.BiomeConfig;
 
 public class ModConfigs {
     public final HashMap<String, Config> configs = new HashMap<String, Config>();
+
+    public final HashMap<String, HashMap<String, Config>> uiContent = new HashMap<String, HashMap<String, Config>>();
+
     public final HashMap<String, HashMap<String, Config>> blockContent = new HashMap<String, HashMap<String, Config>>();
     public final HashMap<String, HashMap<String, Config>> itemContent = new HashMap<String, HashMap<String, Config>>();
     public final HashMap<String, HashMap<String, Config>> worldGenContent = new HashMap<String, HashMap<String, Config>>();
 
     // Config Builders
-    private void mainConfig(Config config) {
-        // Blocks
-        ConfigGroup blocks = new ConfigGroup();
-
-        ConfigGroup generic = new ConfigGroup();
-
-        generic.addStringList("block_list", new ArrayList<String>(), "A list of blocks.");
-        generic.addStringList("slab_list", new ArrayList<String>(), "A list of slabs.");
-        generic.addStringList("stairs_list", new ArrayList<String>(), "A list of stairs.");
-        generic.addStringList("wall_list", new ArrayList<String>(), "A list of walls.");
-        generic.addStringList("fence_list", new ArrayList<String>(), "A list of fences.");
-        blocks.addSubgroup("Generic", generic);
-
-        ConfigGroup redstone = new ConfigGroup();
-
-        redstone.addStringList("fence_gate_list", new ArrayList<String>(), "A list of fence gates.");
-        redstone.addStringList("door_list", new ArrayList<String>(), "A list of doors.");
-        redstone.addStringList("trapdoor_list", new ArrayList<String>(), "A list of trapdoors.");
-        blocks.addSubgroup("Redstone", redstone);
-
-        ConfigGroup interactive = new ConfigGroup();
-
-        interactive.addStringList("barrel_list", new ArrayList<String>(), "A list of barrels.");
-        interactive.addStringList("shulker_list", new ArrayList<String>(), "A list of shulker.");
-        blocks.addSubgroup("Interactive", interactive);
-
-        ConfigGroup suite = new ConfigGroup();
-
-        suite.addStringList("stone_suite_list", new ArrayList<String>(),
-                "A list of content that generates a block, slab, stair and wall.");
-        suite.addStringList("wood_suite_list", new ArrayList<String>(),
-                "A list of content that generates a block, slab, stair, fence, fence gate, door and trapdoor.");
-        blocks.addSubgroup("Suite", suite);
-
-        config.addSubgroup("Blocks", blocks);
-
-        // Items
-        ConfigGroup items = new ConfigGroup();
-
-        ConfigGroup tool = new ConfigGroup();
-
-        tool.addStringList("pickaxe_list", new ArrayList<String>(), "A list of pickaxes.");
-        tool.addStringList("axe_list", new ArrayList<String>(), "A list of pickaxes.");
-        tool.addStringList("shovel_list", new ArrayList<String>(), "A list of pickaxes.");
-        tool.addStringList("hoe_list", new ArrayList<String>(), "A list of pickaxes.");
-        items.addSubgroup("Tool", tool);
-
-        config.addSubgroup("Items", items);
-
-        // World Gen
-        ConfigGroup worldGen = new ConfigGroup();
-
-        ConfigGroup biomes = new ConfigGroup();
-
-        biomes.addStringList("biome_list", new ArrayList<String>(), "A list of biomes to modify.");
-        worldGen.addSubgroup("Biomes", biomes);
-
-        config.addSubgroup("WorldGen", worldGen);
-
-        // Resources
-        ConfigGroup resources = new ConfigGroup();
-
-        ConfigGroup ores = new ConfigGroup();
-
-        ores.addStringList("gem_list", new ArrayList<String>(), "A list of gem types.");
-        ores.addStringList("metal_list", new ArrayList<String>(), "A list of metal types.");
-        resources.addSubgroup("Ores", ores);
-
-        ConfigGroup plants = new ConfigGroup();
-
-        plants.addStringList("crop_list", new ArrayList<String>(), "A list of crops.");
-        resources.addSubgroup("Plants", plants);
-
-        config.addSubgroup("Resources", resources);
-
-        config.Build();
-
-        configs.put(Main.MOD_ID, config);
-
-        Main.LOG.debug("Building block configs...");
-        buildBlockConfigs(blocks);
-
-        Main.LOG.debug("Building resource configs...");
-        buildResourceConfigs(resources);
-
-        Main.LOG.debug("Building worldGen configs...");
-        buildWorldGenConfigs(worldGen);
-    }
 
     private void buildCropConfigs(List<String> list) {
         HashMap<String, Config> map = new HashMap<String, Config>();
@@ -308,6 +224,131 @@ public class ModConfigs {
 
     public void buildWorldGenConfigs(ConfigGroup config) {
         buildBiomeConfigs(config.getSubgroup("Biomes"));
+    }
+
+    public void buildUIConfigs(ConfigGroup config) {
+        buildItemGroupConfigs(config.getSubgroup("ItemGroups"));
+    }
+
+    public void buildItemGroupConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("tabs").forEach((String tab) -> {
+            try {
+                Config cfg = new Config("conloot/ui/itemGroups", tab);
+                ItemGroupConfig.create(tab, cfg);
+                cfg.Build();
+                map.put(tab, cfg);
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for itemGroup: " + tab);
+                err.printStackTrace();
+            }
+        });
+
+        uiContent.put("ui.itemGroup", map);
+    }
+
+    private void mainConfig(Config config) {
+        // Blocks
+        ConfigGroup blocks = new ConfigGroup();
+
+        ConfigGroup generic = new ConfigGroup();
+
+        generic.addStringList("block_list", new ArrayList<String>(), "A list of blocks.");
+        generic.addStringList("slab_list", new ArrayList<String>(), "A list of slabs.");
+        generic.addStringList("stairs_list", new ArrayList<String>(), "A list of stairs.");
+        generic.addStringList("wall_list", new ArrayList<String>(), "A list of walls.");
+        generic.addStringList("fence_list", new ArrayList<String>(), "A list of fences.");
+        blocks.addSubgroup("Generic", generic);
+
+        ConfigGroup redstone = new ConfigGroup();
+
+        redstone.addStringList("fence_gate_list", new ArrayList<String>(), "A list of fence gates.");
+        redstone.addStringList("door_list", new ArrayList<String>(), "A list of doors.");
+        redstone.addStringList("trapdoor_list", new ArrayList<String>(), "A list of trapdoors.");
+        blocks.addSubgroup("Redstone", redstone);
+
+        ConfigGroup interactive = new ConfigGroup();
+
+        interactive.addStringList("barrel_list", new ArrayList<String>(), "A list of barrels.");
+        interactive.addStringList("shulker_list", new ArrayList<String>(), "A list of shulker.");
+        blocks.addSubgroup("Interactive", interactive);
+
+        ConfigGroup suite = new ConfigGroup();
+
+        suite.addStringList("stone_suite_list", new ArrayList<String>(),
+                "A list of content that generates a block, slab, stair and wall.");
+        suite.addStringList("wood_suite_list", new ArrayList<String>(),
+                "A list of content that generates a block, slab, stair, fence, fence gate, door and trapdoor.");
+        blocks.addSubgroup("Suite", suite);
+
+        config.addSubgroup("Blocks", blocks);
+
+        // Items
+        ConfigGroup items = new ConfigGroup();
+
+        ConfigGroup tool = new ConfigGroup();
+
+        tool.addStringList("pickaxe_list", new ArrayList<String>(), "A list of pickaxes.");
+        tool.addStringList("axe_list", new ArrayList<String>(), "A list of pickaxes.");
+        tool.addStringList("shovel_list", new ArrayList<String>(), "A list of pickaxes.");
+        tool.addStringList("hoe_list", new ArrayList<String>(), "A list of pickaxes.");
+        items.addSubgroup("Tool", tool);
+
+        config.addSubgroup("Items", items);
+
+        // World Gen
+        ConfigGroup worldGen = new ConfigGroup();
+
+        ConfigGroup biomes = new ConfigGroup();
+
+        biomes.addStringList("biome_list", new ArrayList<String>(), "A list of biomes to modify.");
+        worldGen.addSubgroup("Biomes", biomes);
+
+        config.addSubgroup("WorldGen", worldGen);
+
+        // Resources
+        ConfigGroup resources = new ConfigGroup();
+
+        ConfigGroup ores = new ConfigGroup();
+
+        ores.addStringList("gem_list", new ArrayList<String>(), "A list of gem types.");
+        ores.addStringList("metal_list", new ArrayList<String>(), "A list of metal types.");
+        resources.addSubgroup("Ores", ores);
+
+        ConfigGroup plants = new ConfigGroup();
+
+        plants.addStringList("crop_list", new ArrayList<String>(), "A list of crops.");
+        resources.addSubgroup("Plants", plants);
+
+        config.addSubgroup("Resources", resources);
+
+        // Item Groups
+        ConfigGroup ui = new ConfigGroup();
+
+        ConfigGroup itemGroups = new ConfigGroup();
+
+        itemGroups.addStringList("tabs", new ArrayList<String>(), "A list of creative tab names.");
+
+        ui.addSubgroup("ItemGroups", itemGroups);
+        
+        config.addSubgroup("UI", ui);
+
+        config.Build();
+
+        configs.put(Main.MOD_ID, config);
+
+        Main.LOG.debug("Building block configs...");
+        buildBlockConfigs(blocks);
+
+        Main.LOG.debug("Building resource configs...");
+        buildResourceConfigs(resources);
+
+        Main.LOG.debug("Building worldGen configs...");
+        buildWorldGenConfigs(worldGen);
+
+        Main.LOG.debug("Building UI configs...");
+        buildUIConfigs(ui);
     }
 
     public void Init() {

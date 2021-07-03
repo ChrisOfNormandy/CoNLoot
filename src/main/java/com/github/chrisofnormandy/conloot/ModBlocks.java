@@ -7,6 +7,7 @@ import com.github.chrisofnormandy.conloot.asset_builder.DataPackBuilder;
 import com.github.chrisofnormandy.conloot.content.CustomCrop;
 import com.github.chrisofnormandy.conloot.content.CustomResource;
 import com.github.chrisofnormandy.conloot.content.blocks.CreationBase;
+import com.github.chrisofnormandy.conloot.content.ui.CustomItemGroup;
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 
@@ -14,41 +15,41 @@ public class ModBlocks {
     public static JsonBuilder jsonBuilder = new JsonBuilder();
 
     private static void registerBlock(String name, Config config) {
-        CreationBase.registerBlockFromConfig(name, config, ModGroups.cache.get("blocks"));
+        CreationBase.registerBlockFromConfig(name, config, CustomItemGroup.cache.get("blocks"));
     }
 
     private static void registerSlab(String name, Config config) {
-        CreationBase.registerBlockFromConfig(name, config, ModGroups.cache.get("blocks"));
+        CreationBase.registerBlockFromConfig(name, config, CustomItemGroup.cache.get("blocks"));
         DataPackBuilder.Tags.addSlab(name);
     }
 
     private static void registerStairs(String name, Config config) {
-        CreationBase.registerBlockFromConfig(name, config, ModGroups.cache.get("blocks"));
+        CreationBase.registerBlockFromConfig(name, config, CustomItemGroup.cache.get("blocks"));
         DataPackBuilder.Tags.addStairs(name);
     }
 
     private static void registerWall(String name, Config config) {
-        CreationBase.registerBlockFromConfig(name, config, ModGroups.cache.get("blocks"));
+        CreationBase.registerBlockFromConfig(name, config, CustomItemGroup.cache.get("blocks"));
         DataPackBuilder.Tags.addWall(name);
     }
 
     private static void registerFence(String name, Config config) {
-        CreationBase.registerBlockFromConfig(name, config, ModGroups.cache.get("blocks"));
+        CreationBase.registerBlockFromConfig(name, config, CustomItemGroup.cache.get("blocks"));
         DataPackBuilder.Tags.addFence(name);
     }
 
     private static void registerFenceGate(String name, Config config) {
-        CreationBase.registerBlockFromConfig(name, config, ModGroups.cache.get("blocks"));
+        CreationBase.registerBlockFromConfig(name, config, CustomItemGroup.cache.get("blocks"));
         DataPackBuilder.Tags.addFenceGate(name);
     }
 
     private static void registerDoor(String name, Config config) {
-        CreationBase.registerBlockFromConfig(name, config, ModGroups.cache.get("blocks"));
+        CreationBase.registerBlockFromConfig(name, config, CustomItemGroup.cache.get("blocks"));
         DataPackBuilder.Tags.addDoor(name);
     }
 
     private static void registerTrapdoor(String name, Config config) {
-        CreationBase.registerBlockFromConfig(name, config, ModGroups.cache.get("blocks"));
+        CreationBase.registerBlockFromConfig(name, config, CustomItemGroup.cache.get("blocks"));
         DataPackBuilder.Tags.addTrapdoor(name);
     }
 
@@ -116,7 +117,7 @@ public class ModBlocks {
                     }
                     case "shulker": {
                         map.forEach((String name, Config config) -> CreationBase.registerBlockFromConfig(name, config,
-                                ModGroups.cache.get("decorations")));
+                                CustomItemGroup.cache.get("decorations")));
                         break;
                     }
                 }
@@ -132,7 +133,7 @@ public class ModBlocks {
         switch (type) {
             case "crop": {
                 map.forEach((String name, Config config) -> CustomCrop.registerFromConfig(name, config,
-                        ModGroups.cache.get("decorations")));
+                        CustomItemGroup.cache.get("decorations")));
                 break;
             }
         }
@@ -147,7 +148,8 @@ public class ModBlocks {
             }
             case "gem": {
                 map.forEach((String name, Config config) -> CustomResource.registerFromConfig(name, config,
-                        ModGroups.cache.get("items"), ModGroups.cache.get("tools"), ModGroups.cache.get("blocks")));
+                        CustomItemGroup.cache.get("items"), CustomItemGroup.cache.get("tools"),
+                        CustomItemGroup.cache.get("blocks")));
                 break;
             }
         }
