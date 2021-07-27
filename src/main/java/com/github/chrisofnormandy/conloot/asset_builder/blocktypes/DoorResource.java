@@ -307,6 +307,22 @@ public class DoorResource {
         return item;
     }
 
+
+    /**
+     * 
+     * @param name
+     * @param name
+     * @param builder
+     * @return
+     */
+    public static JsonObject itemModel(String name, String itemTexture, JsonBuilder builder) {
+        JsonObject item = builder.createJsonObject();
+        item.set("parent", "minecraft:item/generated");
+        item.addObject("textures").set("layer0", itemTexture);
+
+        return item;
+    }
+
     /**
      * 
      * @param name

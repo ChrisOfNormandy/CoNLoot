@@ -6,6 +6,7 @@ import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonArray;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 import com.github.chrisofnormandy.conloot.Main;
+import com.github.chrisofnormandy.conloot.Patterns;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetBuilder;
 
 public class WallResource {
@@ -162,7 +163,12 @@ public class WallResource {
     public static JsonObject blockModel_side(String name, String texture, JsonBuilder builder) {
         JsonObject side = builder.createJsonObject();
         side.set("parent", "minecraft:block/template_wall_side");
-        side.addObject("textures").set("wall", Main.MOD_ID + ":block/" + texture);
+        JsonObject tex = side.addObject("textures");
+
+        if (Patterns.modID.matcher(texture).find())
+            tex.set("wall", texture);
+        else
+            tex.set("wall", Main.MOD_ID + ":block/" + texture);
 
         return side;
     }
@@ -177,7 +183,12 @@ public class WallResource {
     public static JsonObject blockModel_sideTall(String name, String texture, JsonBuilder builder) {
         JsonObject sideTall = builder.createJsonObject();
         sideTall.set("parent", "minecraft:block/template_wall_side_tall");
-        sideTall.addObject("textures").set("wall", Main.MOD_ID + ":block/" + texture);
+        JsonObject tex = sideTall.addObject("textures");
+
+        if (Patterns.modID.matcher(texture).find())
+            tex.set("wall", texture);
+        else
+            tex.set("wall", Main.MOD_ID + ":block/" + texture);
 
         return sideTall;
     }
@@ -192,7 +203,12 @@ public class WallResource {
     public static JsonObject blockModel_post(String name, String texture, JsonBuilder builder) {
         JsonObject post = builder.createJsonObject();
         post.set("parent", "minecraft:block/template_wall_post");
-        post.addObject("textures").set("wall", Main.MOD_ID + ":block/" + texture);
+        JsonObject tex = post.addObject("textures");
+
+        if (Patterns.modID.matcher(texture).find())
+            tex.set("wall", texture);
+        else
+            tex.set("wall", Main.MOD_ID + ":block/" + texture);
 
         return post;
     }
@@ -207,7 +223,12 @@ public class WallResource {
     public static JsonObject blockModel_inventory(String name, String texture, JsonBuilder builder) {
         JsonObject inv = builder.createJsonObject();
         inv.set("parent", "minecraft:block/wall_inventory");
-        inv.addObject("textures").set("wall", Main.MOD_ID + ":block/" + texture);
+        JsonObject tex = inv.addObject("textures");
+
+        if (Patterns.modID.matcher(texture).find())
+            tex.set("wall", texture);
+        else
+            tex.set("wall", Main.MOD_ID + ":block/" + texture);
 
         return inv;
     }

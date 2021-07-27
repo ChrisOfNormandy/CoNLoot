@@ -2,6 +2,7 @@ package com.github.chrisofnormandy.conloot.content.ui;
 
 import java.util.HashMap;
 
+import com.github.chrisofnormandy.conlib.common.StringUtil;
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.itemgroup.CreativeTab;
 import com.github.chrisofnormandy.conlib.registry.Items;
@@ -27,9 +28,12 @@ public class CustomItemGroup {
         Main.LOG.info("Generating new creative tab:" + name);
         
         String itemName = config.getStringValue("item_name");
+        String tabName = config.getStringValue("tab_name");
 
         AssetPackBuilder.createItem(itemName);
         
-        cache.put(name, CreativeTab.createGroup(config.getStringValue("tab_name"), Items.register(itemName)));
+        cache.put(name, CreativeTab.createGroup(tabName, Items.register(itemName)));
+
+        AssetPackBuilder.Lang.addGroup(name, StringUtil.wordCaps_repl(tabName));
     }
 }

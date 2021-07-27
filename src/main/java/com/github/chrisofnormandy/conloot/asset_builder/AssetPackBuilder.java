@@ -105,8 +105,6 @@ public class AssetPackBuilder {
                                 modelName, model));
 
                 builder.write(getModPath("models/item"), name, itemModel);
-
-                Lang.addBlock(Main.MOD_ID + ":" + name, StringUtil.wordCaps(name));
         }
 
         public static void createBlock(String name, String textures[], String[] overlays, String[] colors, String mode,
@@ -282,7 +280,7 @@ public class AssetPackBuilder {
                         Textures.animationController(name, textures.length, frameTime, frameSettings);
         }
 
-        public static void createDoorBlock(String name, String textures[], String[] overlays, String[] colors,
+        public static void createDoorBlock(String name, String itemTexture, String textures[], String[] overlays, String[] colors,
                         String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
 
                 Main.LOG.debug("AssetPackBuilder.createBlock --> " + name + " | Animation: " + (frameTime > 0));
@@ -294,7 +292,10 @@ public class AssetPackBuilder {
                                 : DoorResource.blockModel(name,
                                                 getAssets(name, textures, overlays, colors, mode, templateShading),
                                                 builder)),
-                                DoorResource.itemModel(name, builder));
+                                DoorResource.itemModel(name, 
+                                                AssetBuilder.createImage(getModPath("textures/item"),
+                                                                name, new String[] {itemTexture}, new String[0], colors, mode,
+                                                                templateShading), builder));
 
                 if (frameTime > 0)
                         Textures.animationController(name, textures.length, frameTime, frameSettings);

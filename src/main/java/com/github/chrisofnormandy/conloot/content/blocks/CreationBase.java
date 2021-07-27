@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.function.ToIntFunction;
 
 import com.github.chrisofnormandy.conlib.block.ModBlock;
+import com.github.chrisofnormandy.conlib.common.StringUtil;
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
@@ -315,7 +316,7 @@ public class CreationBase {
             }
             case "door": {
                 Main.LOG.info("Registering new door from config.");
-                AssetPackBuilder.createDoorBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
+                AssetPackBuilder.createDoorBlock(name, config.getSubgroup("Settings").getStringValue("item_textures"), textures, overlays, colors, mode, templateShading, frameTime,
                         frames);
                 ModBlock.Generic.createDoor(name, new Block(properties), blockGroup);
 
@@ -347,6 +348,7 @@ public class CreationBase {
             }
         }
 
-        DataPackBuilder.LootTable.block(Main.MOD_ID + ":" + name);
+        AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));
+        DataPackBuilder.LootTable.addBlock(Main.MOD_ID + ":" + name);
     }
 }

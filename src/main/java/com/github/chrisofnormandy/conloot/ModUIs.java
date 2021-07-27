@@ -3,12 +3,7 @@ package com.github.chrisofnormandy.conloot;
 import java.util.HashMap;
 
 import com.github.chrisofnormandy.conlib.config.Config;
-import com.github.chrisofnormandy.conlib.itemgroup.CreativeTab;
-import com.github.chrisofnormandy.conlib.registry.Items;
-import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
 import com.github.chrisofnormandy.conloot.content.ui.CustomItemGroup;
-
-import net.minecraft.item.ItemGroup;
 
 public class ModUIs {
 

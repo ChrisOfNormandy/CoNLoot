@@ -60,7 +60,7 @@ public class DataPackBuilder {
          * @param name Should be formatted as full registry name, like minecraft:dirt.
          * @return
          */
-        public static JsonObject block(String name) {
+        public static JsonObject addBlock(String name) {
             JsonObject json = builder.createJsonObject();
 
             json.set("type", "minecraft:block");
@@ -104,7 +104,7 @@ public class DataPackBuilder {
          * @param name Should be formatted as full registry name, like minecraft:dirt.
          * @return
          */
-        public static JsonObject block(String name, String drop) {
+        public static JsonObject addBlock(String name, String drop) {
             JsonObject json = builder.createJsonObject();
 
             json.set("type", "minecraft:block");

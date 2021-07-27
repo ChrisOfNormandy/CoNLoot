@@ -8,26 +8,42 @@ import com.github.chrisofnormandy.conlib.config.ConfigGroup;
 import com.github.chrisofnormandy.conloot.Patterns;
 
 public class BlockConfig {
-        public static void create(String name, Config cfg, String blockType, String defaultColor) {
+        private static String getSound(String material) {
+                switch (material) {
+                        case "wood": return "wood";
+                        case "stone": return "stone";
+                }
+                return "stone";
+        }
+
+        private static String getTool(String material) {
+                switch (material) {
+                        case "wood": return "axe";
+                        case "stone": return "pickaxe";
+                }
+                return "pickaxe";
+        }
+
+        public static void create(String name, Config cfg, String blockType, String defaultColor, String material) {
                 // Block properties
                 cfg.addFlag("no_collission", false, "When true, sets collision and occlusion to false.");
                 cfg.addFlag("no_occlusion", false, "When true, sets occlusion to false.");
 
                 cfg.addInteger("harvest_level", 1,
                                 "The block hardness level. Gold: 0; Wood: 0; Stone: 1; Iron: 2; Diamond: 3; Netherite: 4");
-                cfg.addString("harvest_tool", "pickaxe", "String representing a ToolType value.");
+                cfg.addString("harvest_tool", getTool(material), "String representing a ToolType value.");
 
                 cfg.addDouble("friction", -1.0, "Block friction, like ice. Should be between 0 and 1.");
                 cfg.addDouble("speed_factor", -1.0, "Block speed factor, like soul sand.");
                 cfg.addDouble("jump_factor", -1.0, "Block jump factor, like slime blocks.");
 
-                cfg.addString("sound", "stone", "String representing a SoundType value.");
+                cfg.addString("sound", getSound(material), "String representing a SoundType value.");
 
                 cfg.addInteger("light_level", -1,
                                 "Integer value for light level. Converts to ToIntFunction<BlockState>.");
 
-                cfg.addDouble("destroy_time", -1.0, "Block break time. Setting to 0 means insta-break.");
-                cfg.addDouble("explosion_resistance", -1.0, "Block explosion resistance.");
+                cfg.addDouble("destroy_time", 1.0, "Block break time. Setting to 0 means insta-break.");
+                cfg.addDouble("explosion_resistance", 1.0, "Block explosion resistance.");
 
                 cfg.addFlag("random_ticks", false, "Does the block tick randomly, like plant growth or decay?");
 
@@ -53,7 +69,7 @@ public class BlockConfig {
                 cfg.addFlag("require_correct_tool", true,
                                 "When broken, does this block require the correct tool to be used to drop an item?");
 
-                cfg.addString("material", "stone", "String representing a Material value.");
+                cfg.addString("material", material, "String representing a Material value.");
 
                 cfg.addString("material_color", "",
                                 "String representing a MaterialColor value. Converts to Function<BlockState, MaterialColor>.");
@@ -73,13 +89,28 @@ public class BlockConfig {
                                 settings.addString("double_stack_textures", name, "Texture names for double stacked slabs. Formatted with mod ID will use existing assets and will not combine.");
 
                                 cfg.addSubgroup("Settings", settings);
+
+                                break;
+                        }
+                        case "door": {
+                                ConfigGroup settings = new ConfigGroup();
+
+                                settings.addString("item_textures", name,
+                                                "Texture names for door item. Formatted with mod ID will use existing assets and will not combine.");
+
+                                cfg.addSubgroup("Settings", settings);
+
+                                break;
                         }
                 }
 
                 // Colors
                 ConfigGroup colors = new ConfigGroup();
-                List<String> colorList = new ArrayList<String>();
-                colorList.add(Patterns.colorMap.get(defaultColor));
+                List<String> colorList = new ArrayList<String>() {
+                        {
+                                add(Patterns.colorMap.get(defaultColor));
+                        }
+                };
 
                 colors.addStringList("color", colorList,
                                 "RGB value for default generated assets. Used for overlay texture.");

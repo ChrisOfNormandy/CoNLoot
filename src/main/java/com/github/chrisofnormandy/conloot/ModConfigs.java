@@ -72,10 +72,10 @@ public class ModConfigs {
         blockContent.put("resource.ore.metal", map);
     }
 
-    private Config blockConfig(String name, String model, String color) {
+    private Config blockConfig(String name, String model, String color, String material) {
         try {
             Config cfg = new Config("conloot/blocks/" + model, name);
-            BlockConfig.create(name, cfg, model, color);
+            BlockConfig.create(name, cfg, model, color, material);
             cfg.Build();
             return cfg;
         } catch (Exception err) {
@@ -86,8 +86,12 @@ public class ModConfigs {
         return null;
     }
 
+    private Config blockConfig(String name, String model, String color) {
+        return blockConfig(name, model, color, "stone");
+    }
+
     private Config blockConfig(String name, String model) {
-        return blockConfig(name, model, "black");
+        return blockConfig(name, model, "white");
     }
 
     private HashMap<String, Config> getBlockMap(List<String> list, HashMap<String, Config> map) {
@@ -140,31 +144,41 @@ public class ModConfigs {
 
     private void buildSuiteBlockConfigs(ConfigGroup config) {
         config.getStringListValue("wood_suite_list").forEach((String name) -> {
-            blockContent.get("block.generic.block").put(name + "_log", blockConfig(name + "_log", "block"));
+            blockContent.get("block.generic.block").put(name + "_log", blockConfig(name + "_log", "block", "white", "wood"));
             blockContent.get("block.generic.block").put("stripped_" + name + "_log", blockConfig(
-                    "stripped_" + name + "_log", "block"));
-            blockContent.get("block.generic.block").put(name + "_wood", blockConfig(name + "_wood", "block"));
+                    "stripped_" + name + "_log", "block", "white", "wood"));
+            blockContent.get("block.generic.block").put(name + "_wood", blockConfig(name + "_wood", "block", "white",
+                    "wood"));
             blockContent.get("block.generic.block").put("stripped_" + name + "_wood", blockConfig(
-                    "stripped_" + name + "_wood", "block"));
+                    "stripped_" + name + "_wood", "block", "white", "wood"));
 
-            blockContent.get("block.generic.block").put(name + "_planks", blockConfig(name + "_planks", "block"));
+            blockContent.get("block.generic.block").put(name + "_planks", blockConfig(name + "_planks", "block",
+                    "white", "wood"));
 
-            blockContent.get("block.generic.slab").put(name + "_slab", blockConfig(name + "_slab", "slab"));
-            blockContent.get("block.generic.stairs").put(name + "_stairs", blockConfig(name + "_stairs", "stairs"));
-            blockContent.get("block.generic.fence").put(name + "_fence", blockConfig(name + "_fence", "fence"));
+            blockContent.get("block.generic.slab").put(name + "_slab", blockConfig(name + "_slab", "slab", "white",
+                    "wood"));
+            blockContent.get("block.generic.stairs").put(name + "_stairs", blockConfig(name + "_stairs", "stairs",
+                    "white", "wood"));
+            blockContent.get("block.generic.fence").put(name + "_fence", blockConfig(name + "_fence", "fence", "white",
+                    "wood"));
 
             blockContent.get("block.redstone.fence_gate").put(name + "_fence_gate", blockConfig(
-                    name + "_fence_gate", "fence_gate"));
-            blockContent.get("block.redstone.door").put(name + "_door", blockConfig(name + "_door", "door"));
-            blockContent.get("block.redstone.trapdoor").put(name + "_trapdoor", blockConfig(name + "_trapdoor", "trapdoor"));
+                    name + "_fence_gate", "fence_gate", "white", "wood"));
+            blockContent.get("block.redstone.door").put(name + "_door", blockConfig(name + "_door", "door", "white",
+                    "wood"));
+            blockContent.get("block.redstone.trapdoor").put(name + "_trapdoor", blockConfig(name + "_trapdoor", "trapdoor",
+                    "white", "wood"));
         });
 
         config.getStringListValue("stone_suite_list").forEach((String name) -> {
-            blockContent.get("block.generic.block").put(name, blockConfig(name, "block"));
+            blockContent.get("block.generic.block").put(name, blockConfig(name, "block", "white", "stone"));
 
-            blockContent.get("block.generic.slab").put(name + "_slab", blockConfig(name + "_slab", "slab"));
-            blockContent.get("block.generic.stairs").put(name + "_stairs", blockConfig(name + "_stairs", "stairs"));
-            blockContent.get("block.generic.wall").put(name + "_wall", blockConfig(name + "_wall", "wall"));
+            blockContent.get("block.generic.slab").put(name + "_slab", blockConfig(name + "_slab", "slab", "white",
+                    "stone"));
+            blockContent.get("block.generic.stairs").put(name + "_stairs", blockConfig(name + "_stairs", "stairs",
+                    "white", "stone"));
+            blockContent.get("block.generic.wall").put(name + "_wall", blockConfig(name + "_wall", "wall", "white",
+                    "stone"));
         });
     }
 

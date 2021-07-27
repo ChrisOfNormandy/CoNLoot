@@ -62,7 +62,7 @@ public class CustomResource {
 
             Block oreBlock_reg = ModBlock.Ore.registerGem(name, oreName, oreBlock, material, itemGroup, toolGroup, blockGroup);
 
-            DataPackBuilder.LootTable.block(Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name);
+            DataPackBuilder.LootTable.addBlock(Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name);
             DataPackBuilder.Recipe.Smelting.run(name, Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name, 1);
 
             // String[] oreColors = config.getSubgroup("Colors").getStringListValue("ore_color").toArray(new String[0]);
@@ -101,7 +101,7 @@ public class CustomResource {
 
             Block oreBlock_reg = ModBlock.Ore.registerMetal(name, oreName, oreBlock, material, itemGroup, toolGroup, blockGroup);
             
-            DataPackBuilder.LootTable.block(Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name);
+            DataPackBuilder.LootTable.addBlock(Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name);
             DataPackBuilder.Recipe.Smelting.run(name, Main.MOD_ID + ":" + oreName, Main.MOD_ID + ":" + name, 1);
 
             // String[] oreColors = config.getSubgroup("Colors").getStringListValue("ore_color").toArray(new String[0]);

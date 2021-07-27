@@ -387,7 +387,7 @@ public class AssetBuilder {
             Main.LOG.error(err);
         }
 
-        return Main.MOD_ID + ":block/" + name;
+        return Main.MOD_ID + (path.contains("block") ? ":block/" : ":item/") + name;
     }
 
     public static String createAnimationController(String path, String name, Integer frameCount, Integer frameTime, String[] frameSettings) {
