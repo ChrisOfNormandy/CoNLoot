@@ -5,41 +5,36 @@ import java.util.HashMap;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.registry.Items;
-import com.github.chrisofnormandy.conlib.registry.Tools;
-import com.github.chrisofnormandy.conlib.tool.ToolMaterial;
-import com.github.chrisofnormandy.conlib.tool.ToolMaterial.type;
+import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
+import com.github.chrisofnormandy.conloot.asset_builder.DataPackBuilder;
+import com.github.chrisofnormandy.conloot.content.items.CreationBase;
 import com.github.chrisofnormandy.conloot.content.ui.CustomItemGroup;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.Rarity;
-import net.minecraftforge.common.ToolType;
 
 public class ModItems {
     public static JsonBuilder jsonBuilder = new JsonBuilder();
 
     private static void plainItemSetup(String name, Config config, ItemGroup itemGroup) {
         Items.register(name, new Item.Properties(), itemGroup);
+        CreationBase.registerItemFromConfig(name, config);
     }
 
     private static void pickaxeSetup(String name, Config config, ItemGroup toolGroup) {
-        Tools.register(name, new ToolMaterial(1, 100, false, Rarity.COMMON, false, type.material), ToolType.PICKAXE, 1,
-                toolGroup);
+        CreationBase.registerPickaxe(name, config, toolGroup);
     }
 
     private static void axeSetup(String name, Config config, ItemGroup toolGroup) {
-        Tools.register(name, new ToolMaterial(1, 100, false, Rarity.COMMON, false, type.material), ToolType.AXE, 1,
-                toolGroup);
+        CreationBase.registerAxe(name, config, toolGroup);
     }
 
     private static void shovelSetup(String name, Config config, ItemGroup toolGroup) {
-        Tools.register(name, new ToolMaterial(1, 100, false, Rarity.COMMON, false, type.material), ToolType.SHOVEL, 1,
-                toolGroup);
+        CreationBase.registerShovel(name, config, toolGroup);
     }
 
     private static void hoeSetup(String name, Config config, ItemGroup toolGroup) {
-        Tools.register(name, new ToolMaterial(1, 100, false, Rarity.COMMON, false, type.material), ToolType.HOE, 1,
-                toolGroup);
+        CreationBase.registerHoe(name, config, toolGroup);
     }
 
     public static void Init() {
@@ -89,5 +84,11 @@ public class ModItems {
                 }
             }
         });
+
+        Main.LOG.debug("Writing lang file.");
+        AssetPackBuilder.Lang.write();
+
+        Main.LOG.debug("Writing tag files.");
+        DataPackBuilder.Tags.write();
     }
 }

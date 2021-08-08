@@ -33,14 +33,16 @@ public class DataPackBuilder {
 
             public static void write(BiomeBuilder builder) {
                 Main.LOG.info("Writing data pack info for WorldGen.Biome:");
-                
+
                 builder.biomes.forEach((String biomeName, com.github.chrisofnormandy.conlib.world.data.Biome biome) -> {
                     Main.LOG.info("Writing data pack info for WorldGen.Biome:" + biomeName);
 
                     biome.getFeatures().forEach((String featureName, JsonObject feature) -> {
-                        Main.LOG.info("Writing data pack info for WorldGen.Biome -> ConfiguredFeature:" + biomeName + ":" + featureName);
+                        Main.LOG.info("Writing data pack info for WorldGen.Biome -> ConfiguredFeature:" + biomeName
+                                + ":" + featureName);
 
-                        Files.write(getPath(Main.MOD_ID + "/worldgen/configured_feature"), featureName, feature.toString(), ".json");
+                        Files.write(getPath(Main.MOD_ID + "/worldgen/configured_feature"), featureName,
+                                feature.toString(), ".json");
                     });
 
                     Files.write(getPath("minecraft/worldgen/biome"), biomeName, biome.build().toString(), ".json");
@@ -87,7 +89,7 @@ public class DataPackBuilder {
             e.addObject("levels").set("min", 1);
 
             f.set("type", "minecraft:item");
-            f.set("name",name);
+            f.set("name", name);
             JsonArray functions = f.addArray("functions");
             JsonObject g = functions.addObject();
             g.set("function", "minecraft:set_count");
@@ -171,11 +173,13 @@ public class DataPackBuilder {
         public static class Crafting {
             /**
              * 
-             * @param name The recipe name.
+             * @param name    The recipe name.
              * @param pattern An array of strings, such as [ "XX", "XX" ].
-             * @param keys A map of key-value pairs that relate to the pattern, such as X: minecraft:dirt.
-             * @param product Should be formatted as full registry name, like minecraft:dirt.
-             * @param count 
+             * @param keys    A map of key-value pairs that relate to the pattern, such as
+             *                X: minecraft:dirt.
+             * @param product Should be formatted as full registry name, like
+             *                minecraft:dirt.
+             * @param count
              * @return
              */
             public static JsonObject shaped(String name, String[] pattern, HashMap<String, String> keys, String product,
@@ -189,17 +193,19 @@ public class DataPackBuilder {
 
             /**
              * 
-             * @param name The recipe name.
+             * @param name    The recipe name.
              * @param pattern An array of strings, such as [ "XX", "XX" ].
-             * @param keys A map of key-value pairs that relate to the pattern, such as X: minecraft:dirt.
-             * @param product Should be formatted as full registry name, like minecraft:dirt.
-             * @param count 
+             * @param keys    A map of key-value pairs that relate to the pattern, such as
+             *                X: minecraft:dirt.
+             * @param product Should be formatted as full registry name, like
+             *                minecraft:dirt.
+             * @param count
              * @return
              */
-            public static JsonObject shapeless(String name, String[] pattern, HashMap<String, String> keys, String product,
-                    Integer count) {
+            public static JsonObject shapeless(String name, String[] pattern, HashMap<String, String> keys,
+                    String product, Integer count) {
                 JsonObject json = r("minecraft:crafting_shapeless", pattern, keys, product, count);
-                
+
                 builder.write(getPath(Main.MOD_ID + "/" + "recipes/crafting"), name, json);
 
                 return json;
@@ -209,9 +215,11 @@ public class DataPackBuilder {
         public static class Smelting {
             /**
              * 
-             * @param name The recipe name.
-             * @param ingredient Should be formatted as full registry name, like minecraft:dirt.
-             * @param product Should be formatted as full registry name, like minecraft:dirt.
+             * @param name       The recipe name.
+             * @param ingredient Should be formatted as full registry name, like
+             *                   minecraft:dirt.
+             * @param product    Should be formatted as full registry name, like
+             *                   minecraft:dirt.
              * @param count
              * @return
              */
@@ -235,9 +243,11 @@ public class DataPackBuilder {
         public static class Stonecutting {
             /**
              * 
-             * @param name The recipe name.
-             * @param ingredient Should be formatted as full registry name, like minecraft:dirt.
-             * @param product Should be formatted as full registry name, like minecraft:dirt.
+             * @param name       The recipe name.
+             * @param ingredient Should be formatted as full registry name, like
+             *                   minecraft:dirt.
+             * @param product    Should be formatted as full registry name, like
+             *                   minecraft:dirt.
              * @param count
              * @return
              */
@@ -259,8 +269,10 @@ public class DataPackBuilder {
 
             /**
              * 
-             * @param ingredient Should be formatted as full registry name, like minecraft:dirt.
-             * @param product Should be formatted as full registry name, like minecraft:dirt.
+             * @param ingredient Should be formatted as full registry name, like
+             *                   minecraft:dirt.
+             * @param product    Should be formatted as full registry name, like
+             *                   minecraft:dirt.
              * @param count
              * @return
              */
@@ -270,8 +282,10 @@ public class DataPackBuilder {
 
             /**
              * 
-             * @param ingredient Should be formatted as full registry name, like minecraft:dirt.
-             * @param product Should be formatted as full registry name, like minecraft:dirt.
+             * @param ingredient Should be formatted as full registry name, like
+             *                   minecraft:dirt.
+             * @param product    Should be formatted as full registry name, like
+             *                   minecraft:dirt.
              * @param count
              * @return
              */
@@ -281,8 +295,10 @@ public class DataPackBuilder {
 
             /**
              * 
-             * @param ingredient Should be formatted as full registry name, like minecraft:dirt.
-             * @param product Should be formatted as full registry name, like minecraft:dirt.
+             * @param ingredient Should be formatted as full registry name, like
+             *                   minecraft:dirt.
+             * @param product    Should be formatted as full registry name, like
+             *                   minecraft:dirt.
              * @param count
              * @return
              */
@@ -300,6 +316,8 @@ public class DataPackBuilder {
         static JsonObject fenceGates = builder.createJsonObject();
         static JsonObject doors = builder.createJsonObject();
         static JsonObject trapdoors = builder.createJsonObject();
+        static JsonObject pressurePlates = builder.createJsonObject();
+        static JsonObject buttons = builder.createJsonObject();
 
         static {
             slabs.set("replace", false);
@@ -309,6 +327,8 @@ public class DataPackBuilder {
             fenceGates.set("replace", false);
             doors.set("replace", false);
             trapdoors.set("replace", false);
+            pressurePlates.set("replace", false);
+            buttons.set("replace", false);
 
             slabs.addArray("values");
             stairs.addArray("values");
@@ -317,6 +337,8 @@ public class DataPackBuilder {
             fenceGates.addArray("values");
             doors.addArray("values");
             trapdoors.addArray("values");
+            pressurePlates.addArray("values");
+            buttons.addArray("values");
         }
 
         public static void addSlab(String name) {
@@ -347,6 +369,14 @@ public class DataPackBuilder {
             trapdoors.getArray("values").add(Main.MOD_ID + ":" + name);
         }
 
+        public static void addPressurePlate(String name) {
+            pressurePlates.getArray("values").add(Main.MOD_ID + ":" + name);
+        }
+
+        public static void addButton(String name) {
+            buttons.getArray("values").add(Main.MOD_ID + ":" + name);
+        }
+
         public static void write() {
             builder.write(getPath("minecraft" + "/" + "tags/blocks"), "slabs", slabs);
             builder.write(getPath("minecraft" + "/" + "tags/blocks"), "stairs", stairs);
@@ -355,6 +385,8 @@ public class DataPackBuilder {
             builder.write(getPath("minecraft" + "/" + "tags/blocks"), "fence_gates", fenceGates);
             builder.write(getPath("minecraft" + "/" + "tags/blocks"), "doors", doors);
             builder.write(getPath("minecraft" + "/" + "tags/blocks"), "trapdoors", trapdoors);
+            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "pressure_plates", trapdoors);
+            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "buttons", trapdoors);
 
             builder.write(getPath("minecraft" + "/" + "tags/items"), "slabs", slabs);
             builder.write(getPath("minecraft" + "/" + "tags/items"), "stairs", stairs);
@@ -362,6 +394,8 @@ public class DataPackBuilder {
             builder.write(getPath("minecraft" + "/" + "tags/items"), "fences", fences);
             builder.write(getPath("minecraft" + "/" + "tags/items"), "fence_gates", fenceGates);
             builder.write(getPath("minecraft" + "/" + "tags/items"), "trapdoors", trapdoors);
+            builder.write(getPath("minecraft" + "/" + "tags/items"), "pressure_plates", trapdoors);
+            builder.write(getPath("minecraft" + "/" + "tags/items"), "buttons", trapdoors);
         }
     }
 }

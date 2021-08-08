@@ -7,7 +7,6 @@ import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonArray;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.Patterns;
-import com.github.chrisofnormandy.conloot.asset_builder.AssetBuilder;
 
 public class WallResource {
     /**
@@ -139,9 +138,7 @@ public class WallResource {
      * @return
      */
     public static HashMap<String, JsonObject> blockModel(String name, String[] textures, JsonBuilder builder) {
-        String texture = textures.length == 0
-            ? "minecraft:block/debug"
-            : textures[0];
+        String texture = textures.length == 0 ? "minecraft:block/debug" : textures[0];
 
         return new HashMap<String, JsonObject>() {
             {
@@ -241,22 +238,5 @@ public class WallResource {
      */
     public static JsonObject itemModel(String name, JsonBuilder builder) {
         return builder.createJsonObject().set("parent", Main.MOD_ID + ":block/" + name + "_inventory");
-    }
-
-    /**
-     * 
-     * @param name
-     * @param path
-     * @param bases
-     * @param templates
-     * @param colors
-     * @param mode
-     * @param templateShading
-     */
-    public static void texture(String name, String path, String bases[], String templates[], String[] colors,
-            String mode, Boolean templateShading) {
-        Main.LOG.info("Generating default asset for " + name + " using " + bases.length + " + " + templates.length);
-
-        AssetBuilder.createImage(path, name, templates, bases, colors, mode, templateShading);
     }
 }

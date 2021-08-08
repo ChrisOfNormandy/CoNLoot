@@ -53,31 +53,41 @@ public class ModBlocks {
         DataPackBuilder.Tags.addTrapdoor(name);
     }
 
+    private static void registerPressurePlate(String name, Config config) {
+        CreationBase.registerBlockFromConfig(name, config, CustomItemGroup.cache.get("blocks"));
+        DataPackBuilder.Tags.addPressurePlate(name);
+    }
+
+    private static void registerButton(String name, Config config) {
+        CreationBase.registerBlockFromConfig(name, config, CustomItemGroup.cache.get("blocks"));
+        DataPackBuilder.Tags.addButton(name);
+    }
+
     private static void genericBlockSetup(String type, HashMap<String, Config> map) {
         if (map.isEmpty())
             return;
 
         switch (type) {
-            case "block": {
-                map.forEach((String name, Config config) -> registerBlock(name, config));
-                break;
-            }
-            case "slab": {
-                map.forEach((String name, Config config) -> registerSlab(name, config));
-                break;
-            }
-            case "stairs": {
-                map.forEach((String name, Config config) -> registerStairs(name, config));
-                break;
-            }
-            case "wall": {
-                map.forEach((String name, Config config) -> registerWall(name, config));
-                break;
-            }
-            case "fence": {
-                map.forEach((String name, Config config) -> registerFence(name, config));
-                break;
-            }
+        case "block": {
+            map.forEach((String name, Config config) -> registerBlock(name, config));
+            break;
+        }
+        case "slab": {
+            map.forEach((String name, Config config) -> registerSlab(name, config));
+            break;
+        }
+        case "stairs": {
+            map.forEach((String name, Config config) -> registerStairs(name, config));
+            break;
+        }
+        case "wall": {
+            map.forEach((String name, Config config) -> registerWall(name, config));
+            break;
+        }
+        case "fence": {
+            map.forEach((String name, Config config) -> registerFence(name, config));
+            break;
+        }
         }
     }
 
@@ -86,18 +96,26 @@ public class ModBlocks {
             return;
 
         switch (type) {
-            case "fence_gate": {
-                map.forEach((String name, Config config) -> registerFenceGate(name, config));
-                break;
-            }
-            case "door": {
-                map.forEach((String name, Config config) -> registerDoor(name, config));
-                break;
-            }
-            case "trapdoor": {
-                map.forEach((String name, Config config) -> registerTrapdoor(name, config));
-                break;
-            }
+        case "fence_gate": {
+            map.forEach((String name, Config config) -> registerFenceGate(name, config));
+            break;
+        }
+        case "door": {
+            map.forEach((String name, Config config) -> registerDoor(name, config));
+            break;
+        }
+        case "trapdoor": {
+            map.forEach((String name, Config config) -> registerTrapdoor(name, config));
+            break;
+        }
+        case "pressure_plate": {
+            map.forEach((String name, Config config) -> registerPressurePlate(name, config));
+            break;
+        }
+        case "button": {
+            map.forEach((String name, Config config) -> registerButton(name, config));
+            break;
+        }
         }
     }
 
@@ -111,18 +129,18 @@ public class ModBlocks {
             return;
 
         switch (type) {
-            case "storage": {
-                switch (subtype) {
-                    case "barrel": {
-                    }
-                    case "shulker": {
-                        map.forEach((String name, Config config) -> CreationBase.registerBlockFromConfig(name, config,
-                                CustomItemGroup.cache.get("decorations")));
-                        break;
-                    }
-                }
+        case "storage": {
+            switch (subtype) {
+            case "barrel": {
+            }
+            case "shulker": {
+                map.forEach((String name, Config config) -> CreationBase.registerBlockFromConfig(name, config,
+                        CustomItemGroup.cache.get("decorations")));
                 break;
             }
+            }
+            break;
+        }
         }
     }
 
@@ -131,11 +149,11 @@ public class ModBlocks {
             return;
 
         switch (type) {
-            case "crop": {
-                map.forEach((String name, Config config) -> CustomCrop.registerFromConfig(name, config,
-                        CustomItemGroup.cache.get("decorations")));
-                break;
-            }
+        case "crop": {
+            map.forEach((String name, Config config) -> CustomCrop.registerFromConfig(name, config,
+                    CustomItemGroup.cache.get("decorations")));
+            break;
+        }
         }
     }
 
@@ -144,14 +162,14 @@ public class ModBlocks {
             return;
 
         switch (type) {
-            case "metal": {
-            }
-            case "gem": {
-                map.forEach((String name, Config config) -> CustomResource.registerFromConfig(name, config,
-                        CustomItemGroup.cache.get("items"), CustomItemGroup.cache.get("tools"),
-                        CustomItemGroup.cache.get("blocks")));
-                break;
-            }
+        case "metal": {
+        }
+        case "gem": {
+            map.forEach((String name, Config config) -> CustomResource.registerFromConfig(name, config,
+                    CustomItemGroup.cache.get("items"), CustomItemGroup.cache.get("tools"),
+                    CustomItemGroup.cache.get("blocks")));
+            break;
+        }
         }
     }
 
@@ -170,63 +188,63 @@ public class ModBlocks {
             Main.LOG.debug("Block content -> " + key + " | " + keyPath.length);
 
             switch (keyPath[0]) {
-                case "block": {
-                    Main.LOG.debug("Running setup for: " + keyPath[1]);
+            case "block": {
+                Main.LOG.debug("Running setup for: " + keyPath[1]);
 
-                    switch (keyPath[1]) {
-                        case "generic": {
-                            if (keyPath.length > 2)
-                                genericBlockSetup(keyPath[2], map);
-                            else
-                                Main.LOG.error("Failed to find collection to register: " + key);
-
-                            break;
-                        }
-                        case "redstone": {
-                            if (keyPath.length > 2)
-                                redstoneBlockSetup(keyPath[2], map);
-                            else
-                                Main.LOG.error("Failed to find collection to register: " + key);
-
-                            break;
-                        }
-                        case "interactive": {
-                            if (keyPath.length > 2) {
-                                if (keyPath.length > 3)
-                                    interactiveBlockSetup(keyPath[2], keyPath[3], map);
-                                else
-                                    interactiveBlockSetup(keyPath[2], map);
-                            } else
-                                Main.LOG.error("Failed to find collection to register: " + key);
-
-                            break;
-                        }
-                    }
+                switch (keyPath[1]) {
+                case "generic": {
+                    if (keyPath.length > 2)
+                        genericBlockSetup(keyPath[2], map);
+                    else
+                        Main.LOG.error("Failed to find collection to register: " + key);
 
                     break;
                 }
-                case "resource": {
-                    switch (keyPath[1]) {
-                        case "plant": {
-                            if (keyPath.length > 2)
-                                plantResourceSetup(keyPath[2], map);
-                            else
-                                Main.LOG.error("Failed to find collection to register: " + key);
-
-                            break;
-                        }
-                        case "ore": {
-                            if (keyPath.length > 2)
-                                oreResourceSetup(keyPath[2], map);
-                            else
-                                Main.LOG.error("Failed to find collection to register: " + key);
-
-                            break;
-                        }
-                    }
+                case "redstone": {
+                    if (keyPath.length > 2)
+                        redstoneBlockSetup(keyPath[2], map);
+                    else
+                        Main.LOG.error("Failed to find collection to register: " + key);
 
                     break;
                 }
+                case "interactive": {
+                    if (keyPath.length > 2) {
+                        if (keyPath.length > 3)
+                            interactiveBlockSetup(keyPath[2], keyPath[3], map);
+                        else
+                            interactiveBlockSetup(keyPath[2], map);
+                    } else
+                        Main.LOG.error("Failed to find collection to register: " + key);
+
+                    break;
+                }
+                }
+
+                break;
+            }
+            case "resource": {
+                switch (keyPath[1]) {
+                case "plant": {
+                    if (keyPath.length > 2)
+                        plantResourceSetup(keyPath[2], map);
+                    else
+                        Main.LOG.error("Failed to find collection to register: " + key);
+
+                    break;
+                }
+                case "ore": {
+                    if (keyPath.length > 2)
+                        oreResourceSetup(keyPath[2], map);
+                    else
+                        Main.LOG.error("Failed to find collection to register: " + key);
+
+                    break;
+                }
+                }
+
+                break;
+            }
             }
         });
 

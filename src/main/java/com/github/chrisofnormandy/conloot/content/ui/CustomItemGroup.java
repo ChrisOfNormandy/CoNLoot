@@ -30,7 +30,7 @@ public class CustomItemGroup {
         String itemName = config.getStringValue("item_name");
         String tabName = config.getStringValue("tab_name");
 
-        AssetPackBuilder.createItem(itemName);
+        AssetPackBuilder.createBlockItem(itemName);
         
         cache.put(name, CreativeTab.createGroup(tabName, Items.register(itemName)));
 

@@ -1,7 +1,6 @@
 package com.github.chrisofnormandy.conloot.configs.blocks;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.config.ConfigGroup;
@@ -16,11 +15,9 @@ public class OreConfig {
         assets.addFlag("use_asset", true, "Should an asset pack be generated for this resource?");
 
         ConfigGroup colors = new ConfigGroup();
-        List<String> colorList = new ArrayList<String>();
-        colorList.add("0, 0, 0");
-
-        colors.addStringList("ore_color", colorList, "RGB value for default generated assets. Used for ore texture.");
-        colors.addStringList("resource_color", colorList,
+        colors.addStringList("ore_color", new ArrayList<String>(),
+                "RGB value for default generated assets. Used for ore texture.");
+        colors.addStringList("resource_color", new ArrayList<String>(),
                 "RGB value for default generated assets. Used for item, tool texture.");
         colors.addString("ore_blend_mode", "sharp",
                 "How colors are distributed using the ore template | gradient: a curve blend of colors; sharp: no blending between colors; spotted: uses the first color as a base and applies the rest as spots.");

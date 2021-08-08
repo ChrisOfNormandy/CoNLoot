@@ -6,7 +6,6 @@ import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.Patterns;
-import com.github.chrisofnormandy.conloot.asset_builder.AssetBuilder;
 
 public class SlabResource {
     /**
@@ -129,41 +128,5 @@ public class SlabResource {
      */
     public static JsonObject itemModel(String name, JsonBuilder builder) {
         return builder.createJsonObject().set("parent", Main.MOD_ID + ":block/" + name);
-    }
-
-    /**
-     * 
-     * @param name
-     * @param path
-     * @param builder
-     * @param bases
-     * @param templates
-     * @param colors
-     * @param mode
-     * @param templateShading
-     */
-    public static void texture(String name, String path, String[] bases, String[] templates, String[] colors,
-            String mode, Boolean templateShading) {
-        Main.LOG.info("Generating default asset for " + name + " using " + bases.length + " base textures and + "
-                + templates.length + " template textures.");
-
-        if (bases.length > templates.length || (bases.length > 1 && bases.length < templates.length)) {
-            Main.LOG.error("Cannot create assets for " + name
-                    + " based on provided inputs. Check base template and overlay template counts.");
-            return;
-        }
-
-        if (bases.length <= 1 && templates.length % 3 > 0) {
-            Main.LOG.error("Cannot create assets for " + name + " because " + templates.length
-                    + " is not evenly divisible by 3.");
-            return;
-        }
-
-        AssetBuilder.createImage(path, name + "_bottom", new String[] { templates[0] }, new String[] { bases[0] },
-                colors, mode, templateShading);
-        AssetBuilder.createImage(path, name + "_top", new String[] { templates[1] }, new String[] { bases[1] }, colors,
-                mode, templateShading);
-        AssetBuilder.createImage(path, name + "_side", new String[] { templates[2] }, new String[] { bases[2] }, colors,
-                mode, templateShading);
     }
 }

@@ -2,7 +2,6 @@ package com.github.chrisofnormandy.conloot.asset_builder.blocktypes;
 
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.Patterns;
-import com.github.chrisofnormandy.conloot.asset_builder.AssetBuilder;
 
 import java.util.HashMap;
 
@@ -186,22 +185,5 @@ public class FenceResource {
      */
     public static JsonObject itemModel(String name, JsonBuilder builder) {
         return builder.createJsonObject().set("parent", Main.MOD_ID + ":block/" + name + "_inventory");
-    }
-
-    /**
-     * 
-     * @param name
-     * @param path
-     * @param bases
-     * @param templates
-     * @param colors
-     * @param mode
-     * @param templateShading
-     */
-    public static void texture(String name, String path, String bases[], String templates[], String[] colors,
-            String mode, Boolean templateShading) {
-        Main.LOG.info("Generating default asset for " + name + " using " + bases.length + " + " + templates.length);
-
-        AssetBuilder.createImage(path, name, templates, bases, colors, mode, templateShading);
     }
 }
