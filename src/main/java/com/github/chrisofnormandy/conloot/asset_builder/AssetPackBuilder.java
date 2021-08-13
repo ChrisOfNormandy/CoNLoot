@@ -60,6 +60,70 @@ public class AssetPackBuilder {
      * 
      * @param name
      * @param type
+     * @param texture
+     * @param overlay
+     * @param colors
+     * @param mode
+     * @param templateShading
+     * @return
+     */
+    private static String fetchAsset(String name, String type, String texture, String overlay, String[] colors,
+            String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
+        if (texture.equals("") && overlay.equals(""))
+            return "minecraft:block/debug";
+
+        String path = getModPath("textures/" + type);
+
+        Pattern replPattern = Pattern.compile("[\\w\\d]+>[\\w\\d]+");
+
+        String imageName;
+
+        String tex = texture.replace("@", Main.MOD_ID).replace("%", name);
+        Matcher p1 = Pattern.compile("&(\\d+)").matcher(tex);
+
+        if (p1.find()) {
+            int index = Integer.parseInt(p1.group(1));
+            tex = tex.replaceAll("&(\\d+)", name.split("_")[index]);
+        } else
+            tex = tex.replace("&", name.split("_")[0]);
+
+        if (replPattern.matcher(tex).find()) { // The texture name provided has an alias.
+            String[] s = tex.split(">");
+            String assetName = s[1];
+
+            if (!assetList.contains(assetName)) { // If the image has not been created already.
+                if (s[0].indexOf(";") > -1)
+                    imageName = AssetBuilder.createAnimatedImage(path, name, s[0].split(";"), frameTime, frameSettings);
+                else
+                    imageName = AssetBuilder.createImage(path, assetName, s[0], overlay, colors, mode, templateShading);
+
+                assetList.add(imageName);
+            } else
+                imageName = Main.MOD_ID + ":block/" + assetName; // If the image already exists.
+        } else { // The texture name provided is the image name.
+            if (Patterns.modID.matcher(tex).find()) // If the texture references a mod ID.
+                imageName = tex;
+            else { // The texture name provided is the image name itself.
+                if (!assetList.contains(name)) {
+                    if (tex.indexOf(";") > -1)
+                        imageName = AssetBuilder.createAnimatedImage(path, name, tex.split(";"), frameTime,
+                                frameSettings);
+                    else
+                        imageName = AssetBuilder.createImage(path, name, tex, overlay, colors, mode, templateShading);
+
+                    assetList.add(imageName);
+                } else
+                    imageName = Main.MOD_ID + ":block/" + name; // If the image already exists.
+            }
+        }
+
+        return imageName;
+    }
+
+    /**
+     * 
+     * @param name
+     * @param type
      * @param textures
      * @param overlays
      * @param colors
@@ -67,63 +131,13 @@ public class AssetPackBuilder {
      * @param templateShading
      * @return
      */
-    private static String[] fetchAsset(String name, String type, String[] textures, String[] overlays, String[] colors,
-            String mode, Boolean templateShading) {
-        if (textures.length == 0 && overlays.length == 0)
-            return new String[] { "minecraft:block/debug" };
-
+    private static String[] fetchAssets(String name, String type, String textures[], String overlays[], String[] colors,
+            String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
         List<String> assets = new ArrayList<String>();
 
-        String path = getModPath("textures/" + type);
-
-        Pattern replPattern = Pattern.compile("[\\w\\d]+>[\\w\\d]+");
-
         for (int i = 0; i < textures.length; i++) {
-            String[] overlayList;
-
-            if (overlays.length == textures.length)
-                overlayList = new String[] { overlays[i] };
-            else if (overlays.length >= 1)
-                overlayList = new String[] { overlays[0] };
-            else
-                overlayList = new String[0];
-
-            String tex = textures[i].replace("@", Main.MOD_ID).replace("%", name);
-            Matcher p1 = Pattern.compile("&(\\d+)").matcher(tex);
-
-            if (p1.find()) {
-                int index = Integer.parseInt(p1.group(1));
-                Main.LOG.debug(">>>>>>>>>>>>>>>>>>>>> " + index + " ___ " + name.split("_")[index]);
-                tex = tex.replaceAll("&(\\d+)", name.split("_")[index]);
-            } else
-                tex = tex.replace("&", name.split("_")[0]);
-
-            if (replPattern.matcher(tex).find()) {
-                String[] s = tex.split(">");
-                String assetName = s[1];
-
-                if (!assetList.contains(assetName)) {
-                    String asset = AssetBuilder.createImage(path, assetName, new String[] { s[0] }, overlayList, colors,
-                            mode, templateShading);
-
-                    assets.add(asset);
-                    assetList.add(asset);
-                } else
-                    assets.add(Main.MOD_ID + ":block/" + assetName);
-            } else {
-                if (Patterns.modID.matcher(tex).find())
-                    assets.add(tex);
-                else {
-                    if (!assetList.contains(name)) {
-                        String asset = AssetBuilder.createImage(path, name, new String[] { tex }, overlayList, colors,
-                                mode, templateShading);
-
-                        assets.add(asset);
-                        assetList.add(asset);
-                    } else
-                        assets.add(Main.MOD_ID + ":block/" + name);
-                }
-            }
+            assets.add(fetchAsset(name, type, textures[i], (i < overlays.length ? overlays[i] : ""), colors, mode,
+                    templateShading, frameTime, frameSettings));
         }
 
         return assets.toArray(new String[0]);
@@ -177,38 +191,38 @@ public class AssetPackBuilder {
         HashMap<String, JsonObject> blockModels = new HashMap<String, JsonObject>();
 
         switch (subType) {
-        case "column": {
-            blockstate = BlockResource.blockstate(name, subType, builder);
+            case "column": {
+                blockstate = BlockResource.blockstate(name, subType, builder);
 
-            blockModels.put(name, BlockResource.blockModel(name, "cube_column",
-                    fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder));
-            blockModels.put(name + "_horizontal", BlockResource.blockModel(name, "cube_column_horizontal",
-                    fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder));
+                blockModels.put(name, BlockResource.blockModel(name, "cube_column", fetchAssets(name, "block", textures,
+                        overlays, colors, mode, templateShading, frameTime, frameSettings), builder));
+                blockModels
+                        .put(name + "_horizontal",
+                                BlockResource.blockModel(name, "cube_column_horizontal", fetchAssets(name, "block",
+                                        textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
+                                        builder));
 
-            break;
-        }
-        case "bottom_top": {
+                break;
+            }
+            case "bottom_top": {
 
-        }
-        case "bottom_top_rotate": {
+            }
+            case "bottom_top_rotate": {
 
-        }
-        case "bottom_top_rotate_2_states": {
+            }
+            case "bottom_top_rotate_2_states": {
 
-        }
-        default: {
-            blockstate = BlockResource.blockstate(name, builder);
+            }
+            default: {
+                blockstate = BlockResource.blockstate(name, builder);
 
-            blockModels.put(name, BlockResource.blockModel(name,
-                    fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder));
-            break;
-        }
+                blockModels.put(name, BlockResource.blockModel(name, fetchAssets(name, "block", textures, overlays,
+                        colors, mode, templateShading, frameTime, frameSettings), builder));
+                break;
+            }
         }
 
         write(name, blockstate, blockModels, BlockResource.itemModel(name, builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
     }
 
     /**
@@ -232,12 +246,10 @@ public class AssetPackBuilder {
         HashMap<String, JsonObject> blockModels;
 
         blockModels = SlabResource.blockModel(name,
-                fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder);
+                fetchAssets(name, "block", textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
+                builder);
 
         write(name, blockstate, blockModels, SlabResource.itemModel(name, builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
     }
 
     /**
@@ -256,13 +268,9 @@ public class AssetPackBuilder {
 
         Main.LOG.debug("AssetPackBuilder.createStairBlock --> " + name + " | Animation: " + (frameTime > 0));
 
-        write(name, StairsResource.blockstate(name, builder),
-                StairsResource.blockModel(name,
-                        fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder),
-                StairsResource.itemModel(name, builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
+        write(name, StairsResource.blockstate(name, builder), StairsResource.blockModel(name,
+                fetchAssets(name, "block", textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
+                builder), StairsResource.itemModel(name, builder));
     }
 
     /**
@@ -281,13 +289,9 @@ public class AssetPackBuilder {
 
         Main.LOG.debug("AssetPackBuilder.createWallBlock --> " + name + " | Animation: " + (frameTime > 0));
 
-        write(name, WallResource.blockstate(name, builder),
-                WallResource.blockModel(name,
-                        fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder),
-                WallResource.itemModel(name, builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
+        write(name, WallResource.blockstate(name, builder), WallResource.blockModel(name,
+                fetchAssets(name, "block", textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
+                builder), WallResource.itemModel(name, builder));
     }
 
     /**
@@ -306,13 +310,9 @@ public class AssetPackBuilder {
 
         Main.LOG.debug("AssetPackBuilder.createFenceBlock --> " + name + " | Animation: " + (frameTime > 0));
 
-        write(name, FenceResource.blockstate(name, builder),
-                FenceResource.blockModel(name,
-                        fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder),
-                FenceResource.itemModel(name, builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
+        write(name, FenceResource.blockstate(name, builder), FenceResource.blockModel(name,
+                fetchAssets(name, "block", textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
+                builder), FenceResource.itemModel(name, builder));
     }
 
     /**
@@ -332,12 +332,9 @@ public class AssetPackBuilder {
         Main.LOG.debug("AssetPackBuilder.createFenceGateBlock --> " + name + " | Animation: " + (frameTime > 0));
 
         write(name, FenceGateResource.blockstate(name, builder),
-                FenceGateResource.blockModel(name,
-                        fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder),
+                FenceGateResource.blockModel(name, fetchAssets(name, "block", textures, overlays, colors, mode,
+                        templateShading, frameTime, frameSettings), builder),
                 FenceGateResource.itemModel(name, builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
     }
 
     /**
@@ -359,12 +356,13 @@ public class AssetPackBuilder {
 
         write(name, DoorResource.blockstate(name, builder),
                 DoorResource.blockModel(name,
-                        fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder),
-                DoorResource.itemModel(name, fetchAsset(name, "item", new String[] { itemTexture }, overlays, colors,
-                        mode, templateShading)[0], builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
+                        fetchAssets(name, "block", textures, overlays, colors, mode, templateShading, frameTime,
+                                frameSettings),
+                        builder),
+                DoorResource.itemModel(name,
+                        fetchAsset(name, "item", itemTexture, (overlays.length > 0 ? overlays[0] : ""), colors, mode,
+                                templateShading, frameTime, frameSettings),
+                        builder));
     }
 
     /**
@@ -384,12 +382,10 @@ public class AssetPackBuilder {
         Main.LOG.debug("AssetPackBuilder.createTrapdoorBlock --> " + name + " | Animation: " + (frameTime > 0));
 
         write(name, TrapdoorResource.blockstate(name, builder),
-                TrapdoorResource.blockModel(name,
-                        fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder),
+                TrapdoorResource.blockModel(name, fetchAssets(name, "block", textures, overlays, colors, mode,
+                        templateShading, frameTime, frameSettings), builder),
                 TrapdoorResource.itemModel(name, builder));
 
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
     }
 
     public static void createPressurePlateBlock(String name, String textures[], String[] overlays, String[] colors,
@@ -398,12 +394,9 @@ public class AssetPackBuilder {
         Main.LOG.debug("AssetPackBuilder.createPressurePlateBlock --> " + name + " | Animation: " + (frameTime > 0));
 
         write(name, PressurePlateResource.blockstate(name, builder),
-                PressurePlateResource.blockModel(name,
-                        fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder),
+                PressurePlateResource.blockModel(name, fetchAssets(name, "block", textures, overlays, colors, mode,
+                        templateShading, frameTime, frameSettings), builder),
                 PressurePlateResource.itemModel(name, builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
     }
 
     public static void createButtonBlock(String name, String textures[], String[] overlays, String[] colors,
@@ -411,13 +404,9 @@ public class AssetPackBuilder {
 
         Main.LOG.debug("AssetPackBuilder.createButtonBlock --> " + name + " | Animation: " + (frameTime > 0));
 
-        write(name, ButtonResource.blockstate(name, builder),
-                ButtonResource.blockModel(name,
-                        fetchAsset(name, "block", textures, overlays, colors, mode, templateShading), builder),
-                ButtonResource.itemModel(name, builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
+        write(name, ButtonResource.blockstate(name, builder), ButtonResource.blockModel(name,
+                fetchAssets(name, "block", textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
+                builder), ButtonResource.itemModel(name, builder));
     }
 
     /**
@@ -447,10 +436,8 @@ public class AssetPackBuilder {
         Main.LOG.debug("AssetPackBuilder.createItem --> " + name + " | Animation: " + (frameTime > 0));
 
         write(name, ItemResource.itemModel(name,
-                fetchAsset(name, "item", textures, overlays, colors, mode, templateShading), builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
+                fetchAssets(name, "item", textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
+                builder));
 
         Lang.addItem(name, StringUtil.wordCaps_repl(name));
     }
@@ -471,10 +458,8 @@ public class AssetPackBuilder {
         Main.LOG.debug("AssetPackBuilder.createHandheldItem --> " + name + " | Animation: " + (frameTime > 0));
 
         write(name, HandheldResource.itemModel(name,
-                fetchAsset(name, "item", textures, overlays, colors, mode, templateShading), builder));
-
-        if (frameTime > 0)
-            Textures.animationController(name, textures.length, frameTime, frameSettings);
+                fetchAssets(name, "item", textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
+                builder));
 
         Lang.addItem(name, StringUtil.wordCaps_repl(name));
     }
