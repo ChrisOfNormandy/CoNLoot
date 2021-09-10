@@ -1,12 +1,17 @@
-package com.github.chrisofnormandy.conloot.configs.items.tools;
+package com.github.chrisofnormandy.conloot.configs.items;
 
 import java.util.ArrayList;
 
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.config.ConfigGroup;
 
-public class ToolConfigBase {
+public class GenericHandheldConfig {
     public static Config create(String name, Config config) {
+        return create(name, config, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
+    }
+
+    public static Config create(String name, Config config, ArrayList<String> colorList, ArrayList<String> textureList,
+            ArrayList<String> overlayList) {
         ConfigGroup toolMaterial = new ConfigGroup();
 
         toolMaterial.addInteger("level", 1, "Tool material level.");
@@ -26,8 +31,7 @@ public class ToolConfigBase {
         // Colors
         ConfigGroup colors = new ConfigGroup();
 
-        colors.addStringList("color", new ArrayList<String>(),
-                "RGB value for default generated assets. Used for overlay texture.");
+        colors.addStringList("color", colorList, "RGB value for default generated assets. Used for overlay texture.");
         colors.addString("blend_mode", "sharp",
                 "How colors are distributed using the overlay template | gradient: a curve blend of colors; sharp: no blending between colors; spotted: uses the first color as a base and applies the rest as spots.");
         colors.addFlag("template_shading", true,
@@ -36,9 +40,9 @@ public class ToolConfigBase {
 
         // Templates
         ConfigGroup assets = new ConfigGroup();
-        assets.addStringList("textures", new ArrayList<String>(),
+        assets.addStringList("textures", textureList,
                 "Texture names. Formatted with mod ID will use existing assets and will not combine.");
-        assets.addStringList("overlays", new ArrayList<String>(),
+        assets.addStringList("overlays", overlayList,
                 "Texture names. If the base texture is not a referenced asset, will combine to make single asset texture.");
         config.addSubgroup("Assets", assets);
 

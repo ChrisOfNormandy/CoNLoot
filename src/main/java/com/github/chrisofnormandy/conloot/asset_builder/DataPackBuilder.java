@@ -309,6 +309,7 @@ public class DataPackBuilder {
     }
 
     public static class Tags {
+        // Blocks
         static JsonObject slabs = builder.createJsonObject();
         static JsonObject stairs = builder.createJsonObject();
         static JsonObject walls = builder.createJsonObject();
@@ -319,7 +320,15 @@ public class DataPackBuilder {
         static JsonObject pressurePlates = builder.createJsonObject();
         static JsonObject buttons = builder.createJsonObject();
 
+        // Entity Types
+        static JsonObject arrows_Entity = builder.createJsonObject();
+        static JsonObject impactProjectiles = builder.createJsonObject();
+
+        // Items
+        static JsonObject arrows = builder.createJsonObject();
+
         static {
+            // Blocks
             slabs.set("replace", false);
             stairs.set("replace", false);
             walls.set("replace", false);
@@ -339,8 +348,52 @@ public class DataPackBuilder {
             trapdoors.addArray("values");
             pressurePlates.addArray("values");
             buttons.addArray("values");
+
+            // Entity Types
+            arrows_Entity.set("replace", false);
+            impactProjectiles.set("replace", false);
+
+            arrows_Entity.addArray("values");
+            impactProjectiles.addArray("values");
+
+            // Items
+            arrows.set("replace", false);
+
+            arrows.addArray("values");
         }
 
+        public static void write() {
+            // Blocks
+            builder.write(getPath("minecraft/tags/blocks"), "slabs", slabs);
+            builder.write(getPath("minecraft/tags/blocks"), "stairs", stairs);
+            builder.write(getPath("minecraft/tags/blocks"), "walls", walls);
+            builder.write(getPath("minecraft/tags/blocks"), "fences", fences);
+            builder.write(getPath("minecraft/tags/blocks"), "fence_gates", fenceGates);
+            builder.write(getPath("minecraft/tags/blocks"), "doors", doors);
+            builder.write(getPath("minecraft/tags/blocks"), "trapdoors", trapdoors);
+            builder.write(getPath("minecraft/tags/blocks"), "pressure_plates", pressurePlates);
+            builder.write(getPath("minecraft/tags/blocks"), "buttons", buttons);
+
+            // Entity Types
+            builder.write(getPath("minecraft/tags/entity_types"), "arrows", arrows_Entity);
+            builder.write(getPath("minecraft/tags/entity_types"), "impact_projectiles", impactProjectiles);
+
+            // Items
+            // -- Blocks
+            builder.write(getPath("minecraft/tags/items"), "slabs", slabs);
+            builder.write(getPath("minecraft/tags/items"), "stairs", stairs);
+            builder.write(getPath("minecraft/tags/items"), "walls", walls);
+            builder.write(getPath("minecraft/tags/items"), "fences", fences);
+            builder.write(getPath("minecraft/tags/items"), "fence_gates", fenceGates);
+            builder.write(getPath("minecraft/tags/items"), "trapdoors", trapdoors);
+            builder.write(getPath("minecraft/tags/items"), "pressure_plates", pressurePlates);
+            builder.write(getPath("minecraft/tags/items"), "buttons", buttons);
+
+            // -- Generic
+            builder.write(getPath("minecraft/tags/items"), "arrows", arrows);
+        }
+
+        // Blocks
         public static void addSlab(String name) {
             slabs.getArray("values").add(Main.MOD_ID + ":" + name);
         }
@@ -377,25 +430,13 @@ public class DataPackBuilder {
             buttons.getArray("values").add(Main.MOD_ID + ":" + name);
         }
 
-        public static void write() {
-            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "slabs", slabs);
-            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "stairs", stairs);
-            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "walls", walls);
-            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "fences", fences);
-            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "fence_gates", fenceGates);
-            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "doors", doors);
-            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "trapdoors", trapdoors);
-            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "pressure_plates", trapdoors);
-            builder.write(getPath("minecraft" + "/" + "tags/blocks"), "buttons", trapdoors);
+        // Other
+        public static void addArrow(String name) {
+            String n = Main.MOD_ID + ":" + name;
 
-            builder.write(getPath("minecraft" + "/" + "tags/items"), "slabs", slabs);
-            builder.write(getPath("minecraft" + "/" + "tags/items"), "stairs", stairs);
-            builder.write(getPath("minecraft" + "/" + "tags/items"), "walls", walls);
-            builder.write(getPath("minecraft" + "/" + "tags/items"), "fences", fences);
-            builder.write(getPath("minecraft" + "/" + "tags/items"), "fence_gates", fenceGates);
-            builder.write(getPath("minecraft" + "/" + "tags/items"), "trapdoors", trapdoors);
-            builder.write(getPath("minecraft" + "/" + "tags/items"), "pressure_plates", trapdoors);
-            builder.write(getPath("minecraft" + "/" + "tags/items"), "buttons", trapdoors);
+            arrows_Entity.getArray("values").add(n);
+            impactProjectiles.getArray("values").add(n);
+            arrows.getArray("values").add(n);
         }
     }
 }

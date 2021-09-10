@@ -6,10 +6,11 @@ import java.util.List;
 
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.config.ConfigGroup;
-import com.github.chrisofnormandy.conloot.configs.blocks.BlockConfig;
-import com.github.chrisofnormandy.conloot.configs.blocks.CropConfig;
-import com.github.chrisofnormandy.conloot.configs.blocks.OreConfig;
-import com.github.chrisofnormandy.conloot.configs.items.tools.ToolConfigBase;
+import com.github.chrisofnormandy.conloot.configs.DefaultConfigValues;
+import com.github.chrisofnormandy.conloot.configs.blocks.*;
+import com.github.chrisofnormandy.conloot.configs.items.tools.*;
+import com.github.chrisofnormandy.conloot.configs.items.weapons.*;
+import com.github.chrisofnormandy.conloot.configs.items.wearable.*;
 import com.github.chrisofnormandy.conloot.configs.ui.ItemGroupConfig;
 import com.github.chrisofnormandy.conloot.configs.worldgen.BiomeConfig;
 
@@ -17,7 +18,6 @@ public class ModConfigs {
     public final HashMap<String, Config> configs = new HashMap<String, Config>();
 
     public final HashMap<String, HashMap<String, Config>> uiContent = new HashMap<String, HashMap<String, Config>>();
-
     public final HashMap<String, HashMap<String, Config>> blockContent = new HashMap<String, HashMap<String, Config>>();
     public final HashMap<String, HashMap<String, Config>> itemContent = new HashMap<String, HashMap<String, Config>>();
     public final HashMap<String, HashMap<String, Config>> worldGenContent = new HashMap<String, HashMap<String, Config>>();
@@ -235,7 +235,9 @@ public class ModConfigs {
         config.getStringListValue("pickaxe_list").forEach((String pickaxe) -> {
             try {
                 map.put(pickaxe,
-                        ToolConfigBase.create(pickaxe, new Config("conloot/items/tools/pickaxes", pickaxe)).Build());
+                        PickaxeConfig.create(pickaxe, new Config("conloot/items/tools/pickaxes", pickaxe),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_pickaxe,
+                                DefaultConfigValues.Overlays.tool_pickaxe).Build());
             } catch (Exception err) {
                 Main.LOG.error("Failed to create config for pickaxe: " + pickaxe);
                 err.printStackTrace();
@@ -250,7 +252,10 @@ public class ModConfigs {
 
         config.getStringListValue("axe_list").forEach((String axe) -> {
             try {
-                map.put(axe, ToolConfigBase.create(axe, new Config("conloot/items/tools/axes", axe)).Build());
+                map.put(axe,
+                        AxeConfig.create(axe, new Config("conloot/items/tools/axes", axe),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_axe,
+                                DefaultConfigValues.Overlays.tool_axe).Build());
             } catch (Exception err) {
                 Main.LOG.error("Failed to create config for axe: " + axe);
                 err.printStackTrace();
@@ -266,7 +271,9 @@ public class ModConfigs {
         config.getStringListValue("shovel_list").forEach((String shovel) -> {
             try {
                 map.put(shovel,
-                        ToolConfigBase.create(shovel, new Config("conloot/items/tools/shovels", shovel)).Build());
+                        ShovelConfig.create(shovel, new Config("conloot/items/tools/shovels", shovel),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_shovel,
+                                DefaultConfigValues.Overlays.tool_shovel).Build());
             } catch (Exception err) {
                 Main.LOG.error("Failed to create config for shovel: " + shovel);
                 err.printStackTrace();
@@ -281,7 +288,10 @@ public class ModConfigs {
 
         config.getStringListValue("hoe_list").forEach((String hoe) -> {
             try {
-                map.put(hoe, ToolConfigBase.create(hoe, new Config("conloot/items/tools/hoes", hoe)).Build());
+                map.put(hoe,
+                        HoeConfig.create(hoe, new Config("conloot/items/tools/hoes", hoe),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_hoe,
+                                DefaultConfigValues.Overlays.tool_hoe).Build());
             } catch (Exception err) {
                 Main.LOG.error("Failed to create config for hoe: " + hoe);
                 err.printStackTrace();
@@ -291,11 +301,275 @@ public class ModConfigs {
         itemContent.put("tool.hoe", map);
     }
 
+    private void buildFlintAndSteelConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("flint_and_steel_list").forEach((String fas) -> {
+            try {
+                map.put(fas,
+                        FlintAndSteelConfig.create(fas, new Config("conloot/items/tools/flint_and_steels", fas),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_flint_and_steel,
+                                DefaultConfigValues.Overlays.tool_flint_and_steel).Build());
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for flint and steel: " + fas);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("tool.flint_and_steel", map);
+    }
+
+    private void buildFishingRodConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("fishing_rod_list").forEach((String rod) -> {
+            try {
+                map.put(rod,
+                        FishingRodConfig.create(rod, new Config("conloot/items/tools/fishing_rods", rod),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_fishing_rod,
+                                DefaultConfigValues.Overlays.tool_fishing_rod).Build());
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for fishing rod: " + rod);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("tool.fishing_rod", map);
+    }
+
+    private void buildShearsConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("shears_list").forEach((String shears) -> {
+            try {
+                map.put(shears,
+                        ShearsConfig.create(shears, new Config("conloot/items/tools/shears", shears),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_shears,
+                                DefaultConfigValues.Overlays.tool_shears).Build());
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for shears: " + shears);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("tool.shears", map);
+    }
+
     private void buildToolConfigs(ConfigGroup config) {
         buildPickaxeConfigs(config);
         buildAxeConfigs(config);
         buildShovelConfigs(config);
         buildHoeConfigs(config);
+
+        buildFlintAndSteelConfigs(config);
+        buildFishingRodConfigs(config);
+        buildShearsConfigs(config);
+    }
+
+    private void buildSwordConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("sword_list").forEach((String sword) -> {
+            try {
+                map.put(sword,
+                        SwordConfig.create(sword, new Config("conloot/items/weapons/swords", sword),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.weapon_sword,
+                                DefaultConfigValues.Overlays.weapon_sword).Build());
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for sword: " + sword);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("weapon.sword", map);
+    }
+
+    private void buildShieldConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("shield_list").forEach((String shield) -> {
+            try {
+                map.put(shield,
+                        ShieldConfig.create(shield, new Config("conloot/items/weapons/shields", shield)).Build()); // Needs
+                                                                                                                   // defaults
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for shield: " + shield);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("weapon.shield", map);
+    }
+
+    private void buildBowConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("bow_list").forEach((String bow) -> {
+            try {
+                map.put(bow, BowConfig.create(bow, new Config("conloot/items/weapons/bows", bow)).Build()); // Needs
+                                                                                                            // defaults
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for bow: " + bow);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("weapon.bow", map);
+    }
+
+    private void buildCrossbowConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("crossbow_list").forEach((String crossbow) -> {
+            try {
+                map.put(crossbow, CrossbowConfig
+                        .create(crossbow, new Config("conloot/items/weapons/crossbows", crossbow)).Build()); // Needs
+                                                                                                             // defaults
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for crossbow: " + crossbow);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("weapon.crossbow", map);
+    }
+
+    private void buildArrowConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("arrow_list").forEach((String arrow) -> {
+            try {
+                map.put(arrow, ArrowConfig.create(arrow, new Config("conloot/items/weapons/arrows", arrow)).Build()); // Needs
+                                                                                                                      // defaults
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for arrow: " + arrow);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("weapon.arrow", map);
+    }
+
+    private void buildWeaponConfigs(ConfigGroup config) {
+        buildSwordConfigs(config);
+        buildShieldConfigs(config);
+        buildBowConfigs(config);
+        buildCrossbowConfigs(config);
+        buildArrowConfigs(config);
+    }
+
+    private void buildWearableHeadConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("head_list").forEach((String piece) -> {
+            try {
+                map.put(piece,
+                        HeadConfig.create(piece, new Config("conloot/items/wearable/head", piece),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_head_item,
+                                DefaultConfigValues.Overlays.wearable_head_item).Build());
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for wearable head piece: " + piece);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("wearable.head", map);
+    }
+
+    private void buildWearableChestConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("chest_list").forEach((String piece) -> {
+            try {
+                map.put(piece,
+                        ChestConfig.create(piece, new Config("conloot/items/wearable/chest", piece),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_chest_item,
+                                DefaultConfigValues.Overlays.wearable_chest_item).Build());
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for wearable chest piece: " + piece);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("wearable.chest", map);
+    }
+
+    private void buildWearableLegsConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("legs_list").forEach((String piece) -> {
+            try {
+                map.put(piece,
+                        LegsConfig.create(piece, new Config("conloot/items/wearable/legs", piece),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_legs_item,
+                                DefaultConfigValues.Overlays.wearable_legs_item).Build());
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for wearable legs piece: " + piece);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("wearable.legs", map);
+    }
+
+    private void buildWearableFeetConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("feet_list").forEach((String piece) -> {
+            try {
+                map.put(piece,
+                        FeetConfig.create(piece, new Config("conloot/items/wearable/feet", piece),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_feet_item,
+                                DefaultConfigValues.Overlays.wearable_feet_item).Build());
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for wearable feet piece: " + piece);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("wearable.feet", map);
+    }
+
+    private void buildWearableSetConfigs(ConfigGroup config) {
+        config.getStringListValue("wearable_set_list").forEach((String piece) -> {
+            try {
+                itemContent.get("wearable.head").put(piece + "_helmet",
+                        HeadConfig.create(piece + "_helmet",
+                                new Config("conloot/items/wearable/head", piece + "_helmet"),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_head_item,
+                                DefaultConfigValues.Overlays.wearable_head_item).Build());
+
+                itemContent.get("wearable.chest").put(piece + "_chestplate",
+                        ChestConfig.create(piece + "_chestplate",
+                                new Config("conloot/items/wearable/chest", piece + "_chestplate"),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_chest_item,
+                                DefaultConfigValues.Overlays.wearable_chest_item).Build());
+
+                itemContent.get("wearable.legs").put(piece + "_leggings",
+                        LegsConfig.create(piece + "_leggings",
+                                new Config("conloot/items/wearable/legs", piece + "_leggings"),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_legs_item,
+                                DefaultConfigValues.Overlays.wearable_legs_item).Build());
+
+                itemContent.get("wearable.feet").put(piece + "_boots",
+                        FeetConfig.create(piece + "_boots", new Config("conloot/items/wearable/feet", piece + "_boots"),
+                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_feet_item,
+                                DefaultConfigValues.Overlays.wearable_feet_item).Build());
+
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create config for wearable set piece: " + piece);
+                err.printStackTrace();
+            }
+        });
+    }
+
+    private void buildWearableConfigs(ConfigGroup config) {
+        buildWearableHeadConfigs(config);
+        buildWearableChestConfigs(config);
+        buildWearableLegsConfigs(config);
+        buildWearableFeetConfigs(config);
+
+        buildWearableSetConfigs(config);
     }
 
     private void buildBiomeConfigs(ConfigGroup config) {
@@ -422,22 +696,23 @@ public class ModConfigs {
         ConfigGroup weapons = new ConfigGroup();
 
         weapons.addStringList("sword_list", new ArrayList<String>(), "A list of swords.");
+        weapons.addStringList("shield_list", new ArrayList<String>(), "A list of shields.");
         weapons.addStringList("bow_list", new ArrayList<String>(), "A list of bows.");
         weapons.addStringList("crossbow_list", new ArrayList<String>(), "A list of crossbows.");
-        weapons.addStringList("shield_list", new ArrayList<String>(), "A list of shields.");
+        weapons.addStringList("arrow_list", new ArrayList<String>(), "A list of arrows.");
 
         config.addSubgroup("Weapons", weapons);
 
-        ConfigGroup armour = new ConfigGroup();
+        ConfigGroup wearable = new ConfigGroup();
 
-        armour.addStringList("armour_set_list", new ArrayList<String>(),
-                "A list of full armour sets (generates all pieces as a set).");
-        armour.addStringList("helmet_list", new ArrayList<String>(), "A list of helmets.");
-        armour.addStringList("chestplate_list", new ArrayList<String>(), "A list of chestplates.");
-        armour.addStringList("leggings_list", new ArrayList<String>(), "A list of leggings.");
-        armour.addStringList("boots_list", new ArrayList<String>(), "A list of boots.");
+        wearable.addStringList("wearable_set_list", new ArrayList<String>(),
+                "A list of full wearable sets (generates all pieces as a set).");
+        wearable.addStringList("head_list", new ArrayList<String>(), "A list of helmets.");
+        wearable.addStringList("chest_list", new ArrayList<String>(), "A list of chestplates.");
+        wearable.addStringList("legs_list", new ArrayList<String>(), "A list of leggings.");
+        wearable.addStringList("feet_list", new ArrayList<String>(), "A list of boots.");
 
-        config.addSubgroup("Armour", armour);
+        config.addSubgroup("Wearable", wearable);
 
         config.Build();
 
@@ -447,10 +722,10 @@ public class ModConfigs {
         buildToolConfigs(tools);
 
         Main.LOG.debug("Building weapons configs...");
-        // buildUIConfigs(weapons);
+        buildWeaponConfigs(weapons);
 
-        Main.LOG.debug("Building armour configs...");
-        // buildUIConfigs(armour);
+        Main.LOG.debug("Building wearable configs...");
+        buildWearableConfigs(wearable);
     }
 
     private void composeWorldGenConfigs(Config config) {

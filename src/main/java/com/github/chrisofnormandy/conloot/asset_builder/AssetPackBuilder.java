@@ -12,21 +12,12 @@ import com.github.chrisofnormandy.conlib.common.Files;
 import com.github.chrisofnormandy.conlib.common.StringUtil;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.Patterns;
-import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.BlockResource;
-import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.ButtonResource;
-import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.DoorResource;
-import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.FenceGateResource;
-import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.FenceResource;
-import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.PressurePlateResource;
-import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.SlabResource;
-import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.StairsResource;
-import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.TrapdoorResource;
-import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.WallResource;
-import com.github.chrisofnormandy.conloot.asset_builder.items.HandheldResource;
-import com.github.chrisofnormandy.conloot.asset_builder.items.ItemResource;
+import com.github.chrisofnormandy.conloot.asset_builder.blocktypes.*;
+import com.github.chrisofnormandy.conloot.asset_builder.items.*;
 
 public class AssetPackBuilder {
     private static JsonBuilder builder = new JsonBuilder();
+
     private static List<String> assetList = new ArrayList<String>();
 
     /**
@@ -131,7 +122,7 @@ public class AssetPackBuilder {
      * @param templateShading
      * @return
      */
-    private static String[] fetchAssets(String name, String type, String textures[], String overlays[], String[] colors,
+    private static String[] fetchAssets(String name, String type, String[] textures, String overlays[], String[] colors,
             String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
         List<String> assets = new ArrayList<String>();
 
@@ -181,7 +172,7 @@ public class AssetPackBuilder {
      * @param frameSettings
      * @param subType
      */
-    public static void createBlock(String name, String textures[], String[] overlays, String[] colors, String mode,
+    public static void createBlock(String name, String[] textures, String[] overlays, String[] colors, String mode,
             Boolean templateShading, Integer frameTime, String[] frameSettings, String subType) {
 
         Main.LOG.debug("AssetPackBuilder.createBlock --> " + name + " | Animation: " + (frameTime > 0) + " | Textures: "
@@ -237,7 +228,7 @@ public class AssetPackBuilder {
      * @param frameTime
      * @param frameSettings
      */
-    public static void createSlabBlock(String name, String doubleName, String textures[], String[] overlays,
+    public static void createSlabBlock(String name, String doubleName, String[] textures, String[] overlays,
             String[] colors, String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
 
         Main.LOG.debug("AssetPackBuilder.createSlabBlock --> " + name + " | Animation: " + (frameTime > 0));
@@ -263,7 +254,7 @@ public class AssetPackBuilder {
      * @param frameTime
      * @param frameSettings
      */
-    public static void createStairBlock(String name, String textures[], String[] overlays, String[] colors, String mode,
+    public static void createStairBlock(String name, String[] textures, String[] overlays, String[] colors, String mode,
             Boolean templateShading, Integer frameTime, String[] frameSettings) {
 
         Main.LOG.debug("AssetPackBuilder.createStairBlock --> " + name + " | Animation: " + (frameTime > 0));
@@ -284,7 +275,7 @@ public class AssetPackBuilder {
      * @param frameTime
      * @param frameSettings
      */
-    public static void createWallBlock(String name, String textures[], String[] overlays, String[] colors, String mode,
+    public static void createWallBlock(String name, String[] textures, String[] overlays, String[] colors, String mode,
             Boolean templateShading, Integer frameTime, String[] frameSettings) {
 
         Main.LOG.debug("AssetPackBuilder.createWallBlock --> " + name + " | Animation: " + (frameTime > 0));
@@ -305,7 +296,7 @@ public class AssetPackBuilder {
      * @param frameTime
      * @param frameSettings
      */
-    public static void createFenceBlock(String name, String textures[], String[] overlays, String[] colors, String mode,
+    public static void createFenceBlock(String name, String[] textures, String[] overlays, String[] colors, String mode,
             Boolean templateShading, Integer frameTime, String[] frameSettings) {
 
         Main.LOG.debug("AssetPackBuilder.createFenceBlock --> " + name + " | Animation: " + (frameTime > 0));
@@ -326,7 +317,7 @@ public class AssetPackBuilder {
      * @param frameTime
      * @param frameSettings
      */
-    public static void createFenceGateBlock(String name, String textures[], String[] overlays, String[] colors,
+    public static void createFenceGateBlock(String name, String[] textures, String[] overlays, String[] colors,
             String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
 
         Main.LOG.debug("AssetPackBuilder.createFenceGateBlock --> " + name + " | Animation: " + (frameTime > 0));
@@ -349,7 +340,7 @@ public class AssetPackBuilder {
      * @param frameTime
      * @param frameSettings
      */
-    public static void createDoorBlock(String name, String itemTexture, String textures[], String[] overlays,
+    public static void createDoorBlock(String name, String itemTexture, String[] textures, String[] overlays,
             String[] colors, String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
 
         Main.LOG.debug("AssetPackBuilder.createDoorBlock --> " + name + " | Animation: " + (frameTime > 0));
@@ -376,7 +367,7 @@ public class AssetPackBuilder {
      * @param frameTime
      * @param frameSettings
      */
-    public static void createTrapdoorBlock(String name, String textures[], String[] overlays, String[] colors,
+    public static void createTrapdoorBlock(String name, String[] textures, String[] overlays, String[] colors,
             String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
 
         Main.LOG.debug("AssetPackBuilder.createTrapdoorBlock --> " + name + " | Animation: " + (frameTime > 0));
@@ -388,7 +379,7 @@ public class AssetPackBuilder {
 
     }
 
-    public static void createPressurePlateBlock(String name, String textures[], String[] overlays, String[] colors,
+    public static void createPressurePlateBlock(String name, String[] textures, String[] overlays, String[] colors,
             String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
 
         Main.LOG.debug("AssetPackBuilder.createPressurePlateBlock --> " + name + " | Animation: " + (frameTime > 0));
@@ -399,7 +390,7 @@ public class AssetPackBuilder {
                 PressurePlateResource.itemModel(name, builder));
     }
 
-    public static void createButtonBlock(String name, String textures[], String[] overlays, String[] colors,
+    public static void createButtonBlock(String name, String[] textures, String[] overlays, String[] colors,
             String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
 
         Main.LOG.debug("AssetPackBuilder.createButtonBlock --> " + name + " | Animation: " + (frameTime > 0));
@@ -431,7 +422,7 @@ public class AssetPackBuilder {
      * @param frameTime
      * @param frameSettings
      */
-    public static void createItem(String name, String textures[], String[] overlays, String[] colors, String mode,
+    public static void createItem(String name, String[] textures, String[] overlays, String[] colors, String mode,
             Boolean templateShading, Integer frameTime, String[] frameSettings) {
         Main.LOG.debug("AssetPackBuilder.createItem --> " + name + " | Animation: " + (frameTime > 0));
 
@@ -453,11 +444,93 @@ public class AssetPackBuilder {
      * @param frameTime
      * @param frameSettings
      */
-    public static void createHandheldItem(String name, String textures[], String[] overlays, String[] colors,
+    public static void createHandheldItem(String name, String[] textures, String[] overlays, String[] colors,
             String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
         Main.LOG.debug("AssetPackBuilder.createHandheldItem --> " + name + " | Animation: " + (frameTime > 0));
 
         write(name, HandheldResource.itemModel(name,
+                fetchAssets(name, "item", textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
+                builder));
+
+        Lang.addItem(name, StringUtil.wordCaps_repl(name));
+    }
+
+    /**
+     * 
+     * @param name1
+     * @param name2
+     * @param textures
+     * @param overlays
+     * @param colors
+     * @param mode
+     * @param templateShading
+     * @param frameTime
+     * @param frameSettings
+     */
+    public static void createTwoStepHandheldItem(String name1, String name2, String model, String predicateKey,
+            Integer predicateValue, String[][] textures, String[][] overlays, String[] colors, String mode,
+            Boolean templateShading, Integer frameTime, String[] frameSettings) {
+
+        Main.LOG.debug("AssetPackBuilder.createTwoStepHandheldItem --> " + name1 + " + " + name2 + " | Animation: "
+                + (frameTime > 0));
+
+        try {
+            String[] textureList1 = fetchAssets(name1, "item", textures[0], overlays[0], colors, mode, templateShading,
+                    frameTime, frameSettings);
+
+            String[] textureList2 = fetchAssets(name2, "item", textures[1], overlays[1], colors, mode, templateShading,
+                    frameTime, frameSettings);
+
+            write(name1, HandheldResource.itemModel_twoStep(name1, name2, model, predicateKey, predicateValue,
+                    textureList1, builder));
+
+            write(name2, HandheldResource.itemModel(name2, Main.MOD_ID + ":item/" + name1, textureList2, builder));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            Main.LOG.error(e);
+            return;
+        }
+
+        Lang.addItem(name1, StringUtil.wordCaps_repl(name1));
+    }
+
+    /**
+     * 
+     * @param name
+     * @param textures
+     * @param overlays
+     * @param colors
+     * @param mode
+     * @param templateShading
+     * @param frameTime
+     * @param frameSettings
+     */
+    public static void createShootableItem(String name, String[] textures, String[] overlays, String[] colors,
+            String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
+        Main.LOG.debug("AssetPackBuilder.createShootableItem --> " + name + " | Animation: " + (frameTime > 0));
+
+        write(name, ShootableResource.itemModel(name,
+                fetchAssets(name, "item", textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
+                builder));
+
+        Lang.addItem(name, StringUtil.wordCaps_repl(name));
+    }
+
+    /**
+     * 
+     * @param name
+     * @param textures
+     * @param overlays
+     * @param colors
+     * @param mode
+     * @param templateShading
+     * @param frameTime
+     * @param frameSettings
+     */
+    public static void createWearableItem(String name, String[] textures, String[] overlays, String[] colors,
+            String mode, Boolean templateShading, Integer frameTime, String[] frameSettings) {
+        Main.LOG.debug("AssetPackBuilder.createWearableItem --> " + name + " | Animation: " + (frameTime > 0));
+
+        write(name, WearableResource.itemModel(name,
                 fetchAssets(name, "item", textures, overlays, colors, mode, templateShading, frameTime, frameSettings),
                 builder));
 

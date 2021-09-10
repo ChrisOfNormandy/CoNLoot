@@ -142,27 +142,27 @@ public class CreationBase {
 
             String tooltype = config.getStringValue("harvest_tool");
             switch (tooltype) {
-            case "pickaxe": {
-                properties.harvestTool(ToolType.PICKAXE);
-                break;
-            }
-            case "axe": {
-                properties.harvestTool(ToolType.AXE);
-                break;
-            }
-            case "shovel": {
-                properties.harvestTool(ToolType.SHOVEL);
-                break;
-            }
-            case "hoe": {
-                properties.harvestTool(ToolType.HOE);
-                break;
-            }
-            default: {
-                Main.LOG.info(
-                        "Failed to find tooltype associated with " + tooltype + ". Defaulting to ToolType.PICKAXE.");
-                break;
-            }
+                case "pickaxe": {
+                    properties.harvestTool(ToolType.PICKAXE);
+                    break;
+                }
+                case "axe": {
+                    properties.harvestTool(ToolType.AXE);
+                    break;
+                }
+                case "shovel": {
+                    properties.harvestTool(ToolType.SHOVEL);
+                    break;
+                }
+                case "hoe": {
+                    properties.harvestTool(ToolType.HOE);
+                    break;
+                }
+                default: {
+                    Main.LOG.info("Failed to find tooltype associated with " + tooltype
+                            + ". Defaulting to ToolType.PICKAXE.");
+                    break;
+                }
             }
 
             Float friction = config.getDoubleValue("friction").floatValue();
@@ -254,127 +254,127 @@ public class CreationBase {
         String[] frames = config.getSubgroup("Animation").getStringListValue("frames").toArray(new String[0]);
 
         switch (config.getStringValue("block_model")) {
-        case "block": {
-            String subType = config.getStringValue("block_model_subtype");
+            case "block": {
+                String subType = config.getStringValue("block_model_subtype");
 
-            Main.LOG.info("Registering new block from config.");
-            Main.LOG.debug("Creating asset pack for " + name + " using: [" + textures.length + "] -> "
-                    + String.join(", ", textures));
+                Main.LOG.info("Registering new block from config.");
+                Main.LOG.debug("Creating asset pack for " + name + " using: [" + textures.length + "] -> "
+                        + String.join(", ", textures));
 
-            AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
-                    subType);
+                AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
+                        subType);
 
-            Main.LOG.debug("Registering " + name);
+                Main.LOG.debug("Registering " + name);
 
-            switch (subType) {
-            case "column": {
-                Main.LOG.debug("Subtype: " + subType);
-                ModBlock.Generic.createColumn(name, properties, blockGroup);
+                switch (subType) {
+                    case "column": {
+                        Main.LOG.debug("Subtype: " + subType);
+                        ModBlock.Generic.createColumn(name, properties, blockGroup);
+                        break;
+                    }
+                    default: {
+                        ModBlock.Generic.create(name, properties, blockGroup);
+                        break;
+                    }
+                }
+
                 break;
             }
-            default: {
-                ModBlock.Generic.create(name, properties, blockGroup);
+            case "slab": {
+                Main.LOG.info("Registering new slab from config.");
+                AssetPackBuilder.createSlabBlock(name,
+                        config.getSubgroup("Settings").getStringValue("double_stack_textures"), textures, overlays,
+                        colors, mode, templateShading, frameTime, frames);
+                ModBlock.Generic.createSlab(name, new Block(properties), blockGroup);
+
                 break;
             }
+            case "stairs": {
+                Main.LOG.info("Registering new stairs from config.");
+                AssetPackBuilder.createStairBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
+                        frames);
+                ModBlock.Generic.createStairs(name, new Block(properties), blockGroup);
+
+                break;
             }
+            case "wall": {
+                Main.LOG.info("Registering new wall from config.");
+                AssetPackBuilder.createWallBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
+                        frames);
+                ModBlock.Generic.createWall(name, new Block(properties), blockGroup);
 
-            break;
-        }
-        case "slab": {
-            Main.LOG.info("Registering new slab from config.");
-            AssetPackBuilder.createSlabBlock(name,
-                    config.getSubgroup("Settings").getStringValue("double_stack_textures"), textures, overlays, colors,
-                    mode, templateShading, frameTime, frames);
-            ModBlock.Generic.createSlab(name, new Block(properties), blockGroup);
+                break;
+            }
+            case "fence": {
+                Main.LOG.info("Registering new fence from config.");
+                AssetPackBuilder.createFenceBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
+                        frames);
+                ModBlock.Generic.createFence(name, new Block(properties), blockGroup);
 
-            break;
-        }
-        case "stairs": {
-            Main.LOG.info("Registering new stairs from config.");
-            AssetPackBuilder.createStairBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                    frames);
-            ModBlock.Generic.createStairs(name, new Block(properties), blockGroup);
+                break;
+            }
+            case "fence_gate": {
+                Main.LOG.info("Registering new fence gate from config.");
+                AssetPackBuilder.createFenceGateBlock(name, textures, overlays, colors, mode, templateShading,
+                        frameTime, frames);
+                ModBlock.RedstoneGeneric.createFenceGate(name, new Block(properties), blockGroup);
 
-            break;
-        }
-        case "wall": {
-            Main.LOG.info("Registering new wall from config.");
-            AssetPackBuilder.createWallBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                    frames);
-            ModBlock.Generic.createWall(name, new Block(properties), blockGroup);
+                break;
+            }
+            case "door": {
+                Main.LOG.info("Registering new door from config.");
+                AssetPackBuilder.createDoorBlock(name, config.getSubgroup("Settings").getStringValue("item_textures"),
+                        textures, overlays, colors, mode, templateShading, frameTime, frames);
+                ModBlock.RedstoneGeneric.createDoor(name, new Block(properties), blockGroup);
 
-            break;
-        }
-        case "fence": {
-            Main.LOG.info("Registering new fence from config.");
-            AssetPackBuilder.createFenceBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                    frames);
-            ModBlock.Generic.createFence(name, new Block(properties), blockGroup);
+                break;
+            }
+            case "trapdoor": {
+                Main.LOG.info("Registering new door from config.");
+                AssetPackBuilder.createTrapdoorBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
+                        frames);
+                ModBlock.RedstoneGeneric.createTrapdoor(name, new Block(properties), blockGroup);
 
-            break;
-        }
-        case "fence_gate": {
-            Main.LOG.info("Registering new fence gate from config.");
-            AssetPackBuilder.createFenceGateBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                    frames);
-            ModBlock.Generic.createFenceGate(name, new Block(properties), blockGroup);
+                break;
+            }
+            case "pressure_plate": {
+                Main.LOG.info("Registering new pressure plate from config.");
+                AssetPackBuilder.createPressurePlateBlock(name, textures, overlays, colors, mode, templateShading,
+                        frameTime, frames);
+                if (material.equals("wood"))
+                    ModBlock.RedstoneGeneric.createPressurePlate_wood(name, new Block(properties), blockGroup);
+                else
+                    ModBlock.RedstoneGeneric.createPressurePlate_stone(name, new Block(properties), blockGroup);
 
-            break;
-        }
-        case "door": {
-            Main.LOG.info("Registering new door from config.");
-            AssetPackBuilder.createDoorBlock(name, config.getSubgroup("Settings").getStringValue("item_textures"),
-                    textures, overlays, colors, mode, templateShading, frameTime, frames);
-            ModBlock.Generic.createDoor(name, new Block(properties), blockGroup);
+                break;
+            }
+            case "button": {
+                Main.LOG.info("Registering new button from config.");
+                AssetPackBuilder.createButtonBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
+                        frames);
+                if (material.equals("wood"))
+                    ModBlock.RedstoneGeneric.createButton_wood(name, new Block(properties), blockGroup);
+                else
+                    ModBlock.RedstoneGeneric.createButton_stone(name, new Block(properties), blockGroup);
 
-            break;
-        }
-        case "trapdoor": {
-            Main.LOG.info("Registering new door from config.");
-            AssetPackBuilder.createTrapdoorBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                    frames);
-            ModBlock.Generic.createTrapdoor(name, new Block(properties), blockGroup);
+                break;
+            }
+            case "barrel": {
+                Main.LOG.info("Registering new barrel from config.");
+                AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
+                        config.getStringValue("block_model_subtype"));
+                ModBlock.Inventory.createBarrel(name, new Block(properties), blockGroup);
 
-            break;
-        }
-        case "pressure_plate": {
-            Main.LOG.info("Registering new pressure plate from config.");
-            AssetPackBuilder.createPressurePlateBlock(name, textures, overlays, colors, mode, templateShading,
-                    frameTime, frames);
-            if (material.equals("wood"))
-                ModBlock.Generic.createPressurePlate_wood(name, new Block(properties), blockGroup);
-            else
-                ModBlock.Generic.createPressurePlate_stone(name, new Block(properties), blockGroup);
+                break;
+            }
+            case "shulker": {
+                Main.LOG.info("Registering new shulker from config.");
+                AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
+                        config.getStringValue("block_model_subtype"));
+                ModBlock.Inventory.createShulker(name, DyeColor.BLACK, new Block(properties), blockGroup);
 
-            break;
-        }
-        case "button": {
-            Main.LOG.info("Registering new button from config.");
-            AssetPackBuilder.createButtonBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                    frames);
-            if (material.equals("wood"))
-                ModBlock.Generic.createButton_wood(name, new Block(properties), blockGroup);
-            else
-                ModBlock.Generic.createButton_stone(name, new Block(properties), blockGroup);
-
-            break;
-        }
-        case "barrel": {
-            Main.LOG.info("Registering new barrel from config.");
-            AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
-                    config.getStringValue("block_model_subtype"));
-            ModBlock.Interactive.createBarrel(name, new Block(properties), blockGroup);
-
-            break;
-        }
-        case "shulker": {
-            Main.LOG.info("Registering new shulker from config.");
-            AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
-                    config.getStringValue("block_model_subtype"));
-            ModBlock.Interactive.createShulker(name, DyeColor.BLACK, new Block(properties), blockGroup);
-
-            break;
-        }
+                break;
+            }
         }
 
         AssetPackBuilder.Lang.addBlock(name, StringUtil.wordCaps_repl(name));

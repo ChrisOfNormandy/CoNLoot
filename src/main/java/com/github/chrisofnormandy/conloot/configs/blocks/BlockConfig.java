@@ -9,42 +9,34 @@ import com.github.chrisofnormandy.conloot.Patterns;
 public class BlockConfig {
     private static String getSound(String material) {
         switch (material) {
-        case "wood":
-            return "wood";
-        case "stone":
-            return "stone";
+            case "wood":
+                return "wood";
+            case "stone":
+                return "stone";
         }
         return "stone";
     }
 
     private static String getTool(String material) {
         switch (material) {
-        case "wood":
-            return "axe";
-        case "stone":
-            return "pickaxe";
+            case "wood":
+                return "axe";
+            case "stone":
+                return "pickaxe";
         }
         return "pickaxe";
     }
 
-    // Where you're leaving off:
-    /*
-     * 
-     * Make block configs accept the following: - A default color - A default block
-     * type - A default model for said block type.
-     * 
-     */
-
     public static void create(String name, Config cfg, String blockType) {
-        create(name, cfg, blockType, "stone", "default", "black");
+        create(name, cfg, blockType, "stone", "default", "white");
     }
 
     public static void create(String name, Config cfg, String blockType, String material) {
-        create(name, cfg, blockType, material, "default", "black");
+        create(name, cfg, blockType, material, "default", "white");
     }
 
     public static void create(String name, Config cfg, String blockType, String material, String subtype) {
-        create(name, cfg, blockType, material, subtype, "black");
+        create(name, cfg, blockType, material, subtype, "white");
     }
 
     public static void create(String name, Config cfg, String blockType, String material, String subtype,
@@ -114,16 +106,16 @@ public class BlockConfig {
         ConfigGroup settings = new ConfigGroup();
 
         switch (blockType) {
-        case "slab": {
-            settings.addString("double_stack_textures", name.replace("_slab", ""),
-                    "Texture names for double stacked slabs. Formatted with mod ID will use existing assets and will not combine.");
-            break;
-        }
-        case "door": {
-            settings.addString("item_textures", "metal_door_item>" + name,
-                    "Texture names for door item. Formatted with mod ID will use existing assets and will not combine.");
-            break;
-        }
+            case "slab": {
+                settings.addString("double_stack_textures", name.replace("_slab", ""),
+                        "Texture names for double stacked slabs. Formatted with mod ID will use existing assets and will not combine.");
+                break;
+            }
+            case "door": {
+                settings.addString("item_textures", "metal_door_item>" + name,
+                        "Texture names for door item. Formatted with mod ID will use existing assets and will not combine.");
+                break;
+            }
         }
 
         cfg.addSubgroup("Settings", settings);

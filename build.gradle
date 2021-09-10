@@ -78,7 +78,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.0'
-    implementation 'com.github.chrisofnormandy:conlib:1.4:deobf'
+    implementation 'com.github.chrisofnormandy:conlib:1.5:deobf'
 }
 
 jar {

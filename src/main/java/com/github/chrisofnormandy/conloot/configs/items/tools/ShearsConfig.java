@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conloot.configs.items.GenericHandheldConfig;
 
-public class HoeConfig {
+public class ShearsConfig {
     public static Config create(String name, Config config) {
         return GenericHandheldConfig.create(name, config);
     }

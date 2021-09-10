@@ -37,6 +37,55 @@ public class ModItems {
         CreationBase.registerHoe(name, config, toolGroup);
     }
 
+    private static void flintAndSteelSetup(String name, Config config, ItemGroup toolGroup) {
+        CreationBase.registerFlintAndSteel(name, config, toolGroup);
+    }
+
+    private static void fishingRodSetup(String name, Config config, ItemGroup toolGroup) {
+        CreationBase.registerFishingRod(name, config, toolGroup);
+    }
+
+    private static void shearsSetup(String name, Config config, ItemGroup toolGroup) {
+        CreationBase.registerShears(name, config, toolGroup);
+    }
+
+    private static void swordSetup(String name, Config config, ItemGroup toolGroup) {
+        CreationBase.registerSword(name, config, toolGroup);
+    }
+
+    private static void shieldSetup(String name, Config config, ItemGroup toolGroup) {
+        CreationBase.registerShield(name, config, toolGroup);
+    }
+
+    private static void bowSetup(String name, Config config, ItemGroup toolGroup) {
+        CreationBase.registerBow(name, config, toolGroup);
+    }
+
+    private static void crossbowSetup(String name, Config config, ItemGroup toolGroup) {
+        CreationBase.registerCrossbow(name, config, toolGroup);
+    }
+
+    private static void arrowSetup(String name, Config config, ItemGroup toolGroup) {
+        CreationBase.registerArrow(name, config, toolGroup);
+        DataPackBuilder.Tags.addArrow(name);
+    }
+
+    private static void helmetSetup(String name, Config config, ItemGroup armourGroup) {
+        CreationBase.registerHelmet(name, config, armourGroup);
+    }
+
+    private static void chestplateSetup(String name, Config config, ItemGroup armourGroup) {
+        CreationBase.registerChestplate(name, config, armourGroup);
+    }
+
+    private static void leggingsSetup(String name, Config config, ItemGroup armourGroup) {
+        CreationBase.registerLeggings(name, config, armourGroup);
+    }
+
+    private static void bootsSetup(String name, Config config, ItemGroup armourGroup) {
+        CreationBase.registerBoots(name, config, armourGroup);
+    }
+
     public static void Init() {
         Main.config.itemContent.forEach((String key, HashMap<String, Config> map) -> {
             if (map.isEmpty()) {
@@ -72,6 +121,76 @@ public class ModItems {
                         case "hoe": {
                             map.forEach((String name, Config config) -> hoeSetup(name, config,
                                     CustomItemGroup.cache.get("tools")));
+                            break;
+                        }
+                        case "flint_and_steel": {
+                            map.forEach((String name, Config config) -> flintAndSteelSetup(name, config,
+                                    CustomItemGroup.cache.get("tools")));
+                            break;
+                        }
+                        case "fishing_rod": {
+                            map.forEach((String name, Config config) -> fishingRodSetup(name, config,
+                                    CustomItemGroup.cache.get("tools")));
+                            break;
+                        }
+                        case "shears": {
+                            map.forEach((String name, Config config) -> shearsSetup(name, config,
+                                    CustomItemGroup.cache.get("tools")));
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case "weapon": {
+                    switch (keyPath[1]) {
+                        case "sword": {
+                            map.forEach((String name, Config config) -> swordSetup(name, config,
+                                    CustomItemGroup.cache.get("weapons")));
+                            break;
+                        }
+                        case "shield": {
+                            map.forEach((String name, Config config) -> shieldSetup(name, config,
+                                    CustomItemGroup.cache.get("weapons")));
+                            break;
+                        }
+                        case "bow": {
+                            map.forEach((String name, Config config) -> bowSetup(name, config,
+                                    CustomItemGroup.cache.get("weapons")));
+                            break;
+                        }
+                        case "crossbow": {
+                            map.forEach((String name, Config config) -> crossbowSetup(name, config,
+                                    CustomItemGroup.cache.get("weapons")));
+                            break;
+                        }
+                        case "arrow": {
+                            map.forEach((String name, Config config) -> arrowSetup(name, config,
+                                    CustomItemGroup.cache.get("weapons")));
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case "wearable": {
+                    switch (keyPath[1]) {
+                        case "head": {
+                            map.forEach((String name, Config config) -> helmetSetup(name, config,
+                                    CustomItemGroup.cache.get("armour")));
+                            break;
+                        }
+                        case "chest": {
+                            map.forEach((String name, Config config) -> chestplateSetup(name, config,
+                                    CustomItemGroup.cache.get("armour")));
+                            break;
+                        }
+                        case "legs": {
+                            map.forEach((String name, Config config) -> leggingsSetup(name, config,
+                                    CustomItemGroup.cache.get("armour")));
+                            break;
+                        }
+                        case "feet": {
+                            map.forEach((String name, Config config) -> bootsSetup(name, config,
+                                    CustomItemGroup.cache.get("armour")));
                             break;
                         }
                     }

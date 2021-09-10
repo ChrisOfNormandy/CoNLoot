@@ -21,17 +21,21 @@ public class CustomItemGroup {
 
         cache.put("tools", ItemGroup.TAB_TOOLS);
 
+        cache.put("weapons", ItemGroup.TAB_COMBAT);
+
+        cache.put("armour", ItemGroup.TAB_COMBAT);
+
         cache.put("decorations", ItemGroup.TAB_DECORATIONS);
     }
 
     public static void registerFromConfig(String name, Config config) {
         Main.LOG.info("Generating new creative tab:" + name);
-        
+
         String itemName = config.getStringValue("item_name");
         String tabName = config.getStringValue("tab_name");
 
         AssetPackBuilder.createBlockItem(itemName);
-        
+
         cache.put(name, CreativeTab.createGroup(tabName, Items.register(itemName)));
 
         AssetPackBuilder.Lang.addGroup(name, StringUtil.wordCaps_repl(tabName));

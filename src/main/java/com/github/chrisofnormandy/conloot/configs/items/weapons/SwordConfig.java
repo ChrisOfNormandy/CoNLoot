@@ -1,11 +1,11 @@
-package com.github.chrisofnormandy.conloot.configs.items.tools;
+package com.github.chrisofnormandy.conloot.configs.items.weapons;
 
 import java.util.ArrayList;
 
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conloot.configs.items.GenericHandheldConfig;
 
-public class HoeConfig {
+public class SwordConfig {
     public static Config create(String name, Config config) {
         return GenericHandheldConfig.create(name, config);
     }
