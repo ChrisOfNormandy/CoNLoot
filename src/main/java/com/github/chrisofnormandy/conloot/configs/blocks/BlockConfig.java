@@ -42,8 +42,15 @@ public class BlockConfig {
     public static void create(String name, Config cfg, String blockType, String material, String subtype,
             String color) {
 
+        // Overrides
+        ConfigGroup overrides = new ConfigGroup();
+        overrides.addFlag("use_vanilla", true,
+                "When true, ignores properties of this config and uses vanilla equivalent properties (barrel -> minecraft:barrel).");
+
         ArrayList<String> colorList = new ArrayList<String>();
         colorList.add(Patterns.getColor(color));
+
+        cfg.addSubgroup("Overrides", overrides);
 
         // Block properties
         cfg.addFlag("no_collission", false, "When true, sets collision and occlusion to false.");

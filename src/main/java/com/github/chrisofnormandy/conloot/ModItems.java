@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.config.Config;
-import com.github.chrisofnormandy.conlib.registry.Items;
+import com.github.chrisofnormandy.conlib.registry.ItemRegistry;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
 import com.github.chrisofnormandy.conloot.asset_builder.DataPackBuilder;
 import com.github.chrisofnormandy.conloot.content.items.CreationBase;
@@ -17,7 +17,7 @@ public class ModItems {
     public static JsonBuilder jsonBuilder = new JsonBuilder();
 
     private static void plainItemSetup(String name, Config config, ItemGroup itemGroup) {
-        Items.register(name, new Item.Properties(), itemGroup);
+        ItemRegistry.register(name, new Item.Properties(), itemGroup);
         CreationBase.registerItemFromConfig(name, config);
     }
 

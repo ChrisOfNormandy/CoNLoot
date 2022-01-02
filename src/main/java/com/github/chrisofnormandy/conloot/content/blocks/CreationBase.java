@@ -3,15 +3,21 @@ package com.github.chrisofnormandy.conloot.content.blocks;
 import java.util.HashMap;
 import java.util.function.ToIntFunction;
 
-import com.github.chrisofnormandy.conlib.block.ModBlock;
+import com.github.chrisofnormandy.conlib.block.decoration.Storage;
+import com.github.chrisofnormandy.conlib.block.generic.Barricades;
+import com.github.chrisofnormandy.conlib.block.generic.Partial;
+import com.github.chrisofnormandy.conlib.block.generic.Standard;
+import com.github.chrisofnormandy.conlib.block.redstone.Doors;
+import com.github.chrisofnormandy.conlib.block.redstone.Redstone;
 import com.github.chrisofnormandy.conlib.common.StringUtil;
 import com.github.chrisofnormandy.conlib.config.Config;
+import com.github.chrisofnormandy.conlib.config.ConfigGroup;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
 import com.github.chrisofnormandy.conloot.asset_builder.DataPackBuilder;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.AbstractBlock.Properties;
 import net.minecraft.block.material.Material;
@@ -123,122 +129,126 @@ public class CreationBase {
     public static void registerBlockFromConfig(String name, Config config, ItemGroup blockGroup) {
         Main.LOG.info("Generating new block:" + name);
 
-        Properties properties = Properties.of(Material.AIR);
-        String material;
+        ConfigGroup overrides = config.getSubgroup("Overrides");
 
-        try {
-            material = config.getStringValue("material");
+        Properties properties = Properties.copy(Blocks.AIR);
+        String material = "air";
 
-            if (materials.containsKey(material))
-                properties = Properties.of(materials.get(material));
+        if (overrides.getFlagValue("use_vanilla")) {
+            try {
+                material = config.getStringValue("material");
 
-            if (config.getFlagValue("no_collission"))
-                properties.noCollission();
+                if (materials.containsKey(material))
+                    properties = Properties.of(materials.get(material));
 
-            if (config.getFlagValue("no_occlusion"))
-                properties.noOcclusion();
+                if (config.getFlagValue("no_collission"))
+                    properties.noCollission();
 
-            properties.harvestLevel(config.getIntegerValue("harvest_level"));
+                if (config.getFlagValue("no_occlusion"))
+                    properties.noOcclusion();
 
-            String tooltype = config.getStringValue("harvest_tool");
-            switch (tooltype) {
-                case "pickaxe": {
-                    properties.harvestTool(ToolType.PICKAXE);
-                    break;
-                }
-                case "axe": {
-                    properties.harvestTool(ToolType.AXE);
-                    break;
-                }
-                case "shovel": {
-                    properties.harvestTool(ToolType.SHOVEL);
-                    break;
-                }
-                case "hoe": {
-                    properties.harvestTool(ToolType.HOE);
-                    break;
-                }
-                default: {
-                    Main.LOG.info("Failed to find tooltype associated with " + tooltype
-                            + ". Defaulting to ToolType.PICKAXE.");
-                    break;
-                }
-            }
+                properties.harvestLevel(config.getIntegerValue("harvest_level"));
 
-            Float friction = config.getDoubleValue("friction").floatValue();
-            if (friction > 1)
-                throw new Exception("Friction should be a decimal value between 0 and 1.");
-            if (friction >= 0)
-                properties.friction(friction);
-
-            Float speedFactor = config.getDoubleValue("speed_factor").floatValue();
-            if (speedFactor > 1)
-                throw new Exception("Speed factor should be a decimal value between 0 and 1.");
-            if (speedFactor >= 0)
-                properties.speedFactor(speedFactor);
-
-            Float jumpFactor = config.getDoubleValue("jump_factor").floatValue();
-            if (jumpFactor > 1)
-                throw new Exception("Jump factor should be a decimal value between 0 and 1.");
-            if (jumpFactor >= 0)
-                properties.jumpFactor(jumpFactor);
-
-            String sound = config.getStringValue("sound");
-            if (sounds.containsKey(sound))
-                properties.sound(sounds.get(sound));
-
-            Integer lightLevel = config.getIntegerValue("light_level");
-            if (lightLevel >= 0)
-                properties.lightLevel(new ToIntFunction<BlockState>() {
-                    @Override
-                    public int applyAsInt(BlockState value) {
-                        return lightLevel;
+                String tooltype = config.getStringValue("harvest_tool");
+                switch (tooltype) {
+                    case "pickaxe": {
+                        properties.harvestTool(ToolType.PICKAXE);
+                        break;
                     }
-                });
+                    case "axe": {
+                        properties.harvestTool(ToolType.AXE);
+                        break;
+                    }
+                    case "shovel": {
+                        properties.harvestTool(ToolType.SHOVEL);
+                        break;
+                    }
+                    case "hoe": {
+                        properties.harvestTool(ToolType.HOE);
+                        break;
+                    }
+                    default: {
+                        Main.LOG.info("Failed to find tooltype associated with " + tooltype
+                                + ". Defaulting to ToolType.PICKAXE.");
+                        break;
+                    }
+                }
 
-            Float destroyTime = config.getDoubleValue("destroy_time").floatValue();
-            Float explosionResistance = config.getDoubleValue("explosion_resistance").floatValue();
+                Float friction = config.getDoubleValue("friction").floatValue();
+                if (friction > 1)
+                    throw new Exception("Friction should be a decimal value between 0 and 1.");
+                if (friction >= 0)
+                    properties.friction(friction);
 
-            if (destroyTime >= 0) {
-                if (explosionResistance >= 0)
-                    properties.strength(destroyTime, explosionResistance);
-                else
-                    properties.strength(destroyTime);
+                Float speedFactor = config.getDoubleValue("speed_factor").floatValue();
+                if (speedFactor > 1)
+                    throw new Exception("Speed factor should be a decimal value between 0 and 1.");
+                if (speedFactor >= 0)
+                    properties.speedFactor(speedFactor);
+
+                Float jumpFactor = config.getDoubleValue("jump_factor").floatValue();
+                if (jumpFactor > 1)
+                    throw new Exception("Jump factor should be a decimal value between 0 and 1.");
+                if (jumpFactor >= 0)
+                    properties.jumpFactor(jumpFactor);
+
+                String sound = config.getStringValue("sound");
+                if (sounds.containsKey(sound))
+                    properties.sound(sounds.get(sound));
+
+                Integer lightLevel = config.getIntegerValue("light_level");
+                if (lightLevel >= 0)
+                    properties.lightLevel(new ToIntFunction<BlockState>() {
+                        @Override
+                        public int applyAsInt(BlockState value) {
+                            return lightLevel;
+                        }
+                    });
+
+                Float destroyTime = config.getDoubleValue("destroy_time").floatValue();
+                Float explosionResistance = config.getDoubleValue("explosion_resistance").floatValue();
+
+                if (destroyTime >= 0) {
+                    if (explosionResistance >= 0)
+                        properties.strength(destroyTime, explosionResistance);
+                    else
+                        properties.strength(destroyTime);
+                }
+
+                if (config.getFlagValue("random_ticks"))
+                    properties.randomTicks();
+
+                if (config.getFlagValue("dynamic_shape"))
+                    properties.dynamicShape();
+
+                if (config.getFlagValue("no_drops"))
+                    properties.noDrops();
+
+                if (config.getFlagValue("is_air"))
+                    properties.air();
+
+                // Valid spawn
+
+                // Redstone conductor
+
+                // Suffocating
+
+                // View blocking
+
+                // Post processing
+
+                if (config.getFlagValue("require_correct_tool"))
+                    properties.requiresCorrectToolForDrops();
+
+                // Material color
+
+                // Additional functions based on block model setting.
+            } catch (Exception err) {
+                Main.LOG.error("Failed to create block properties from config. Check values.");
+                err.printStackTrace();
+
+                return; // Escape without creating block or assets.
             }
-
-            if (config.getFlagValue("random_ticks"))
-                properties.randomTicks();
-
-            if (config.getFlagValue("dynamic_shape"))
-                properties.dynamicShape();
-
-            if (config.getFlagValue("no_drops"))
-                properties.noDrops();
-
-            if (config.getFlagValue("is_air"))
-                properties.air();
-
-            // Valid spawn
-
-            // Redstone conductor
-
-            // Suffocating
-
-            // View blocking
-
-            // Post processing
-
-            if (config.getFlagValue("require_correct_tool"))
-                properties.requiresCorrectToolForDrops();
-
-            // Material color
-
-            // Additional functions based on block model setting.
-        } catch (Exception err) {
-            Main.LOG.error("Failed to create block properties from config. Check values.");
-            err.printStackTrace();
-
-            return; // Escape without creating block or assets.
         }
 
         // Block assets
@@ -253,11 +263,13 @@ public class CreationBase {
         Integer frameTime = config.getSubgroup("Animation").getIntegerValue("frametime");
         String[] frames = config.getSubgroup("Animation").getStringListValue("frames").toArray(new String[0]);
 
-        switch (config.getStringValue("block_model")) {
+        String blockModel = config.getStringValue("block_model");
+        Main.LOG.info("Registering new " + blockModel + " from config.");
+
+        switch (blockModel) {
             case "block": {
                 String subType = config.getStringValue("block_model_subtype");
 
-                Main.LOG.info("Registering new block from config.");
                 Main.LOG.debug("Creating asset pack for " + name + " using: [" + textures.length + "] -> "
                         + String.join(", ", textures));
 
@@ -269,109 +281,162 @@ public class CreationBase {
                 switch (subType) {
                     case "column": {
                         Main.LOG.debug("Subtype: " + subType);
-                        ModBlock.Generic.createColumn(name, properties, blockGroup);
+                        if (properties == null)
+                            Standard.createColumn(name, Properties.copy(Blocks.STONE), blockGroup);
+                        else
+                            Standard.createColumn(name, properties, blockGroup);
+                        break;
+                    }
+                    case "falling": {
+                        Main.LOG.debug("Subtype: " + subType);
+                        if (properties == null)
+                            Standard.createFalling(name, Properties.copy(Blocks.STONE), blockGroup);
+                        else
+                            Standard.createColumn(name, properties, blockGroup);
                         break;
                     }
                     default: {
-                        ModBlock.Generic.create(name, properties, blockGroup);
+                        Standard.create(name, properties, blockGroup);
                         break;
                     }
                 }
 
                 break;
             }
+
             case "slab": {
-                Main.LOG.info("Registering new slab from config.");
                 AssetPackBuilder.createSlabBlock(name,
                         config.getSubgroup("Settings").getStringValue("double_stack_textures"), textures, overlays,
-                        colors, mode, templateShading, frameTime, frames);
-                ModBlock.Generic.createSlab(name, new Block(properties), blockGroup);
+                        colors,
+                        mode, templateShading, frameTime, frames);
+
+                if (properties == null)
+                    Partial.create_slab(name, Properties.copy(Blocks.STONE), blockGroup);
+                else
+                    Partial.create_slab(name, properties, blockGroup);
 
                 break;
             }
+
             case "stairs": {
-                Main.LOG.info("Registering new stairs from config.");
                 AssetPackBuilder.createStairBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
                         frames);
-                ModBlock.Generic.createStairs(name, new Block(properties), blockGroup);
+
+                if (properties == null)
+                    Partial.create_stairs(name, Properties.copy(Blocks.STONE), blockGroup);
+                else
+                    Partial.create_stairs(name, properties, blockGroup);
 
                 break;
             }
             case "wall": {
-                Main.LOG.info("Registering new wall from config.");
                 AssetPackBuilder.createWallBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
                         frames);
-                ModBlock.Generic.createWall(name, new Block(properties), blockGroup);
+
+                if (properties == null)
+                    Barricades.create_wall(name, Properties.copy(Blocks.STONE), blockGroup);
+                else
+                    Barricades.create_wall(name, properties, blockGroup);
 
                 break;
             }
+
             case "fence": {
-                Main.LOG.info("Registering new fence from config.");
                 AssetPackBuilder.createFenceBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
                         frames);
-                ModBlock.Generic.createFence(name, new Block(properties), blockGroup);
+
+                if (properties == null)
+                    Barricades.create_fence(name, Properties.copy(Blocks.OAK_PLANKS), blockGroup);
+                else
+                    Barricades.create_fence(name, properties, blockGroup);
 
                 break;
             }
+
             case "fence_gate": {
-                Main.LOG.info("Registering new fence gate from config.");
                 AssetPackBuilder.createFenceGateBlock(name, textures, overlays, colors, mode, templateShading,
-                        frameTime, frames);
-                ModBlock.RedstoneGeneric.createFenceGate(name, new Block(properties), blockGroup);
+                        frameTime,
+                        frames);
+
+                if (properties == null)
+                    Doors.create_fenceGate(name, blockGroup);
+                else
+                    Doors.create_fenceGate(name, properties, blockGroup);
 
                 break;
             }
+
             case "door": {
-                Main.LOG.info("Registering new door from config.");
                 AssetPackBuilder.createDoorBlock(name, config.getSubgroup("Settings").getStringValue("item_textures"),
                         textures, overlays, colors, mode, templateShading, frameTime, frames);
-                ModBlock.RedstoneGeneric.createDoor(name, new Block(properties), blockGroup);
+
+                if (properties == null)
+                    Doors.create_door(name, blockGroup);
+                else
+                    Doors.create_door(name, properties, blockGroup);
 
                 break;
             }
+
             case "trapdoor": {
-                Main.LOG.info("Registering new door from config.");
                 AssetPackBuilder.createTrapdoorBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
                         frames);
-                ModBlock.RedstoneGeneric.createTrapdoor(name, new Block(properties), blockGroup);
+
+                if (properties == null)
+                    Doors.create_trapdoor(name, blockGroup);
+                else
+                    Doors.create_trapdoor(name, properties, blockGroup);
 
                 break;
             }
+
             case "pressure_plate": {
-                Main.LOG.info("Registering new pressure plate from config.");
                 AssetPackBuilder.createPressurePlateBlock(name, textures, overlays, colors, mode, templateShading,
                         frameTime, frames);
-                if (material.equals("wood"))
-                    ModBlock.RedstoneGeneric.createPressurePlate_wood(name, new Block(properties), blockGroup);
-                else
-                    ModBlock.RedstoneGeneric.createPressurePlate_stone(name, new Block(properties), blockGroup);
+
+                if (material.equals("wood")) {
+                    if (properties == null)
+                        Redstone.create_pressurePlate_wood(name, blockGroup);
+                    else
+                        Redstone.create_pressurePlate_wood(name, properties, blockGroup);
+                } else if (material.equals("stone")) {
+                    if (properties == null)
+                        Redstone.create_pressurePlate_stone(name, blockGroup);
+                    else
+                        Redstone.create_pressurePlate_stone(name, properties, blockGroup);
+                } else {
+                    if (properties == null)
+                        Redstone.create_pressurePlate_weighted(name, 10, blockGroup);
+                    else
+                        Redstone.create_pressurePlate_weighted(name, 10, properties, blockGroup);
+                }
 
                 break;
             }
+
             case "button": {
-                Main.LOG.info("Registering new button from config.");
                 AssetPackBuilder.createButtonBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
                         frames);
                 if (material.equals("wood"))
-                    ModBlock.RedstoneGeneric.createButton_wood(name, new Block(properties), blockGroup);
+                    Redstone.create_button_wood(name, properties, blockGroup);
                 else
-                    ModBlock.RedstoneGeneric.createButton_stone(name, new Block(properties), blockGroup);
+                    Redstone.create_button_stone(name, properties, blockGroup);
 
                 break;
             }
+
             case "barrel": {
-                Main.LOG.info("Registering new barrel from config.");
                 AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
                         config.getStringValue("block_model_subtype"));
-                ModBlock.Inventory.createBarrel(name, new Block(properties), blockGroup);
+                Storage.create_barrel(name, properties, blockGroup);
 
                 break;
             }
+
             case "shulker": {
-                Main.LOG.info("Registering new shulker from config.");
                 AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
                         config.getStringValue("block_model_subtype"));
-                ModBlock.Inventory.createShulker(name, DyeColor.BLACK, new Block(properties), blockGroup);
+                Storage.create_shulker(name, DyeColor.BLACK, properties, blockGroup);
 
                 break;
             }

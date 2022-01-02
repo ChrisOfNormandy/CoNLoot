@@ -65,8 +65,6 @@ public class AssetPackBuilder {
 
         String path = getModPath("textures/" + type);
 
-        Pattern replPattern = Pattern.compile("[\\w\\d]+>[\\w\\d]+");
-
         String imageName;
 
         String tex = texture.replace("@", Main.MOD_ID).replace("%", name);
@@ -78,7 +76,7 @@ public class AssetPackBuilder {
         } else
             tex = tex.replace("&", name.split("_")[0]);
 
-        if (replPattern.matcher(tex).find()) { // The texture name provided has an alias.
+        if (Patterns.replPattern.matcher(tex).find()) { // The texture name provided has an alias.
             String[] s = tex.split(">");
             String assetName = s[1];
 

@@ -4,9 +4,9 @@ import com.github.chrisofnormandy.conlib.collections.Quartet;
 import com.github.chrisofnormandy.conlib.common.ArrayUtil;
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.config.ConfigGroup;
-import com.github.chrisofnormandy.conlib.registry.Tools;
-import com.github.chrisofnormandy.conlib.registry.Weapons;
-import com.github.chrisofnormandy.conlib.registry.Wearable;
+import com.github.chrisofnormandy.conlib.registry.ToolRegistry;
+import com.github.chrisofnormandy.conlib.registry.WeaponRegistry;
+import com.github.chrisofnormandy.conlib.registry.WearableRegistry;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
 
@@ -167,88 +167,88 @@ public class CreationBase {
     // Tools
     public static void registerPickaxe(String name, Config config, ItemGroup toolGroup) {
         Quartet<ItemTier, Integer, Float, Properties> v = getToolValues(name, config);
-        Tools.registerPickaxe(name, v.w, v.x, v.y, v.z, toolGroup);
+        ToolRegistry.registerPickaxe(name, v.w, v.x, v.y, v.z, toolGroup);
         registerHandheldItemFromConfig(name, config);
     }
 
     public static void registerShovel(String name, Config config, ItemGroup toolGroup) {
         Quartet<ItemTier, Integer, Float, Properties> v = getToolValues(name, config);
-        Tools.registerShovel(name, v.w, v.x, v.y, v.z, toolGroup);
+        ToolRegistry.registerShovel(name, v.w, v.x, v.y, v.z, toolGroup);
         registerHandheldItemFromConfig(name, config);
     }
 
     public static void registerAxe(String name, Config config, ItemGroup toolGroup) {
         Quartet<ItemTier, Integer, Float, Properties> v = getToolValues(name, config);
-        Tools.registerAxe(name, v.w, v.x, v.y, v.z, toolGroup);
+        ToolRegistry.registerAxe(name, v.w, v.x, v.y, v.z, toolGroup);
         registerHandheldItemFromConfig(name, config);
     }
 
     public static void registerHoe(String name, Config config, ItemGroup toolGroup) {
         Quartet<ItemTier, Integer, Float, Properties> v = getToolValues(name, config);
-        Tools.registerHoe(name, v.w, v.x, v.y, v.z, toolGroup);
+        ToolRegistry.registerHoe(name, v.w, v.x, v.y, v.z, toolGroup);
         registerHandheldItemFromConfig(name, config);
     }
 
     public static void registerFlintAndSteel(String name, Config config, ItemGroup toolGroup) {
-        Tools.registerFlintAndSteel(name, new Properties(), toolGroup);
+        ToolRegistry.registerFlintAndSteel(name, new Properties(), toolGroup);
         registerHandheldItemFromConfig(name, config);
     }
 
     public static void registerFishingRod(String name, Config config, ItemGroup toolGroup) {
-        Tools.registerFishingRod(name, new Properties(), toolGroup);
+        ToolRegistry.registerFishingRod(name, new Properties(), toolGroup);
         registerTwoStageHandheldItemFromConfig(name, name + "_cast", config);
     }
 
     public static void registerShears(String name, Config config, ItemGroup toolGroup) {
-        Tools.registerShearsItem(name, new Properties(), toolGroup);
+        ToolRegistry.registerShearsItem(name, new Properties(), toolGroup);
         registerHandheldItemFromConfig(name, config);
     }
 
     // Weapons
     public static void registerSword(String name, Config config, ItemGroup weaponGroup) {
         Quartet<ItemTier, Integer, Float, Properties> v = getToolValues(name, config);
-        Weapons.registerSword(name, v.w, v.x, v.y, v.z, weaponGroup);
+        WeaponRegistry.registerSword(name, v.w, v.x, v.y, v.z, weaponGroup);
         registerHandheldItemFromConfig(name, config);
     }
 
     public static void registerShield(String name, Config config, ItemGroup weaponGroup) {
-        Weapons.registerShield(name, new Properties(), weaponGroup);
+        WeaponRegistry.registerShield(name, new Properties(), weaponGroup);
         registerItemFromConfig(name, config);
     }
 
     public static void registerBow(String name, Config config, ItemGroup weaponGroup) {
-        Weapons.registerBow(name, new Properties(), weaponGroup);
+        WeaponRegistry.registerBow(name, new Properties(), weaponGroup);
         registerShootableItemFromConfig(name, config);
     }
 
     public static void registerCrossbow(String name, Config config, ItemGroup weaponGroup) {
-        Weapons.registerCrossbow(name, new Properties(), weaponGroup);
+        WeaponRegistry.registerCrossbow(name, new Properties(), weaponGroup);
         registerShootableItemFromConfig(name, config);
     }
 
     public static void registerArrow(String name, Config config, ItemGroup weaponGroup) {
-        Weapons.registerArrow(name, new Properties(), weaponGroup);
+        WeaponRegistry.registerArrow(name, new Properties(), weaponGroup);
         registerItemFromConfig(name, config);
     }
 
     // Armour
     public static void registerHelmet(String name, Config config, ItemGroup armourGroup) {
-        Wearable.registerHead(name, new Properties(), armourGroup);
+        WearableRegistry.registerHead(name, new Properties(), armourGroup);
         registerItemFromConfig(name, config);
     }
 
     public static void registerChestplate(String name, Config config, ItemGroup armourGroup) {
-        Wearable.registerChest(name, new Properties(), armourGroup);
+        WearableRegistry.registerChest(name, new Properties(), armourGroup);
         registerItemFromConfig(name, config);
     }
 
     public static void registerLeggings(String name, Config config, ItemGroup armourGroup) {
-        Wearable.registerLegs(name, new Properties(), armourGroup);
+        WearableRegistry.registerLegs(name, new Properties(), armourGroup);
         registerItemFromConfig(name, config);
     }
 
     public static void registerBoots(String name, Config config, ItemGroup armourGroup) {
-        Wearable.registerFeet(name, new Properties(), armourGroup);
+        WearableRegistry.registerFeet(name, new Properties(), armourGroup);
         registerItemFromConfig(name, config);
     }
 }

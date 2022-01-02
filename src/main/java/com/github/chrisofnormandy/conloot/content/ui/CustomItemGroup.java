@@ -5,7 +5,7 @@ import java.util.HashMap;
 import com.github.chrisofnormandy.conlib.common.StringUtil;
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.itemgroup.CreativeTab;
-import com.github.chrisofnormandy.conlib.registry.Items;
+import com.github.chrisofnormandy.conlib.registry.ItemRegistry;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
 
@@ -36,7 +36,7 @@ public class CustomItemGroup {
 
         AssetPackBuilder.createBlockItem(itemName);
 
-        cache.put(name, CreativeTab.createGroup(tabName, Items.register(itemName)));
+        cache.put(name, CreativeTab.createGroup(tabName, ItemRegistry.register(itemName)));
 
         AssetPackBuilder.Lang.addGroup(name, StringUtil.wordCaps_repl(tabName));
     }

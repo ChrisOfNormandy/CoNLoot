@@ -7,6 +7,7 @@ public class Patterns {
     public static final Pattern range = Pattern.compile("(\\w+)\\[(\\d+)-(\\d+)\\]");
     public static final Pattern dye = Pattern.compile("\\{dyed\\}");
     public static final Pattern modID = Pattern.compile("\\w+:");
+    public static final Pattern replPattern = Pattern.compile("[\\w\\d]+>[\\w\\d]+");
 
     public static final String[] colors = { "red", "orange", "yellow", "lime", "green", "cyan", "light_blue", "blue",
             "purple", "magenta", "pink", "white", "light_gray", "gray", "black", "brown" };
