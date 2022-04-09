@@ -4,9 +4,14 @@ import java.util.ArrayList;
 
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.config.ConfigGroup;
+import com.github.chrisofnormandy.conloot.configs.ConfigBase;
+import com.github.chrisofnormandy.conloot.configs.ConfigOptions;
 
 public class OreConfig {
-    public static void create(String name, Config cfg, String resourceType) {
+    public static void create(String name, Config cfg, ConfigOptions options) {
+
+        ConfigBase.create(name, cfg, options);
+
         cfg.addFlag("generate_ore", true, "Should an ore block be registered?");
         cfg.addFlag("generate_tools", true, "Should tools be registered for this material?");
         cfg.addFlag("generage_armour", true, "Should armour be registered for this material?");
@@ -32,21 +37,8 @@ public class OreConfig {
         oreAsset.addString("ore_template_base", "ore",
                 "The PNG name to use as the ore base. Should be a full block texture, such as stone, or a texture with the vein portion removed.");
 
-        ConfigGroup toolAsset = new ConfigGroup();
-        toolAsset.addString("pickaxe_template", "pickaxe", "The PNG name to use as the pick head template.");
-        toolAsset.addString("axe_template", "axe", "The PNG name to use as the axe head template.");
-        toolAsset.addString("shovel_template", "shovel", "The PNG name to use as the shovel head template.");
-        toolAsset.addString("hoe_template", "hoe", "The PNG name to use as the hoe head template.");
-        toolAsset.addString("pickaxe_template_base", "pickaxe_base",
-                "The PNG name to use as the pick handle template.");
-        toolAsset.addString("axe_template_base", "axe_base", "The PNG name to use as the axe handle template.");
-        toolAsset.addString("shovel_template_base", "shovel_base",
-                "The PNG name to use as the shovel handle template.");
-        toolAsset.addString("hoe_template_base", "hoe_base", "The PNG name to use as the hoe handle template.");
-
         cfg.addSubgroup("Colors", colors);
         cfg.addSubgroup("OreAssets", oreAsset);
-        cfg.addSubgroup("ToolAssets", toolAsset);
         cfg.addSubgroup("Assets", assets);
 
         ConfigGroup oreGroup = new ConfigGroup();
@@ -64,7 +56,7 @@ public class OreConfig {
         toolMaterialGroup.addString("rarity", "common",
                 "Item rarity. Accepts common (white), uncommon (yellow), rare (aqua), epic (light purple).");
         toolMaterialGroup.addFlag("no_repair", false, "Is the tool unrepairable?");
-        toolMaterialGroup.addString("resource_type", resourceType,
+        toolMaterialGroup.addString("resource_type", "gem",
                 "Used for classification. Accepts gem, ingot, material.");
         cfg.addSubgroup("ToolMaterial", toolMaterialGroup);
     }

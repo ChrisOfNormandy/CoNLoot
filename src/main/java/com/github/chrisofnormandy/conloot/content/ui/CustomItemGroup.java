@@ -26,6 +26,10 @@ public class CustomItemGroup {
         cache.put("armour", ItemGroup.TAB_COMBAT);
 
         cache.put("decorations", ItemGroup.TAB_DECORATIONS);
+
+        cache.put("misc", ItemGroup.TAB_MISC);
+
+        cache.put("food", ItemGroup.TAB_FOOD);
     }
 
     public static void registerFromConfig(String name, Config config) {

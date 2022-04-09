@@ -1,98 +1,109 @@
 package com.github.chrisofnormandy.conloot.content.items;
 
 import com.github.chrisofnormandy.conlib.collections.Quartet;
-import com.github.chrisofnormandy.conlib.common.ArrayUtil;
+// import com.github.chrisofnormandy.conlib.common.ArrayUtil;
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.config.ConfigGroup;
+import com.github.chrisofnormandy.conlib.registry.FoodRegistry;
+import com.github.chrisofnormandy.conlib.registry.ItemRegistry;
 import com.github.chrisofnormandy.conlib.registry.ToolRegistry;
 import com.github.chrisofnormandy.conlib.registry.WeaponRegistry;
 import com.github.chrisofnormandy.conlib.registry.WearableRegistry;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
+import com.github.chrisofnormandy.conloot.configs.ConfigOptions;
 
+import net.minecraft.item.Food;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemTier;
 import net.minecraft.item.Rarity;
 import net.minecraft.item.Item.Properties;
 
 public class CreationBase {
+    private static ConfigOptions getOptions(Config config) {
+        // Item assets
+        String mode = config.getSubgroup("Colors").getStringValue("blend_mode");
+        Boolean templateShading = config.getSubgroup("Colors").getFlagValue("template_shading");
+        Integer frameTime = config.getSubgroup("Animation").getIntegerValue("frametime");
+
+        ConfigOptions options = new ConfigOptions()
+                .ColorMode(mode)
+                .TemplateShading(templateShading)
+                .FrameTime(frameTime);
+
+        config.getSubgroup("Colors").getStringListValue("color").forEach((String s) -> {
+            options.Color(s);
+        });
+
+        config.getSubgroup("Assets").getStringListValue("textures").forEach((String s) -> {
+            options.Texture(s);
+        });
+
+        config.getSubgroup("Assets").getStringListValue("overlays").forEach((String s) -> {
+            options.Overlay(s);
+        });
+
+        config.getSubgroup("Animation").getStringListValue("frames").forEach((String s) -> {
+            options.FrameSettings(s);
+        });
+
+        return options;
+    }
+
     public static void registerItemFromConfig(String name, Config config) {
         Main.LOG.info("Generating new item:" + name);
 
-        // Item assets
-        String[] colors = config.getSubgroup("Colors").getStringListValue("color").toArray(new String[0]);
-        String mode = config.getSubgroup("Colors").getStringValue("blend_mode");
-
-        String[] textures = config.getSubgroup("Assets").getStringListValue("textures").toArray(new String[0]);
-        String[] overlays = config.getSubgroup("Assets").getStringListValue("overlays").toArray(new String[0]);
-
-        Boolean templateShading = config.getSubgroup("Colors").getFlagValue("template_shading");
-
-        Integer frameTime = config.getSubgroup("Animation").getIntegerValue("frametime");
-        String[] frames = config.getSubgroup("Animation").getStringListValue("frames").toArray(new String[0]);
-
-        AssetPackBuilder.createItem(name, textures, overlays, colors, mode, templateShading, frameTime, frames);
+        AssetPackBuilder.createItem(name, getOptions(config));
     }
 
     public static void registerHandheldItemFromConfig(String name, Config config) {
         Main.LOG.info("Generating new item:" + name);
 
-        // Item assets
-        String[] colors = config.getSubgroup("Colors").getStringListValue("color").toArray(new String[0]);
-        String mode = config.getSubgroup("Colors").getStringValue("blend_mode");
-
-        String[] textures = config.getSubgroup("Assets").getStringListValue("textures").toArray(new String[0]);
-        String[] overlays = config.getSubgroup("Assets").getStringListValue("overlays").toArray(new String[0]);
-
-        Boolean templateShading = config.getSubgroup("Colors").getFlagValue("template_shading");
-
-        Integer frameTime = config.getSubgroup("Animation").getIntegerValue("frametime");
-        String[] frames = config.getSubgroup("Animation").getStringListValue("frames").toArray(new String[0]);
-
-        AssetPackBuilder.createHandheldItem(name, textures, overlays, colors, mode, templateShading, frameTime, frames);
+        AssetPackBuilder.createHandheldItem(name, getOptions(config));
     }
 
     public static void registerShootableItemFromConfig(String name, Config config) {
         Main.LOG.info("Generating new item:" + name);
 
-        // Item assets
-        String[] colors = config.getSubgroup("Colors").getStringListValue("color").toArray(new String[0]);
-        String mode = config.getSubgroup("Colors").getStringValue("blend_mode");
-
-        String[] textures = config.getSubgroup("Assets").getStringListValue("textures").toArray(new String[0]);
-        String[] overlays = config.getSubgroup("Assets").getStringListValue("overlays").toArray(new String[0]);
-
-        Boolean templateShading = config.getSubgroup("Colors").getFlagValue("template_shading");
-
-        Integer frameTime = config.getSubgroup("Animation").getIntegerValue("frametime");
-        String[] frames = config.getSubgroup("Animation").getStringListValue("frames").toArray(new String[0]);
-
-        AssetPackBuilder.createShootableItem(name, textures, overlays, colors, mode, templateShading, frameTime,
-                frames);
+        AssetPackBuilder.createShootableItem(name, getOptions(config));
     }
 
     public static void registerTwoStageHandheldItemFromConfig(String name1, String name2, Config config) {
         Main.LOG.info("Generating new item:" + name1 + " + " + name2);
 
         // Item assets
-        String[] colors = config.getSubgroup("Colors").getStringListValue("color").toArray(new String[0]);
-        String mode = config.getSubgroup("Colors").getStringValue("blend_mode");
+        // String[] colors =
+        // config.getSubgroup("Colors").getStringListValue("color").toArray(new
+        // String[0]);
+        // String mode = config.getSubgroup("Colors").getStringValue("blend_mode");
 
-        String[] textures = config.getSubgroup("Assets").getStringListValue("textures").toArray(new String[0]);
-        String[] overlays = config.getSubgroup("Assets").getStringListValue("overlays").toArray(new String[0]);
+        // String[] textures =
+        // config.getSubgroup("Assets").getStringListValue("textures").toArray(new
+        // String[0]);
+        // String[] overlays =
+        // config.getSubgroup("Assets").getStringListValue("overlays").toArray(new
+        // String[0]);
 
-        Boolean templateShading = config.getSubgroup("Colors").getFlagValue("template_shading");
+        // Boolean templateShading =
+        // config.getSubgroup("Colors").getFlagValue("template_shading");
 
-        Integer frameTime = config.getSubgroup("Animation").getIntegerValue("frametime");
-        String[] frames = config.getSubgroup("Animation").getStringListValue("frames").toArray(new String[0]);
+        // Integer frameTime =
+        // config.getSubgroup("Animation").getIntegerValue("frametime");
+        // String[] frames =
+        // config.getSubgroup("Animation").getStringListValue("frames").toArray(new
+        // String[0]);
 
-        String[][] textureList = ArrayUtil.split(textures, 2).toArray(new String[0][]);
-        String[][] overlayList = ArrayUtil.split(overlays, 2).toArray(new String[0][]);
+        // String[][] textureList = ArrayUtil.split(textures, 2).toArray(new
+        // String[0][]);
+        // String[][] overlayList = ArrayUtil.split(overlays, 2).toArray(new
+        // String[0][]);
 
         try {
-            AssetPackBuilder.createTwoStepHandheldItem(name1, name2, "item/handheld_rod", "cast", 1, textureList,
-                    overlayList, colors, mode, templateShading, frameTime, frames);
-        } catch (ArrayIndexOutOfBoundsException e) {
+            // AssetPackBuilder.createTwoStepHandheldItem(name1, name2, "item/handheld_rod",
+            // "cast", 1, textureList,
+            // overlayList, colors, mode, templateShading, frameTime, frames);
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
             Main.LOG.error(e);
         }
     }
@@ -164,6 +175,12 @@ public class CreationBase {
 
     }
 
+    // Generic
+    public static void registerGeneric(String name, Config config, ItemGroup itemGroup) {
+        ItemRegistry.register(name, itemGroup);
+        registerItemFromConfig(name, config);
+    }
+
     // Tools
     public static void registerPickaxe(String name, Config config, ItemGroup toolGroup) {
         Quartet<ItemTier, Integer, Float, Properties> v = getToolValues(name, config);
@@ -197,6 +214,11 @@ public class CreationBase {
     public static void registerFishingRod(String name, Config config, ItemGroup toolGroup) {
         ToolRegistry.registerFishingRod(name, new Properties(), toolGroup);
         registerTwoStageHandheldItemFromConfig(name, name + "_cast", config);
+    }
+
+    public static void registerBucket(String name, Config config, ItemGroup miscGroup) {
+        ToolRegistry.registerBucket(name, new Properties(), miscGroup);
+        registerItemFromConfig(name, config);
     }
 
     public static void registerShears(String name, Config config, ItemGroup toolGroup) {
@@ -249,6 +271,13 @@ public class CreationBase {
 
     public static void registerBoots(String name, Config config, ItemGroup armourGroup) {
         WearableRegistry.registerFeet(name, new Properties(), armourGroup);
+        registerItemFromConfig(name, config);
+    }
+
+    // Food
+    public static void registerFood(String name, Config config, ItemGroup foodGroup) {
+        Food food = FoodRegistry.registerFoodNoItem(1, 1.0f);
+        FoodRegistry.registerFood(name, food, foodGroup);
         registerItemFromConfig(name, config);
     }
 }

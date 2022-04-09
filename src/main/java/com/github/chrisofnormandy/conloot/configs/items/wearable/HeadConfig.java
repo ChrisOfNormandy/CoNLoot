@@ -1,8 +1,7 @@
 package com.github.chrisofnormandy.conloot.configs.items.wearable;
 
-import java.util.ArrayList;
-
 import com.github.chrisofnormandy.conlib.config.Config;
+import com.github.chrisofnormandy.conloot.configs.ConfigOptions;
 import com.github.chrisofnormandy.conloot.configs.items.GenericWearableConfig;
 
 public class HeadConfig {
@@ -10,8 +9,7 @@ public class HeadConfig {
         return GenericWearableConfig.create(name, config);
     }
 
-    public static Config create(String name, Config config, ArrayList<String> colorList, ArrayList<String> textureList,
-            ArrayList<String> overlayList) {
-        return GenericWearableConfig.create(name, config, colorList, textureList, overlayList);
+    public static Config create(String name, Config config, ConfigOptions options) {
+        return GenericWearableConfig.create(name, config, options);
     }
 }

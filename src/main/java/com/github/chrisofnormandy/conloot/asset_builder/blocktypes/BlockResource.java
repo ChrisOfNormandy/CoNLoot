@@ -3,6 +3,7 @@ package com.github.chrisofnormandy.conloot.asset_builder.blocktypes;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder;
 import com.github.chrisofnormandy.conlib.collections.JsonBuilder.JsonObject;
 import com.github.chrisofnormandy.conloot.Main;
+import com.github.chrisofnormandy.conloot.configs.ConfigOptions;
 
 public class BlockResource {
     /**
@@ -22,25 +23,98 @@ public class BlockResource {
     /**
      * 
      * @param name
-     * @param subType
+     * @param options
      * @param builder
      * @return
      */
-    public static JsonObject blockstate(String name, String subType, JsonBuilder builder) {
-        switch (subType) {
+    public static JsonObject blockstate(String name, ConfigOptions options, JsonBuilder builder) {
+        Main.LOG.debug("Blockstate: " + options.renderModel);
+
+        switch (options.renderModel) {
             case "column":
-                return blockstate_column(name, builder);
+                return blockstate_column(name, builder, options.opens);
+            case "bottom_top":
+                return blockstate_bottom_top(name, builder, options.rotates, options.opens);
         }
+
         return null;
     }
 
-    private static JsonObject blockstate_column(String name, JsonBuilder builder) {
+    private static JsonObject blockstate_column(String name, JsonBuilder builder, Boolean opens) {
         JsonObject json = builder.createJsonObject();
         JsonObject vars = json.addObject("variants");
 
         vars.addObject("axis=x").set("model", Main.MOD_ID + ":block/" + name + "_horizontal").set("x", 90).set("y", 90);
         vars.addObject("axis=y").set("model", Main.MOD_ID + ":block/" + name);
         vars.addObject("axis=z").set("model", Main.MOD_ID + ":block/" + name + "_horizontal").set("x", 90);
+
+        return json;
+    }
+
+    private static JsonObject blockstate_bottom_top(String name, JsonBuilder builder, Boolean rotates, Boolean opens) {
+        JsonObject json = builder.createJsonObject();
+        JsonObject vars = json.addObject("variants");
+
+        Main.LOG.debug("Blockstate bottom_top ::: Rotates: " + rotates + ", Opens: " + opens);
+
+        if (rotates) {
+            String[] dir = { "north", "east", "south", "west", "up", "down" };
+
+            if (opens) {
+                String[] openState = { "true", "false" };
+
+                for (String o : openState) {
+                    for (int i = 0; i < dir.length; i++) {
+                        JsonObject v = vars.addObject("facing=" + dir[i] + ",open=" + o);
+
+                        if (i == 5) {
+                            v.set("x", 180);
+                        }
+                        else if (i < 4) {
+                            v.set("x", 90);
+
+                            if (i > 0)
+                                v.set("y", 90 * i);
+                        }
+
+                        v.set("model", Main.MOD_ID + ":block/" + name + (o.equals("true") ? "_open" : ""));
+                    }
+                }
+            }
+            else {
+                for (int i = 0; i < dir.length; i++) {
+                    JsonObject v = vars.addObject("facing=" + dir[i]);
+
+                    if (i == 5) {
+                        v.set("x", 180);
+                    }
+                    else if (i < 4) {
+                        v.set("x", 90);
+
+                        if (i > 0)
+                            v.set("y", 90 * i);
+                    }
+
+                    v.set("model", Main.MOD_ID + ":block/" + name);
+                }
+            }
+        }
+        else {
+            if (opens) {
+                String[] openState = { "true", "false" };
+
+                for (String o : openState) {
+                    vars.addObject("axis=x,open=" + o).set("model", Main.MOD_ID + ":block/" + name + "_horizontal" + (o.equals("true") ? "_open" : "")).set("x", 90).set("y", 90);
+                    vars.addObject("axis=y,open=" + o).set("model", Main.MOD_ID + ":block/" + name + (o.equals("true") ? "_open" : ""));
+                    vars.addObject("axis=z,open=" + o).set("model", Main.MOD_ID + ":block/" + name + "_horizontal" + (o.equals("true") ? "_open" : "")).set("x", 90);
+                }
+            }
+            else {
+                vars.addObject("axis=x").set("model", Main.MOD_ID + ":block/" + name + "_horizontal").set("x", 90).set("y", 90);
+                vars.addObject("axis=y").set("model", Main.MOD_ID + ":block/" + name);
+                vars.addObject("axis=z").set("model", Main.MOD_ID + ":block/" + name + "_horizontal").set("x", 90);
+            }
+        }
 
         return json;
     }
@@ -85,10 +159,10 @@ public class BlockResource {
         JsonObject tex = json.addObject("textures");
 
         String[] texture = textures.length == 0
-            ? new String[] {"minecraft:block/debug"}
-            : textures;
+                ? new String[] { "minecraft:block/debug" }
+                : textures;
 
-        json.set("parent", "minecraft:block/" + (texture.length == 1 ? "cube_all" : model));
+        json.set("parent", "minecraft:block/" + model);
 
         switch (texture.length) {
             case 1: {

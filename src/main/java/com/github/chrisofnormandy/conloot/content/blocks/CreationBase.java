@@ -15,6 +15,7 @@ import com.github.chrisofnormandy.conlib.config.ConfigGroup;
 import com.github.chrisofnormandy.conloot.Main;
 import com.github.chrisofnormandy.conloot.asset_builder.AssetPackBuilder;
 import com.github.chrisofnormandy.conloot.asset_builder.DataPackBuilder;
+import com.github.chrisofnormandy.conloot.configs.ConfigOptions;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -132,7 +133,7 @@ public class CreationBase {
         ConfigGroup overrides = config.getSubgroup("Overrides");
 
         Properties properties = Properties.copy(Blocks.AIR);
-        String material = "air";
+        String material = "stone";
 
         if (overrides.getFlagValue("use_vanilla")) {
             try {
@@ -243,7 +244,8 @@ public class CreationBase {
                 // Material color
 
                 // Additional functions based on block model setting.
-            } catch (Exception err) {
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create block properties from config. Check values.");
                 err.printStackTrace();
 
@@ -252,35 +254,54 @@ public class CreationBase {
         }
 
         // Block assets
-        String[] colors = config.getSubgroup("Colors").getStringListValue("color").toArray(new String[0]);
         String mode = config.getSubgroup("Colors").getStringValue("blend_mode");
-
-        String[] textures = config.getSubgroup("Assets").getStringListValue("textures").toArray(new String[0]);
-        String[] overlays = config.getSubgroup("Assets").getStringListValue("overlays").toArray(new String[0]);
 
         Boolean templateShading = config.getSubgroup("Colors").getFlagValue("template_shading");
 
         Integer frameTime = config.getSubgroup("Animation").getIntegerValue("frametime");
-        String[] frames = config.getSubgroup("Animation").getStringListValue("frames").toArray(new String[0]);
 
         String blockModel = config.getStringValue("block_model");
         Main.LOG.info("Registering new " + blockModel + " from config.");
 
+        ConfigOptions options = new ConfigOptions()
+                .ColorMode(mode)
+                .TemplateShading(templateShading)
+                .FrameTime(frameTime);
+
+        config.getSubgroup("Assets").getStringListValue("textures").forEach((String s) -> {
+            options.Texture(s);
+        });
+
+        config.getSubgroup("Assets").getStringListValue("overlays").forEach((String s) -> {
+            options.Overlay(s);
+        });
+
+        config.getSubgroup("Colors").getStringListValue("color").forEach((String s) -> {
+            options.Color(s);
+        });
+
+        config.getSubgroup("Animation").getStringListValue("frames").forEach((String s) -> {
+            options.FrameSettings(s);
+        });
+
+        options.RenderModel(config.getStringValue("block_render_model"));
+
+        if (config.getFlagValue("block_render_opens"))
+            options.Opens();
+
+        if (config.getFlagValue("block_render_rotates"))
+            options.Rotates();
+
         switch (blockModel) {
             case "block": {
-                String subType = config.getStringValue("block_model_subtype");
+                Main.LOG.debug("Creating asset pack for " + name + " using: " + options.Textures().length + " textures.");
 
-                Main.LOG.debug("Creating asset pack for " + name + " using: [" + textures.length + "] -> "
-                        + String.join(", ", textures));
-
-                AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
-                        subType);
+                AssetPackBuilder.createBlock(name, options);
 
                 Main.LOG.debug("Registering " + name);
 
-                switch (subType) {
+                switch (options.renderModel) {
                     case "column": {
-                        Main.LOG.debug("Subtype: " + subType);
                         if (properties == null)
                             Standard.createColumn(name, Properties.copy(Blocks.STONE), blockGroup);
                         else
@@ -288,7 +309,6 @@ public class CreationBase {
                         break;
                     }
                     case "falling": {
-                        Main.LOG.debug("Subtype: " + subType);
                         if (properties == null)
                             Standard.createFalling(name, Properties.copy(Blocks.STONE), blockGroup);
                         else
@@ -305,10 +325,9 @@ public class CreationBase {
             }
 
             case "slab": {
-                AssetPackBuilder.createSlabBlock(name,
-                        config.getSubgroup("Settings").getStringValue("double_stack_textures"), textures, overlays,
-                        colors,
-                        mode, templateShading, frameTime, frames);
+                options.doubleSlabTexture = config.getSubgroup("Settings").getStringValue("double_stack_textures");
+
+                AssetPackBuilder.createSlabBlock(name, options);
 
                 if (properties == null)
                     Partial.create_slab(name, Properties.copy(Blocks.STONE), blockGroup);
@@ -319,8 +338,7 @@ public class CreationBase {
             }
 
             case "stairs": {
-                AssetPackBuilder.createStairBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                        frames);
+                AssetPackBuilder.createStairBlock(name, options);
 
                 if (properties == null)
                     Partial.create_stairs(name, Properties.copy(Blocks.STONE), blockGroup);
@@ -330,8 +348,7 @@ public class CreationBase {
                 break;
             }
             case "wall": {
-                AssetPackBuilder.createWallBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                        frames);
+                AssetPackBuilder.createWallBlock(name, options);
 
                 if (properties == null)
                     Barricades.create_wall(name, Properties.copy(Blocks.STONE), blockGroup);
@@ -342,8 +359,7 @@ public class CreationBase {
             }
 
             case "fence": {
-                AssetPackBuilder.createFenceBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                        frames);
+                AssetPackBuilder.createFenceBlock(name, options);
 
                 if (properties == null)
                     Barricades.create_fence(name, Properties.copy(Blocks.OAK_PLANKS), blockGroup);
@@ -354,9 +370,7 @@ public class CreationBase {
             }
 
             case "fence_gate": {
-                AssetPackBuilder.createFenceGateBlock(name, textures, overlays, colors, mode, templateShading,
-                        frameTime,
-                        frames);
+                AssetPackBuilder.createFenceGateBlock(name, options);
 
                 if (properties == null)
                     Doors.create_fenceGate(name, blockGroup);
@@ -367,8 +381,9 @@ public class CreationBase {
             }
 
             case "door": {
-                AssetPackBuilder.createDoorBlock(name, config.getSubgroup("Settings").getStringValue("item_textures"),
-                        textures, overlays, colors, mode, templateShading, frameTime, frames);
+                options.itemTexture = config.getSubgroup("Settings").getStringValue("item_textures");
+
+                AssetPackBuilder.createDoorBlock(name, options);
 
                 if (properties == null)
                     Doors.create_door(name, blockGroup);
@@ -379,8 +394,7 @@ public class CreationBase {
             }
 
             case "trapdoor": {
-                AssetPackBuilder.createTrapdoorBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                        frames);
+                AssetPackBuilder.createTrapdoorBlock(name, options);
 
                 if (properties == null)
                     Doors.create_trapdoor(name, blockGroup);
@@ -391,20 +405,21 @@ public class CreationBase {
             }
 
             case "pressure_plate": {
-                AssetPackBuilder.createPressurePlateBlock(name, textures, overlays, colors, mode, templateShading,
-                        frameTime, frames);
+                AssetPackBuilder.createPressurePlateBlock(name, options);
 
                 if (material.equals("wood")) {
                     if (properties == null)
                         Redstone.create_pressurePlate_wood(name, blockGroup);
                     else
                         Redstone.create_pressurePlate_wood(name, properties, blockGroup);
-                } else if (material.equals("stone")) {
+                }
+                else if (material.equals("stone")) {
                     if (properties == null)
                         Redstone.create_pressurePlate_stone(name, blockGroup);
                     else
                         Redstone.create_pressurePlate_stone(name, properties, blockGroup);
-                } else {
+                }
+                else {
                     if (properties == null)
                         Redstone.create_pressurePlate_weighted(name, 10, blockGroup);
                     else
@@ -415,8 +430,8 @@ public class CreationBase {
             }
 
             case "button": {
-                AssetPackBuilder.createButtonBlock(name, textures, overlays, colors, mode, templateShading, frameTime,
-                        frames);
+                AssetPackBuilder.createButtonBlock(name, options);
+
                 if (material.equals("wood"))
                     Redstone.create_button_wood(name, properties, blockGroup);
                 else
@@ -425,17 +440,22 @@ public class CreationBase {
                 break;
             }
 
+            case "chest": {
+                // AssetPackBuilder.createChest(name, options);
+                Storage.create_chest(name, properties, blockGroup);
+
+                break;
+            }
+
             case "barrel": {
-                AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
-                        config.getStringValue("block_model_subtype"));
+                AssetPackBuilder.createBlock(name, options);
                 Storage.create_barrel(name, properties, blockGroup);
 
                 break;
             }
 
             case "shulker": {
-                AssetPackBuilder.createBlock(name, textures, overlays, colors, mode, templateShading, frameTime, frames,
-                        config.getStringValue("block_model_subtype"));
+                AssetPackBuilder.createBlock(name, options);
                 Storage.create_shulker(name, DyeColor.BLACK, properties, blockGroup);
 
                 break;

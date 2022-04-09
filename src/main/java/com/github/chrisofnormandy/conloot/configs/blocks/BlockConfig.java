@@ -4,7 +4,8 @@ import java.util.ArrayList;
 
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.config.ConfigGroup;
-import com.github.chrisofnormandy.conloot.Patterns;
+import com.github.chrisofnormandy.conloot.configs.ConfigBase;
+import com.github.chrisofnormandy.conloot.configs.ConfigOptions;
 
 public class BlockConfig {
     private static String getSound(String material) {
@@ -27,28 +28,13 @@ public class BlockConfig {
         return "pickaxe";
     }
 
-    public static void create(String name, Config cfg, String blockType) {
-        create(name, cfg, blockType, "stone", "default", "white");
-    }
-
-    public static void create(String name, Config cfg, String blockType, String material) {
-        create(name, cfg, blockType, material, "default", "white");
-    }
-
-    public static void create(String name, Config cfg, String blockType, String material, String subtype) {
-        create(name, cfg, blockType, material, subtype, "white");
-    }
-
-    public static void create(String name, Config cfg, String blockType, String material, String subtype,
-            String color) {
+    public static void create(String name, Config cfg, ConfigOptions options) {
+        ConfigBase.create(name, cfg, options);
 
         // Overrides
         ConfigGroup overrides = new ConfigGroup();
         overrides.addFlag("use_vanilla", true,
                 "When true, ignores properties of this config and uses vanilla equivalent properties (barrel -> minecraft:barrel).");
-
-        ArrayList<String> colorList = new ArrayList<String>();
-        colorList.add(Patterns.getColor(color));
 
         cfg.addSubgroup("Overrides", overrides);
 
@@ -60,7 +46,7 @@ public class BlockConfig {
         cfg.addInteger("harvest_level", 1,
                 "The block hardness level. Gold: 0; Wood: 0; Stone: 1; Iron: 2; Diamond: 3; Netherite: 4");
 
-        cfg.addString("harvest_tool", getTool(material), "String representing a ToolType value.");
+        cfg.addString("harvest_tool", getTool(options.material), "String representing a ToolType value.");
 
         cfg.addDouble("friction", -1.0, "Block friction, like ice. Should be between 0 and 1.");
 
@@ -68,7 +54,7 @@ public class BlockConfig {
 
         cfg.addDouble("jump_factor", -1.0, "Block jump factor, like slime blocks.");
 
-        cfg.addString("sound", getSound(material), "String representing a SoundType value.");
+        cfg.addString("sound", getSound(options.material), "String representing a SoundType value.");
 
         cfg.addInteger("light_level", -1, "Integer value for light level. Converts to ToIntFunction<BlockState>.");
 
@@ -99,66 +85,36 @@ public class BlockConfig {
         cfg.addFlag("require_correct_tool", true,
                 "When broken, does this block require the correct tool to be used to drop an item?");
 
-        cfg.addString("material", material, "String representing a Material value.");
+        cfg.addString("material", options.material, "String representing a Material value.");
 
         cfg.addString("material_color", "",
                 "String representing a MaterialColor value. Converts to Function<BlockState, MaterialColor>.");
 
-        cfg.addString("block_model", blockType,
+        cfg.addString("block_model", options.blockModel,
                 "What general model should the block adapt? Examples: block, slab, wall.");
 
-        cfg.addString("block_model_subtype", subtype, "Block model type. Options: column, ...");
+        cfg.addString("block_render_model", options.renderModel, "Block model type. Options: column, ...");
+
+        cfg.addFlag("block_render_opens", options.opens, "Block has two states: open and closed.");
+
+        cfg.addFlag("block_render_rotates", options.rotates, "Block can rotate in all 6 directions (NESW + up + down).");
 
         // Asset generation settings
         ConfigGroup settings = new ConfigGroup();
 
-        switch (blockType) {
+        switch (options.blockModel) {
             case "slab": {
                 settings.addString("double_stack_textures", name.replace("_slab", ""),
                         "Texture names for double stacked slabs. Formatted with mod ID will use existing assets and will not combine.");
                 break;
             }
             case "door": {
-                settings.addString("item_textures", "metal_door_item>" + name,
+                settings.addString("item_textures", "minecraft:item/oak_door",
                         "Texture names for door item. Formatted with mod ID will use existing assets and will not combine.");
                 break;
             }
         }
 
         cfg.addSubgroup("Settings", settings);
-
-        // Colors
-        ConfigGroup colors = new ConfigGroup();
-
-        colors.addStringList("color", colorList, "RGB value for default generated assets. Used for overlay texture.");
-
-        colors.addString("blend_mode", "sharp",
-                "How colors are distributed using the overlay template | gradient: a curve blend of colors; sharp: no blending between colors; spotted: uses the first color as a base and applies the rest as spots.");
-
-        colors.addFlag("template_shading", true,
-                "Should the template be registered as a brightness value when applying colors? False will use base layer instead.");
-
-        cfg.addSubgroup("Colors", colors);
-
-        // Templates
-        ConfigGroup assets = new ConfigGroup();
-
-        assets.addStringList("textures", new ArrayList<String>(),
-                "Texture names. Formatted with mod ID will use existing assets and will not combine.");
-
-        assets.addStringList("overlays", new ArrayList<String>(),
-                "Texture names. If the base texture is not a referenced asset, will combine to make single asset texture.");
-
-        cfg.addSubgroup("Assets", assets);
-
-        // Animation
-        ConfigGroup animation = new ConfigGroup();
-
-        animation.addStringList("frames", new ArrayList<String>(),
-                "Manual frame determinations. Use the format '0:30' for 'index: 0, time: 30'. Not providing a time will use default. Leaving empty will use order of templates.");
-
-        animation.addInteger("frametime", 0, "Ticks per animation frame. 20 = 1 second. 0 to disable.");
-
-        cfg.addSubgroup("Animation", animation);
     }
 }

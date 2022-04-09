@@ -14,8 +14,8 @@ apply plugin: 'maven-publish'
 
 repositories{
     maven {
-        url "https://raw.githubusercontent.com/ChrisOfNormandy/CoNLib/1.16.5"
-        // url "../CoNLib/"
+        // url "https://raw.githubusercontent.com/ChrisOfNormandy/CoNLib/1.16.5"
+        url "../CoNLib/"
     }
 }
 
@@ -78,7 +78,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.16.5-36.2.20'
-    implementation 'com.github.chrisofnormandy:conlib:1.6:deobf'
+    implementation 'com.github.chrisofnormandy:conlib:1.7:deobf'
 }
 
 jar {

@@ -6,8 +6,10 @@ import java.util.List;
 
 import com.github.chrisofnormandy.conlib.config.Config;
 import com.github.chrisofnormandy.conlib.config.ConfigGroup;
-import com.github.chrisofnormandy.conloot.configs.DefaultConfigValues;
-import com.github.chrisofnormandy.conloot.configs.blocks.*;
+import com.github.chrisofnormandy.conloot.configs.ConfigLoader;
+import com.github.chrisofnormandy.conloot.configs.ConfigOptions;
+import com.github.chrisofnormandy.conloot.configs.Generators;
+import com.github.chrisofnormandy.conloot.configs.items.food.FoodConfig;
 import com.github.chrisofnormandy.conloot.configs.items.tools.*;
 import com.github.chrisofnormandy.conloot.configs.items.weapons.*;
 import com.github.chrisofnormandy.conloot.configs.items.wearable.*;
@@ -22,241 +24,389 @@ public class ModConfigs {
     public final HashMap<String, HashMap<String, Config>> itemContent = new HashMap<String, HashMap<String, Config>>();
     public final HashMap<String, HashMap<String, Config>> worldGenContent = new HashMap<String, HashMap<String, Config>>();
 
-    // Block Configs
-    private Config blockConfig(String name, String model, String material, String subtype, String color) {
-        try {
-            Config cfg = new Config("conloot/blocks/" + model, name);
-            BlockConfig.create(name, cfg, model, material, subtype, color);
-            return cfg.Build();
-        } catch (Exception err) {
-            Main.LOG.error("Failed to create config for block: " + name);
-            err.printStackTrace();
-        }
+    public HashMap<String, Config> getBlockMap(String key) {
+        if (!blockContent.containsKey(key))
+            blockContent.put(key, new HashMap<String, Config>());
 
-        return null;
+        return blockContent.get(key);
     }
 
-    private HashMap<String, Config> getBlockMap(List<String> list, HashMap<String, Config> map) {
-        list.forEach((String block) -> {
-            if (Patterns.dye.matcher(block).find()) {
-                for (String clr : Patterns.colors)
-                    map.put(block,
-                            blockConfig(block.replaceAll(Patterns.dye.pattern(), clr), "block", "stone", "all", clr));
-            } else
-                map.put(block, blockConfig(block, "block", "stone", "all", "white"));
-        });
+    public HashMap<String, Config> getItemMap(String key) {
+        if (!itemContent.containsKey(key))
+            itemContent.put(key, new HashMap<String, Config>());
 
-        return map;
+        return itemContent.get(key);
     }
 
-    private void buildCropConfigs(List<String> list) {
-        HashMap<String, Config> map = new HashMap<String, Config>();
-
-        list.forEach((String crop) -> {
-            Config cfg = new Config("conloot/crops", crop);
-            CropConfig.create(crop, cfg);
-            map.put(crop, cfg.Build());
-        });
-
-        blockContent.put("resource.plant.crop", map);
+    public static List<ConfigLoader> convertToLoaderList(List<String> list) {
+        List<ConfigLoader> l = new ArrayList<ConfigLoader>();
+        list.forEach((String s) -> l.add(new ConfigLoader(s)));
+        return l;
     }
 
-    private void buildGemConfigs(List<String> list) {
-        HashMap<String, Config> map = new HashMap<String, Config>();
-
-        list.forEach((String gem) -> {
-            try {
-                Config cfg = new Config("conloot/gems", gem);
-                OreConfig.create(gem, cfg, "gem");
-                map.put(gem, cfg.Build());
-            } catch (Exception err) {
-                Main.LOG.error("Failed to create config for gem resource: " + gem);
-                err.printStackTrace();
-            }
-        });
-
-        blockContent.put("resource.ore.gem", map);
+    public static List<ConfigLoader> convertToLoaderList(List<String> list, ConfigOptions options) {
+        List<ConfigLoader> l = new ArrayList<ConfigLoader>();
+        list.forEach((String s) -> l.add(new ConfigLoader(s, options)));
+        return l;
     }
 
-    private void buildMetalConfigs(List<String> list) {
-        HashMap<String, Config> map = new HashMap<String, Config>();
-
-        list.forEach((String metal) -> {
-            try {
-                Config cfg = new Config("conloot/metals", metal);
-                OreConfig.create(metal, cfg, "ingot");
-                map.put(metal, cfg.Build());
-            } catch (Exception err) {
-                Main.LOG.error("Failed to create config for metal resource: " + metal);
-                err.printStackTrace();
-            }
-        });
-
-        blockContent.put("resource.ore.metal", map);
+    private void generateGenericBlockMaps(ConfigGroup config) {
+        Generators.Block.loadBlocks(getBlockMap("block.generic.block"), convertToLoaderList(config.getStringListValue("block_list")));
+        Generators.Block.loadBlocks(getBlockMap("block.generic.slab"), convertToLoaderList(config.getStringListValue("slab_list")));
+        Generators.Block.loadBlocks(getBlockMap("block.generic.stairs"), convertToLoaderList(config.getStringListValue("stairs_list")));
+        Generators.Block.loadBlocks(getBlockMap("block.generic.wall"), convertToLoaderList(config.getStringListValue("wall_list")));
+        Generators.Block.loadBlocks(getBlockMap("block.generic.block"), convertToLoaderList(config.getStringListValue("fence_list")));
     }
 
-    private void buildGenericBlockConfigs(ConfigGroup config) {
-        blockContent.put("block.generic.block",
-                getBlockMap(config.getStringListValue("block_list"), new HashMap<String, Config>()));
-
-        blockContent.put("block.generic.slab",
-                getBlockMap(config.getStringListValue("slab_list"), new HashMap<String, Config>()));
-
-        blockContent.put("block.generic.stairs",
-                getBlockMap(config.getStringListValue("stairs_list"), new HashMap<String, Config>()));
-
-        blockContent.put("block.generic.wall",
-                getBlockMap(config.getStringListValue("wall_list"), new HashMap<String, Config>()));
-
-        blockContent.put("block.generic.fence",
-                getBlockMap(config.getStringListValue("fence_list"), new HashMap<String, Config>()));
+    private void generateRedstoneBlockMaps(ConfigGroup config) {
+        Generators.Block.loadBlocks(getBlockMap("block.redstone.fence_gate"), convertToLoaderList(config.getStringListValue("fence_gate_list")));
+        Generators.Block.loadBlocks(getBlockMap("block.redstone.door"), convertToLoaderList(config.getStringListValue("door_list")));
+        Generators.Block.loadBlocks(getBlockMap("block.redstone.trapdoor"), convertToLoaderList(config.getStringListValue("trapdoor_list")));
+        Generators.Block.loadBlocks(getBlockMap("block.redstone.pressure_plate"), convertToLoaderList(config.getStringListValue("pressure_plate_list")));
+        Generators.Block.loadBlocks(getBlockMap("block.redstone.button"), convertToLoaderList(config.getStringListValue("button_list")));
     }
 
-    private void buildInteractiveBlockConfigs(ConfigGroup config) {
-        blockContent.put("block.interactive.storage.barrel",
-                getBlockMap(config.getStringListValue("barrel_list"), new HashMap<String, Config>()));
+    private void generateStorageBlockMaps(ConfigGroup config) {
+        Generators.Block.loadBlocks(getBlockMap("block.storage.chest"),
+                convertToLoaderList(config.getStringListValue("chest_list"),
+                        new ConfigOptions()
+                                .Material("wood")
+                                .Sound("wood")
+                                .Model("chest")
+                                .RenderModel("chest")
+                                .Tool("axe")));
 
-        blockContent.put("block.interactive.storage.shulker",
-                getBlockMap(config.getStringListValue("shulker_list"), new HashMap<String, Config>()));
+        Generators.Block.loadBlocks(getBlockMap("block.storage.barrel"),
+                convertToLoaderList(config.getStringListValue("barrel_list"),
+                        new ConfigOptions()
+                                .Material("wood")
+                                .Sound("wood")
+                                .Model("barrel")
+                                .RenderModel("bottom_top")
+                                .Tool("axe")));
+
+        Generators.Block.loadBlocks(getBlockMap("block.storage.shulker"), convertToLoaderList(config.getStringListValue("shulker_list")));
     }
 
-    private void buildRedstoneBlockConfigs(ConfigGroup config) {
-        blockContent.put("block.redstone.fence_gate",
-                getBlockMap(config.getStringListValue("fence_gate_list"), new HashMap<String, Config>()));
-
-        blockContent.put("block.redstone.door",
-                getBlockMap(config.getStringListValue("door_list"), new HashMap<String, Config>()));
-
-        blockContent.put("block.redstone.trapdoor",
-                getBlockMap(config.getStringListValue("trapdoor_list"), new HashMap<String, Config>()));
-
-        blockContent.put("block.redstone.pressure_plate",
-                getBlockMap(config.getStringListValue("pressure_plate_list"), new HashMap<String, Config>()));
-
-        blockContent.put("block.redstone.button",
-                getBlockMap(config.getStringListValue("button_list"), new HashMap<String, Config>()));
-    }
-
-    private void buildSuiteBlockConfigs(ConfigGroup config) {
+    private void loadSuitesToBlockMaps(ConfigGroup config) {
         config.getStringListValue("wood_suite_list").forEach((String name) -> {
-            blockContent.get("block.generic.block").put(name + "_log",
-                    blockConfig(name + "_log", "block", "wood", "column", "white"));
-            blockContent.get("block.generic.block").put("stripped_" + name + "_log",
-                    blockConfig("stripped_" + name + "_log", "block", "wood", "column", "white"));
-            blockContent.get("block.generic.block").put(name + "_wood",
-                    blockConfig(name + "_wood", "block", "wood", "all", "white"));
-            blockContent.get("block.generic.block").put("stripped_" + name + "_wood",
-                    blockConfig("stripped_" + name + "_wood", "block", "wood", "all", "white"));
 
-            blockContent.get("block.generic.block").put(name + "_planks",
-                    blockConfig(name + "_planks", "block", "wood", "all", "white"));
+            // Log
+            Generators.Block.loadBlock(getBlockMap("block.generic.block"),
+                    new ConfigLoader(name + "_log",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .RenderModel("column")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_log_top")
+                                    .Texture("minecraft:block/oak_log")));
 
-            blockContent.get("block.generic.slab").put(name + "_slab",
-                    blockConfig(name + "_slab", "slab", "wood", "all", "white"));
-            blockContent.get("block.generic.stairs").put(name + "_stairs",
-                    blockConfig(name + "_stairs", "stairs", "wood", "all", "white"));
-            blockContent.get("block.generic.fence").put(name + "_fence",
-                    blockConfig(name + "_fence", "fence", "wood", "all", "white"));
+            // Stripped Log
+            Generators.Block.loadBlock(getBlockMap("block.generic.block"),
+                    new ConfigLoader("stripped_" + name + "_log",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .RenderModel("column")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/stripped_oak_log_top")
+                                    .Texture("minecraft:block/stripped_oak_log")));
 
-            blockContent.get("block.redstone.fence_gate").put(name + "_fence_gate",
-                    blockConfig(name + "_fence_gate", "fence_gate", "wood", "all", "white"));
-            blockContent.get("block.redstone.door").put(name + "_door",
-                    blockConfig(name + "_door", "door", "wood", "all", "white"));
-            blockContent.get("block.redstone.trapdoor").put(name + "_trapdoor",
-                    blockConfig(name + "_trapdoor", "trapdoor", "wood", "all", "white"));
+            // Bark
+            Generators.Block.loadBlock(getBlockMap("block.generic.block"),
+                    new ConfigLoader(name + "_wood",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_log")));
 
-            blockContent.get("block.redstone.pressure_plate").put(name + "_pressure_plate",
-                    blockConfig(name + "_pressure_plate", "pressure_plate", "wood", "all", "white"));
-            blockContent.get("block.redstone.button").put(name + "_button",
-                    blockConfig(name + "_button", "button", "wood", "all", "white"));
+            // Stripped Bark
+            Generators.Block.loadBlock(getBlockMap("block.generic.block"),
+                    new ConfigLoader("stripped_" + name + "_wood",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/stripped_oak_log")));
+
+            // Planks
+            Generators.Block.loadBlock(getBlockMap("block.generic.block"),
+                    new ConfigLoader(name + "_planks",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_planks")));
+
+            // Planks Slab
+            Generators.Block.loadBlock(getBlockMap("block.generic.slab"),
+                    new ConfigLoader(name + "_slab",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Model("slab")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_planks")));
+
+            // Planks Stairs
+            Generators.Block.loadBlock(getBlockMap("block.generic.stairs"),
+                    new ConfigLoader(name + "_stairs",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Model("stairs")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_planks")));
+
+            // Planks Fence
+            Generators.Block.loadBlock(getBlockMap("block.generic.fence"),
+                    new ConfigLoader(name + "_fence",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Model("fence")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_planks")));
+
+            // Planks Fence Gate
+            Generators.Block.loadBlock(getBlockMap("block.redstone.fence_gate"),
+                    new ConfigLoader(name + "_fence_gate",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Model("fence_gate")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_planks")));
+
+            // Planks Door
+            Generators.Block.loadBlock(getBlockMap("block.redstone.door"),
+                    new ConfigLoader(name + "_door",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Model("door")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_door_bottom")
+                                    .Texture("minecraft:block/oak_door_top")));
+
+            // Planks Trapdoor
+            Generators.Block.loadBlock(getBlockMap("block.redstone.trapdoor"),
+                    new ConfigLoader(name + "_trapdoor",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Model("trapdoor")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_trapdoor")));
+
+            // Planks Pressure Plate
+            Generators.Block.loadBlock(getBlockMap("block.redstone.pressure_plate"),
+                    new ConfigLoader(name + "_pressure_plate",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Model("pressure_plate")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_planks")));
+
+            // Planks Button
+            Generators.Block.loadBlock(getBlockMap("block.redstone.button"),
+                    new ConfigLoader(name + "_button",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Model("button")
+                                    .Tool("axe")
+                                    .Texture("minecraft:block/oak_planks")));
+
+            // Planks Chest
+            Generators.Block.loadBlock(getBlockMap("block.storage.chest"),
+                    new ConfigLoader(name + "_chest",
+                            new ConfigOptions()
+                                    .Material("wood")
+                                    .Sound("wood")
+                                    .Model("chest")
+                                    .Tool("axe")));
         });
 
         config.getStringListValue("stone_suite_list").forEach((String name) -> {
-            blockContent.get("block.generic.block").put(name, blockConfig(name, "block", "stone", "all", "white"));
+            // Stone
+            Generators.Block.loadBlock(getBlockMap("block.generic.block"),
+                    new ConfigLoader(name,
+                            new ConfigOptions()
+                                    .Texture("minecraft:block/stone")));
 
-            blockContent.get("block.generic.slab").put(name + "_slab",
-                    blockConfig(name + "_slab", "slab", "stone", "all", "white"));
-            blockContent.get("block.generic.stairs").put(name + "_stairs",
-                    blockConfig(name + "_stairs", "stairs", "stone", "all", "white"));
-            blockContent.get("block.generic.wall").put(name + "_wall",
-                    blockConfig(name + "_wall", "wall", "stone", "all", "white"));
+            // Cobbled Stone
+            Generators.Block.loadBlock(getBlockMap("block.generic.block"),
+                    new ConfigLoader("cobbled_" + name,
+                            new ConfigOptions()
+                                    .Texture("minecraft:block/cobblestone")));
 
-            blockContent.get("block.redstone.pressure_plate").put(name + "_pressure_plate",
-                    blockConfig(name + "_pressure_plate", "pressure_plate", "stone", "all", "white"));
-            blockContent.get("block.redstone.button").put(name + "_button",
-                    blockConfig(name + "_button", "button", "stone", "all", "white"));
+            // Bricks
+            Generators.Block.loadBlock(getBlockMap("block.generic.block"),
+                    new ConfigLoader(name + "_bricks",
+                            new ConfigOptions()
+                                    .Texture("minecraft:block/stone_bricks")));
+
+            // Polished Stone
+            Generators.Block.loadBlock(getBlockMap("block.generic.block"),
+                    new ConfigLoader("polished_" + name,
+                            new ConfigOptions()
+                                    .Texture("minecraft:block/smooth_stone")));
+
+            // Stone Slab
+            Generators.Block.loadBlock(getBlockMap("block.generic.slab"),
+                    new ConfigLoader(name + "_slab",
+                            new ConfigOptions()
+                                    .Model("slab")
+                                    .Texture("minecraft:block/stone")
+                                    .DoubleSlabTexture("minecraft:block/stone")));
+
+            // Cobbled Stone Slab
+            Generators.Block.loadBlock(getBlockMap("block.generic.slab"),
+                    new ConfigLoader("cobbled_" + name + "_slab",
+                            new ConfigOptions()
+                                    .Model("slab")
+                                    .Texture("minecraft:block/cobblestone")
+                                    .DoubleSlabTexture("minecraft:block/cobblestone")));
+
+            // Polished Stone Slab
+            Generators.Block.loadBlock(getBlockMap("block.generic.slab"),
+                    new ConfigLoader("polished_" + name + "_slab",
+                            new ConfigOptions()
+                                    .Model("slab")
+                                    .Texture("minecraft:block/smooth_stone")
+                                    .DoubleSlabTexture("minecraft:block/smooth_stone_slab_side")));
+
+            // Stone Stairs
+            Generators.Block.loadBlock(getBlockMap("block.generic.stairs"),
+                    new ConfigLoader(name + "_stairs",
+                            new ConfigOptions()
+                                    .Model("stairs")
+                                    .Texture("minecraft:block/stone")));
+
+            // Cobbled Stone Stairs
+            Generators.Block.loadBlock(getBlockMap("block.generic.stairs"),
+                    new ConfigLoader("cobbled_" + name + "_stairs",
+                            new ConfigOptions()
+                                    .Model("stairs")
+                                    .Texture("minecraft:block/cobblestone")));
+
+            // Polished Stone Stairs
+            Generators.Block.loadBlock(getBlockMap("block.generic.stairs"),
+                    new ConfigLoader("polished_" + name + "_stairs",
+                            new ConfigOptions()
+                                    .Model("stairs")
+                                    .Texture("minecraft:block/smooth_stone")));
+
+            // Stone Wall
+            Generators.Block.loadBlock(getBlockMap("block.generic.wall"),
+                    new ConfigLoader(name + "_wall",
+                            new ConfigOptions()
+                                    .Model("wall")
+                                    .Texture("minecraft:block/stone")));
+
+            // Cobbled Stone Wall
+            Generators.Block.loadBlock(getBlockMap("block.generic.wall"),
+                    new ConfigLoader("cobbled_" + name + "_wall",
+                            new ConfigOptions()
+                                    .Model("wall")
+                                    .Texture("minecraft:block/cobblestone")));
+
+            // Polished Stone Wall
+            Generators.Block.loadBlock(getBlockMap("block.generic.wall"),
+                    new ConfigLoader("polished_" + name + "_wall",
+                            new ConfigOptions()
+                                    .Model("wall")
+                                    .Texture("minecraft:block/smooth_stone")));
+
+            // Stone Pressure Plate
+            Generators.Block.loadBlock(getBlockMap("block.redstone.pressure_plate"),
+                    new ConfigLoader(name + "_pressure_plate",
+                            new ConfigOptions()
+                                    .Model("pressure_plate")
+                                    .Texture("minecraft:block/stone")));
+
+            // Cobbled Stone Pressure Plate
+            Generators.Block.loadBlock(getBlockMap("block.redstone.pressure_plate"),
+                    new ConfigLoader(name + "_pressure_plate",
+                            new ConfigOptions()
+                                    .Model("pressure_plate")
+                                    .Texture("minecraft:block/cobblestone")));
+
+            // Polished Stone Pressure Plate
+            Generators.Block.loadBlock(getBlockMap("block.redstone.pressure_plate"),
+                    new ConfigLoader(name + "_pressure_plate",
+                            new ConfigOptions()
+                                    .Model("pressure_plate")
+                                    .Texture("minecraft:block/smooth_stone")));
+
+            // Stone Button
+            Generators.Block.loadBlock(getBlockMap("block.redstone.button"),
+                    new ConfigLoader(name + "_button",
+                            new ConfigOptions()
+                                    .Model("button")
+                                    .Texture("minecraft:block/stone")));
+
+            // Cobbled Stone Button
+            Generators.Block.loadBlock(getBlockMap("block.redstone.button"),
+                    new ConfigLoader("cobbled_" + name + "_button",
+                            new ConfigOptions()
+                                    .Model("button")
+                                    .Texture("minecraft:block/stone")));
+
+            // Polished Stone Button
+            Generators.Block.loadBlock(getBlockMap("block.redstone.button"),
+                    new ConfigLoader("polished_" + name + "_button",
+                            new ConfigOptions()
+                                    .Model("button")
+                                    .Texture("minecraft:block/stone")));
         });
+    }
+
+    // Resources
+
+    private void generatePlantBlockMaps(ConfigGroup config) {
+        // Block.loadBlocks(getBlockMap("decoration.plant.generic"),
+        // convertToLoaderList(config.getStringListValue("plant_list")));
+    }
+
+    private void generatePlantResourceBlockMaps(ConfigGroup config) {
+        Generators.Resource.Plant.loadCrops(getBlockMap("resource.plant.crop"), convertToLoaderList(config.getStringListValue("crop_list")));
+    }
+
+    private void generateOreBlockMaps(ConfigGroup config) {
+        Generators.Resource.Ore.loadGems(getBlockMap("resource.ore.gem"), convertToLoaderList(config.getStringListValue("gem_list")));
+        Generators.Resource.Ore.loadMetals(getBlockMap("resource.ore.gem"), convertToLoaderList(config.getStringListValue("metal_list")));
     }
 
     private void buildBlockConfigs(ConfigGroup config) {
-        buildGenericBlockConfigs(config.getSubgroup("Generic"));
-        buildRedstoneBlockConfigs(config.getSubgroup("Redstone"));
-        buildInteractiveBlockConfigs(config.getSubgroup("Interactive"));
-        buildSuiteBlockConfigs(config.getSubgroup("Suite"));
-
-        Main.LOG.debug("Finished block config builds with: " + blockContent.get("block.generic.block").size());
-
-        Main.LOG.debug("Finished slab config builds with: " + blockContent.get("block.generic.slab").size());
-
-        Main.LOG.debug("Finished stairs config builds with: " + blockContent.get("block.generic.stairs").size());
-
-        Main.LOG.debug("Finished wall config builds with: " + blockContent.get("block.generic.wall").size());
-
-        Main.LOG.debug("Finished fence config builds with: " + blockContent.get("block.generic.fence").size());
-
-        Main.LOG.debug(
-                "Finished fence gate config builds with: " + blockContent.get("block.redstone.fence_gate").size());
-
-        Main.LOG.debug("Finished door config builds with: " + blockContent.get("block.redstone.door").size());
-
-        Main.LOG.debug("Finished trapdoor config builds with: " + blockContent.get("block.redstone.trapdoor").size());
-
-        Main.LOG.debug("Finished pressure plate config builds with: "
-                + blockContent.get("block.redstone.pressure_plate").size());
-
-        Main.LOG.debug("Finished button config builds with: " + blockContent.get("block.redstone.button").size());
-
-        Main.LOG.debug(
-                "Finished barrel config builds with: " + blockContent.get("block.interactive.storage.barrel").size());
-
-        Main.LOG.debug(
-                "Finished shulker config builds with: " + blockContent.get("block.interactive.storage.shulker").size());
+        generateGenericBlockMaps(config.getSubgroup("Generic"));
+        generateRedstoneBlockMaps(config.getSubgroup("Redstone"));
+        generateStorageBlockMaps(config.getSubgroup("Storage"));
+        loadSuitesToBlockMaps(config.getSubgroup("Suite"));
     }
 
     private void buildResourceConfigs(ConfigGroup config) {
-        buildMetalConfigs(config.getSubgroup("Ores").getStringListValue("metal_list"));
-        buildGemConfigs(config.getSubgroup("Ores").getStringListValue("gem_list"));
-        buildCropConfigs(config.getSubgroup("Plants").getStringListValue("crop_list"));
-    }
-
-    private void buildPickaxeConfigs(ConfigGroup config) {
-        HashMap<String, Config> map = new HashMap<String, Config>();
-
-        config.getStringListValue("pickaxe_list").forEach((String pickaxe) -> {
-            try {
-                map.put(pickaxe,
-                        PickaxeConfig.create(pickaxe, new Config("conloot/items/tools/pickaxes", pickaxe),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_pickaxe,
-                                DefaultConfigValues.Overlays.tool_pickaxe).Build());
-            } catch (Exception err) {
-                Main.LOG.error("Failed to create config for pickaxe: " + pickaxe);
-                err.printStackTrace();
-            }
-        });
-
-        itemContent.put("tool.pickaxe", map);
+        generatePlantBlockMaps(config);
+        generatePlantResourceBlockMaps(config);
+        generateOreBlockMaps(config);
     }
 
     private void buildAxeConfigs(ConfigGroup config) {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
         config.getStringListValue("axe_list").forEach((String axe) -> {
+            ConfigOptions options = new ConfigOptions()
+                    .Texture("minecraft:item/iron_axe");
+
             try {
                 map.put(axe,
-                        AxeConfig.create(axe, new Config("conloot/items/tools/axes", axe),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_axe,
-                                DefaultConfigValues.Overlays.tool_axe).Build());
-            } catch (Exception err) {
+                        AxeConfig.create(axe, new Config("conloot/items/tools/axes", axe), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for axe: " + axe);
                 err.printStackTrace();
             }
@@ -269,12 +419,14 @@ public class ModConfigs {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
         config.getStringListValue("shovel_list").forEach((String shovel) -> {
+            ConfigOptions options = new ConfigOptions()
+                    .Texture("minecraft:item/iron_shovel");
+
             try {
                 map.put(shovel,
-                        ShovelConfig.create(shovel, new Config("conloot/items/tools/shovels", shovel),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_shovel,
-                                DefaultConfigValues.Overlays.tool_shovel).Build());
-            } catch (Exception err) {
+                        ShovelConfig.create(shovel, new Config("conloot/items/tools/shovels", shovel), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for shovel: " + shovel);
                 err.printStackTrace();
             }
@@ -287,12 +439,14 @@ public class ModConfigs {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
         config.getStringListValue("hoe_list").forEach((String hoe) -> {
+            ConfigOptions options = new ConfigOptions()
+                    .Texture("minecraft:item/iron_hoe");
+
             try {
                 map.put(hoe,
-                        HoeConfig.create(hoe, new Config("conloot/items/tools/hoes", hoe),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_hoe,
-                                DefaultConfigValues.Overlays.tool_hoe).Build());
-            } catch (Exception err) {
+                        HoeConfig.create(hoe, new Config("conloot/items/tools/hoes", hoe), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for hoe: " + hoe);
                 err.printStackTrace();
             }
@@ -305,12 +459,14 @@ public class ModConfigs {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
         config.getStringListValue("flint_and_steel_list").forEach((String fas) -> {
+            ConfigOptions options = new ConfigOptions()
+                    .Texture("minecraft:item/flint_and_steel");
+
             try {
                 map.put(fas,
-                        FlintAndSteelConfig.create(fas, new Config("conloot/items/tools/flint_and_steels", fas),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_flint_and_steel,
-                                DefaultConfigValues.Overlays.tool_flint_and_steel).Build());
-            } catch (Exception err) {
+                        FlintAndSteelConfig.create(fas, new Config("conloot/items/tools/flint_and_steels", fas), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for flint and steel: " + fas);
                 err.printStackTrace();
             }
@@ -323,12 +479,14 @@ public class ModConfigs {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
         config.getStringListValue("fishing_rod_list").forEach((String rod) -> {
+            ConfigOptions options = new ConfigOptions()
+                    .Texture("minecraft:item/fishing_rod");
+
             try {
                 map.put(rod,
-                        FishingRodConfig.create(rod, new Config("conloot/items/tools/fishing_rods", rod),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_fishing_rod,
-                                DefaultConfigValues.Overlays.tool_fishing_rod).Build());
-            } catch (Exception err) {
+                        FishingRodConfig.create(rod, new Config("conloot/items/tools/fishing_rods", rod), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for fishing rod: " + rod);
                 err.printStackTrace();
             }
@@ -337,16 +495,38 @@ public class ModConfigs {
         itemContent.put("tool.fishing_rod", map);
     }
 
+    private void buildBucketConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("bucket_list").forEach((String bucket) -> {
+            ConfigOptions options = new ConfigOptions()
+                    .Texture("minecraft:item/bucket");
+
+            try {
+                map.put(bucket,
+                        ShearsConfig.create(bucket, new Config("conloot/items/tools/buckets", bucket), options).Build());
+            }
+            catch (Exception err) {
+                Main.LOG.error("Failed to create config for buckets: " + bucket);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("tool.bucket", map);
+    }
+
     private void buildShearsConfigs(ConfigGroup config) {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
         config.getStringListValue("shears_list").forEach((String shears) -> {
+            ConfigOptions options = new ConfigOptions()
+                    .Texture("minecraft:item/shears");
+
             try {
                 map.put(shears,
-                        ShearsConfig.create(shears, new Config("conloot/items/tools/shears", shears),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.tool_shears,
-                                DefaultConfigValues.Overlays.tool_shears).Build());
-            } catch (Exception err) {
+                        ShearsConfig.create(shears, new Config("conloot/items/tools/shears", shears), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for shears: " + shears);
                 err.printStackTrace();
             }
@@ -363,6 +543,7 @@ public class ModConfigs {
 
         buildFlintAndSteelConfigs(config);
         buildFishingRodConfigs(config);
+        buildBucketConfigs(config);
         buildShearsConfigs(config);
     }
 
@@ -370,12 +551,14 @@ public class ModConfigs {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
         config.getStringListValue("sword_list").forEach((String sword) -> {
+            ConfigOptions options = new ConfigOptions()
+                    .Texture("minecraft:item/iron_sword");
+
             try {
                 map.put(sword,
-                        SwordConfig.create(sword, new Config("conloot/items/weapons/swords", sword),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.weapon_sword,
-                                DefaultConfigValues.Overlays.weapon_sword).Build());
-            } catch (Exception err) {
+                        SwordConfig.create(sword, new Config("conloot/items/weapons/swords", sword), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for sword: " + sword);
                 err.printStackTrace();
             }
@@ -392,7 +575,8 @@ public class ModConfigs {
                 map.put(shield,
                         ShieldConfig.create(shield, new Config("conloot/items/weapons/shields", shield)).Build()); // Needs
                                                                                                                    // defaults
-            } catch (Exception err) {
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for shield: " + shield);
                 err.printStackTrace();
             }
@@ -406,9 +590,10 @@ public class ModConfigs {
 
         config.getStringListValue("bow_list").forEach((String bow) -> {
             try {
-                map.put(bow, BowConfig.create(bow, new Config("conloot/items/weapons/bows", bow)).Build()); // Needs
-                                                                                                            // defaults
-            } catch (Exception err) {
+                map.put(bow, BowConfig.create(bow, new Config("conloot/items/weapons/bows", bow), new ConfigOptions()).Build()); // Needs
+                // defaults
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for bow: " + bow);
                 err.printStackTrace();
             }
@@ -423,9 +608,10 @@ public class ModConfigs {
         config.getStringListValue("crossbow_list").forEach((String crossbow) -> {
             try {
                 map.put(crossbow, CrossbowConfig
-                        .create(crossbow, new Config("conloot/items/weapons/crossbows", crossbow)).Build()); // Needs
-                                                                                                             // defaults
-            } catch (Exception err) {
+                        .create(crossbow, new Config("conloot/items/weapons/crossbows", crossbow), new ConfigOptions()).Build()); // Needs
+                // defaults
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for crossbow: " + crossbow);
                 err.printStackTrace();
             }
@@ -439,9 +625,14 @@ public class ModConfigs {
 
         config.getStringListValue("arrow_list").forEach((String arrow) -> {
             try {
-                map.put(arrow, ArrowConfig.create(arrow, new Config("conloot/items/weapons/arrows", arrow)).Build()); // Needs
-                                                                                                                      // defaults
-            } catch (Exception err) {
+                map
+                        .put(arrow, ArrowConfig.create(arrow, new Config("conloot/items/weapons/arrows", arrow),
+                                new ConfigOptions()
+                                        .Texture(
+                                                "minecraft:item/arrow"))
+                                .Build()); // Needs defaults
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for arrow: " + arrow);
                 err.printStackTrace();
             }
@@ -458,16 +649,18 @@ public class ModConfigs {
         buildArrowConfigs(config);
     }
 
-    private void buildWearableHeadConfigs(ConfigGroup config) {
+    private void buildWearableHeadConfigs(List<String> list) {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
-        config.getStringListValue("head_list").forEach((String piece) -> {
+        list.forEach((String piece) -> {
+            ConfigOptions options = new ConfigOptions()
+                    .Texture("minecraft:item/iron_helmet");
+
             try {
                 map.put(piece,
-                        HeadConfig.create(piece, new Config("conloot/items/wearable/head", piece),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_head_item,
-                                DefaultConfigValues.Overlays.wearable_head_item).Build());
-            } catch (Exception err) {
+                        HeadConfig.create(piece, new Config("conloot/items/wearable/head", piece), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for wearable head piece: " + piece);
                 err.printStackTrace();
             }
@@ -476,16 +669,18 @@ public class ModConfigs {
         itemContent.put("wearable.head", map);
     }
 
-    private void buildWearableChestConfigs(ConfigGroup config) {
+    private void buildWearableChestConfigs(List<String> list) {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
-        config.getStringListValue("chest_list").forEach((String piece) -> {
+        list.forEach((String piece) -> {
             try {
+                ConfigOptions options = new ConfigOptions()
+                        .Texture("minecraft:item/iron_chestplate");
+
                 map.put(piece,
-                        ChestConfig.create(piece, new Config("conloot/items/wearable/chest", piece),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_chest_item,
-                                DefaultConfigValues.Overlays.wearable_chest_item).Build());
-            } catch (Exception err) {
+                        ChestConfig.create(piece, new Config("conloot/items/wearable/chest", piece), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for wearable chest piece: " + piece);
                 err.printStackTrace();
             }
@@ -494,16 +689,18 @@ public class ModConfigs {
         itemContent.put("wearable.chest", map);
     }
 
-    private void buildWearableLegsConfigs(ConfigGroup config) {
+    private void buildWearableLegsConfigs(List<String> list) {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
-        config.getStringListValue("legs_list").forEach((String piece) -> {
+        list.forEach((String piece) -> {
             try {
+                ConfigOptions options = new ConfigOptions()
+                        .Texture("minecraft:item/iron_leggings");
+
                 map.put(piece,
-                        LegsConfig.create(piece, new Config("conloot/items/wearable/legs", piece),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_legs_item,
-                                DefaultConfigValues.Overlays.wearable_legs_item).Build());
-            } catch (Exception err) {
+                        LegsConfig.create(piece, new Config("conloot/items/wearable/legs", piece), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for wearable legs piece: " + piece);
                 err.printStackTrace();
             }
@@ -512,16 +709,18 @@ public class ModConfigs {
         itemContent.put("wearable.legs", map);
     }
 
-    private void buildWearableFeetConfigs(ConfigGroup config) {
+    private void buildWearableFeetConfigs(List<String> list) {
         HashMap<String, Config> map = new HashMap<String, Config>();
 
-        config.getStringListValue("feet_list").forEach((String piece) -> {
+        list.forEach((String piece) -> {
+            ConfigOptions options = new ConfigOptions()
+                    .Texture("minecraft:item/iron_boots");
+
             try {
                 map.put(piece,
-                        FeetConfig.create(piece, new Config("conloot/items/wearable/feet", piece),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_feet_item,
-                                DefaultConfigValues.Overlays.wearable_feet_item).Build());
-            } catch (Exception err) {
+                        FeetConfig.create(piece, new Config("conloot/items/wearable/feet", piece), options).Build());
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for wearable feet piece: " + piece);
                 err.printStackTrace();
             }
@@ -530,46 +729,57 @@ public class ModConfigs {
         itemContent.put("wearable.feet", map);
     }
 
-    private void buildWearableSetConfigs(ConfigGroup config) {
-        config.getStringListValue("wearable_set_list").forEach((String piece) -> {
+    private void buildWearableConfigs(ConfigGroup config) {
+        List<String> head = config.getStringListValue("head_list");
+        List<String> chest = config.getStringListValue("chest_list");
+        List<String> legs = config.getStringListValue("legs_list");
+        List<String> feet = config.getStringListValue("feet_list");
+
+        config.getStringListValue("wearable_set_list").forEach((String s) -> {
+            head.add(s + "_helmet");
+            chest.add(s + "_chestplate");
+            legs.add(s + "_leggings");
+            feet.add(s + "_boots");
+        });
+
+        buildWearableHeadConfigs(head);
+        buildWearableChestConfigs(chest);
+        buildWearableLegsConfigs(legs);
+        buildWearableFeetConfigs(feet);
+    }
+
+    private void buildConsumableConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
+
+        config.getStringListValue("food_list").forEach((String food) -> {
             try {
-                itemContent.get("wearable.head").put(piece + "_helmet",
-                        HeadConfig.create(piece + "_helmet",
-                                new Config("conloot/items/wearable/head", piece + "_helmet"),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_head_item,
-                                DefaultConfigValues.Overlays.wearable_head_item).Build());
-
-                itemContent.get("wearable.chest").put(piece + "_chestplate",
-                        ChestConfig.create(piece + "_chestplate",
-                                new Config("conloot/items/wearable/chest", piece + "_chestplate"),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_chest_item,
-                                DefaultConfigValues.Overlays.wearable_chest_item).Build());
-
-                itemContent.get("wearable.legs").put(piece + "_leggings",
-                        LegsConfig.create(piece + "_leggings",
-                                new Config("conloot/items/wearable/legs", piece + "_leggings"),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_legs_item,
-                                DefaultConfigValues.Overlays.wearable_legs_item).Build());
-
-                itemContent.get("wearable.feet").put(piece + "_boots",
-                        FeetConfig.create(piece + "_boots", new Config("conloot/items/wearable/feet", piece + "_boots"),
-                                DefaultConfigValues.defaultColorList, DefaultConfigValues.Textures.wearable_feet_item,
-                                DefaultConfigValues.Overlays.wearable_feet_item).Build());
-
-            } catch (Exception err) {
-                Main.LOG.error("Failed to create config for wearable set piece: " + piece);
+                map.put(food, FoodConfig.create(food, new Config("conloot/items/consumable/food", food), new ConfigOptions()).Build()); // Needs
+                // defaults
+            }
+            catch (Exception err) {
+                Main.LOG.error("Failed to create config for food: " + food);
                 err.printStackTrace();
             }
         });
+
+        itemContent.put("consumable.food", map);
     }
 
-    private void buildWearableConfigs(ConfigGroup config) {
-        buildWearableHeadConfigs(config);
-        buildWearableChestConfigs(config);
-        buildWearableLegsConfigs(config);
-        buildWearableFeetConfigs(config);
+    private void buildGenericItemConfigs(ConfigGroup config) {
+        HashMap<String, Config> map = new HashMap<String, Config>();
 
-        buildWearableSetConfigs(config);
+        config.getStringListValue("generic_list").forEach((String item) -> {
+            try {
+                map.put(item, FoodConfig.create(item, new Config("conloot/items/generic/all", item), new ConfigOptions()).Build()); // Needs
+                // defaults
+            }
+            catch (Exception err) {
+                Main.LOG.error("Failed to create config for item: " + item);
+                err.printStackTrace();
+            }
+        });
+
+        itemContent.put("generic.all", map);
     }
 
     private void buildBiomeConfigs(ConfigGroup config) {
@@ -580,7 +790,8 @@ public class ModConfigs {
                 Config cfg = new Config("conloot/worldgen/biomes", biome);
                 BiomeConfig.create(biome, cfg);
                 map.put(biome, cfg.Build());
-            } catch (Exception err) {
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for biome: " + biome);
                 err.printStackTrace();
             }
@@ -605,7 +816,8 @@ public class ModConfigs {
                 Config cfg = new Config("conloot/ui/itemGroups", tab);
                 ItemGroupConfig.create(tab, cfg);
                 map.put(tab, cfg.Build());
-            } catch (Exception err) {
+            }
+            catch (Exception err) {
                 Main.LOG.error("Failed to create config for itemGroup: " + tab);
                 err.printStackTrace();
             }
@@ -714,6 +926,19 @@ public class ModConfigs {
 
         config.addSubgroup("Wearable", wearable);
 
+        ConfigGroup consumable = new ConfigGroup();
+
+        consumable.addStringList("food_list", new ArrayList<String>(),
+                "A list of food items.");
+
+        config.addSubgroup("Consumable", consumable);
+
+        ConfigGroup generic = new ConfigGroup();
+
+        generic.addStringList("generic_list", new ArrayList<String>(), "A list of generic items with no particular use (like sticks).");
+
+        config.addSubgroup("Generic", generic);
+
         config.Build();
 
         configs.put(Main.MOD_ID + "_items", config);
@@ -726,6 +951,12 @@ public class ModConfigs {
 
         Main.LOG.debug("Building wearable configs...");
         buildWearableConfigs(wearable);
+
+        Main.LOG.debug("Building consumable configs...");
+        buildConsumableConfigs(consumable);
+
+        Main.LOG.debug("Building generic item configs...");
+        buildGenericItemConfigs(generic);
     }
 
     private void composeWorldGenConfigs(Config config) {

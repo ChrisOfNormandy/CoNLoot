@@ -108,7 +108,7 @@ The following placeholders are available for registering content names in a spec
 
 - `{dyed}` : registers an item with the name of each available color (16 in total). The portion defined by this tag is replaced with the color, so "{dyed}wood" would become "redwood," "yellowwood", "bluewood," etc.
 
-- `@` : when supplying names for textures, you can supply this character to insert the mod name. For example, "@:stone" would become "conloot:stone." This is useful for reusing existing textures.
+- `@` : when supplying names for textures, you can supply this character to insert the mod name. For example, "@:block/stone" would become "conloot:block/stone." This is useful for reusing existing textures.
 
 - `%` : when supplying names for textures, you can supply this character to insert the name of the item. For example, "@_log" for an item "redwood" would become "redwood_log." This is useful for reusing existing textures (such as a log block and a wood block, both using a shared 'bark' texture).
 
@@ -116,7 +116,7 @@ The following placeholders are available for registering content names in a spec
 
 - `>` : when supplying names for textures, you can supply this character to state the string preceding the char should be aliased as the string proceding. For example, "tex1>tex2" would pull a texture named "tex1" and create a copy named "tex2." This can be used with other chars to create a "relative" texture with a unique name.
 
-All textures can be supplied as full "paths" such as "minecraft:stone" or "mod:block." Without the mod ID, the mod will generate a new texture with the given name. As such, "stone" would become "conloot:stone," but "minecraft:stone" will use the vanilla stone texture.
+All textures can be supplied as full "paths" such as "minecraft:block/stone" or "mod:block/block." Without the mod ID, the mod will generate a new texture with the given name. As such, "stone" would become "conloot:block/stone," but "minecraft:block/stone" will use the vanilla stone texture.
 
 You can also provide multiple textures separated with a semicolon (;).
 
